@@ -11,7 +11,7 @@ set(source_location ${CMAKE_CURRENT_LIST_DIR}/src)
 include_directories(${CMAKE_CURRENT_LIST_DIR}/lib)
 
 
-add_executable(${PROJECT_NAME} main.c)
+add_executable(${PROJECT_NAME} main.cpp)
 # add_library(stepper      ${source_location}/stepper.c)
 
 pico_generate_pio_header(stepper ${CMAKE_CURRENT_LIST_DIR}/stepper.pio)
