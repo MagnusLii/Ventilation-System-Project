@@ -1,5 +1,6 @@
 
 #include "pico/stdlib.h"
+#include "pin.h"
 
 
 GpioPin::GpioPin(int pinNumber, bool isOutput, bool pullUp) {
