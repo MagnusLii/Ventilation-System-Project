@@ -3,9 +3,11 @@
 #include <string>
 #include <algorithm>
 
-int main() {
+#include "pico/stdlib.h"
 
-    
+int main() {
+    stdio_init_all();
+    std::cout << "hello world" << std::endl;
 
     return 0;
 }

@@ -1,0 +1,14 @@
+{
+    "cmake.configureOnOpen": true,
+    "cmake.configureArgs": [
+        "-DPICO_BOARD=pico_w"
+    ],
+    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+    "C_Cpp.errorSquiggles": "disabled",
+    "cortex-debug.variableUseNaturalFormat": true,
+    "files.associations": {
+        "compare": "c",
+        "limits": "c",
+        "new": "c"
+    }
+}
