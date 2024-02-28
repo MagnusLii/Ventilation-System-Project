@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.22.0)
 
 include($ENV{PICO_SDK_PATH}/external/pico_sdk_import.cmake)
 
+set(PICO_BOARD pico_w)
+
 project(ventrilation VERSION 0.1.0 LANGUAGES C CXX ASM)
 
 pico_sdk_init()
@@ -14,11 +16,12 @@ add_compile_options(-Wall)
 
 add_executable(${PROJECT_NAME} main.cpp)
 add_library(pin src/pin.cpp)
+add_library(IPStack src/IPStack.cpp)
 
 
 pico_add_extra_outputs(${PROJECT_NAME})
 
-target_link_libraries(${PROJECT_NAME} pico_stdlib pin)
+target_link_libraries(${PROJECT_NAME} pico_stdlib pin pico_cyw43_arch_lwip_poll IPStack)
 target_link_libraries(pin         pico_stdlib)
 
 pico_enable_stdio_usb(${PROJECT_NAME} 0)
