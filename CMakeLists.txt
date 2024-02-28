@@ -8,7 +8,7 @@ pico_sdk_init()
 
 set(source_location ${CMAKE_CURRENT_LIST_DIR}/src)
 
-include_directories(${CMAKE_CURRENT_LIST_DIR}/lib)
+include_directories(${CMAKE_CURRENT_LIST_DIR}/src)
 
 add_compile_options(-Wall)
 

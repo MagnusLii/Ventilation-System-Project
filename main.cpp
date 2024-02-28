@@ -5,9 +5,14 @@
 
 #include "pico/stdlib.h"
 
+#define DEBUG_ENABLE
+#include "debugprint.h"
+
+
 int main() {
     stdio_init_all();
-    std::cout << "hello world" << std::endl;
+    int a = 42;
+    DPRINT("AA", "bbb", a);
 
     return 0;
 }
