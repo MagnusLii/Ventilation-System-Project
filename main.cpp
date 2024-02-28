@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#include "logHandlingWrapper.h"
 
 #include "pico/stdlib.h"
 
@@ -13,6 +14,8 @@ int main() {
     stdio_init_all();
     int a = 42;
     DPRINT("AA", "bbb", a);
+
+    LogHandlingWrapper::calculateCRC16("123456789", 9);
 
     return 0;
 }
