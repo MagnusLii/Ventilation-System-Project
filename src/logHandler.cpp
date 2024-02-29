@@ -30,30 +30,35 @@ class LogHandler {
             std::cout << "Reboot Status Address: " << rebootStatusAddress << std::endl;
         }
 
-        uint16_t crc16(const uint8_t *data, size_t length) {
-            uint8_t x;
-            uint16_t crc = 0xFFFF;
-
-            while (length--) {
-                x = crc >> 8 ^ *data++;
-                x ^= x >> 4;
-                crc = (crc << 8) ^ (static_cast<uint16_t>(x << 12)) ^ (static_cast<uint16_t>(x << 5)) ^ static_cast<uint16_t>(x);
-            }
-
-            return crc;
-        }
-
-        int appendCrcToBase8Array(uint8_t *base8Array, int base8ArrayLen) {
-            uint16_t crc = crc16(base8Array, base8ArrayLen - CRC_LEN);
-            base8Array[base8ArrayLen - 2] = crc & 0xFF;
-            base8Array[base8ArrayLen - 1] = (crc >> 8) & 0xFF;
-            return base8ArrayLen + CRC_LEN;
-        }
-
-        
-
-
     private:
         int logAddress;
         int rebootStatusAddress;
 };
+
+
+uint16_t crc16(const uint8_t *data, size_t length) {
+    uint8_t x;
+    uint16_t crc = 0xFFFF;
+
+    while (length--) {
+        x = crc >> 8 ^ *data++;
+        x ^= x >> 4;
+        crc = (crc << 8) ^ (static_cast<uint16_t>(x << 12)) ^ (static_cast<uint16_t>(x << 5)) ^ static_cast<uint16_t>(x);
+    }
+
+    return crc;
+}
+
+int appendCrcToBase8Array(uint8_t *base8Array, int base8ArrayLen) {
+    uint16_t crc = crc16(base8Array, base8ArrayLen - CRC_LEN);
+    base8Array[base8ArrayLen - 2] = crc & 0xFF;
+    base8Array[base8ArrayLen - 1] = (crc >> 8) & 0xFF;
+    return base8ArrayLen + CRC_LEN;
+}
+
+int getChecksum(uint8_t *base8Array, int base8ArrayLen) {
+    uint16_t crc = crc16(base8Array, base8ArrayLen - CRC_LEN);
+    return crc;
+}
+
+// Will remain as is for now, will finish later once other parts are done.
