@@ -3,6 +3,7 @@
 #include <string>
 #include <algorithm>
 #include "eeprom.h"
+#include "logHandling.h"
 
 #define CRC_LEN 2
 #define LOG_LEN 6                     // Does not include CRC
@@ -18,23 +19,15 @@
 #define LOG_SIZE 8
 #define MAX_LOGS LOG_END_ADDR / LOG_SIZE
 
-class LogHandler {
-    public:
-        void defineLogHandler(int logAddress, int rebootStatusAddress) {
-            this->logAddress = logAddress;
-            this->rebootStatusAddress = rebootStatusAddress;
-        }
-    
-        void printPrivates() {
-            std::cout << "Log Address: " << logAddress << std::endl;
-            std::cout << "Reboot Status Address: " << rebootStatusAddress << std::endl;
-        }
+LogHandler::LogHandler(int unusedLogIndex, int unusedRebootStatusIndex) {
+    this->unusedLogIndex = unusedLogIndex;
+    this->unusedRebootStatusIndex = unusedRebootStatusIndex;
+}
 
-    private:
-        int logAddress;
-        int rebootStatusAddress;
-};
-
+LogHandler::printPrivates() {
+    std::cout << "Log Address: " << unusedLogIndex << std::endl;
+    std::cout << "Reboot Status Address: " << unusedRebootStatusIndex << std::endl;
+}
 
 uint16_t crc16(const uint8_t *data, size_t length) {
     uint8_t x;
@@ -57,8 +50,106 @@ int appendCrcToBase8Array(uint8_t *base8Array, int base8ArrayLen) {
 }
 
 int getChecksum(uint8_t *base8Array, int base8ArrayLen) {
-    uint16_t crc = crc16(base8Array, base8ArrayLen - CRC_LEN);
+    uint16_t crc = crc16(base8Array, base8ArrayLen);
     return crc;
 }
 
-// Will remain as is for now, will finish later once other parts are done.
+bool verifyDataIntegrity(uint8_t *base8Array, int base8ArrayLen) {
+    if (getChecksum(base8Array, base8ArrayLen) == 0) {return true;}
+    return false;
+}
+
+void enterLogToEeprom(uint8_t *base8Array, int *arrayLen, int logAddr) {
+    uint8_t crcAppendedArray[*arrayLen + CRC_LEN];
+    memcpy(crcAppendedArray, base8Array, *arrayLen); // copy original array to extended array
+    appendCrcToBase8Array(crcAppendedArray, arrayLen); 
+    eeprom_write_page(logAddr, crcAppendedArray, *arrayLen);
+}
+
+void zeroAllLogs(){
+    int count = 0;
+    uint16_t logAddr = 0;
+
+    // Iterate through logs and mark them as not in use by setting the first byte to 0
+    while (count < MAX_LOGS)
+    {
+        eeprom_write_byte(logAddr, 0);
+        logAddr += LOG_SIZE;
+        count++;
+    }
+}
+
+int createLogArray(uint8_t *array, int messageCode, uint32_t timestamp){
+    array[LOG_USE_STATUS] = 1;           // Mark log as in use
+    array[MESSAGE_CODE] = messageCode;
+
+    // TODO: redo replace timestamp with realtime date once RTC is implemented.
+    array[TIMESTAMP_LSB] = (uint8_t)(timestamp & 0xFF);         // LSB of timestamp
+    array[TIMESTAMP_MSB2] = (uint8_t)((timestamp >> 8) & 0xFF);
+    array[TIMESTAMP_MSB1] = (uint8_t)((timestamp >> 16) & 0xFF);
+    array[TIMESTAMP_MSB] = (uint8_t)((timestamp >> 24) & 0xFF); // MSB of timestamp
+
+    return LOG_LEN; // Return the length of the filled log array (LOG_LEN)
+}
+
+int findFirstAvailableLog(){
+    int count = 0;
+    uint16_t logAddr = 0;
+
+    // Find the first available log entry
+    while (count < MAX_LOGS){
+        if (eeprom_read_byte(logAddr) == 0){
+            return count; // Return index if an available log entry is found.
+        }
+        logAddr += LOG_SIZE; // Move to the next log entry
+        count++;
+    }
+
+    zeroAllLogs(); // Clear all logs if all entries are full
+    return 0;      // Return 0 after clearing logs
+}
+
+// TODO: Remove once RTC is implemented.
+uint32_t getTimestampSinceBoot(const uint64_t bootTimestamp){
+    return (uint32_t)((time_us_64() - bootTimestamp) / 1000000);
+}
+
+void pushLogToEeprom(LogHandler *logHandlerObject, log_number messageCode, uint32_t bootTimestamp){
+    uint8_t logArray[LOG_LEN]; // Buffer to hold log data
+    int arrayLen = createLogArray(logArray, messageCode, bootTimestamp);
+
+    enterLogToEeprom(logArray, &arrayLen, (logHandlerObject->unusedLogIndex * LOG_SIZE));
+
+    updateUnusedLogIndex(logHandlerObject);
+}
+
+void updateUnusedLogIndex(LogHandler *logHandlerObject){
+    if (logHandlerObject->unusedLogIndex < MAX_LOGS - 1){
+        logHandlerObject->unusedLogIndex++; // Increment the unused log index
+    }
+    else{
+        zeroAllLogs();                        // Reset all logs when the unused log index reaches the maximum limit
+        logHandlerObject->unusedLogIndex = 0; // Reset unused log index to 0
+    }
+}
+
+// TODO: modify once RTC is implemented.
+void printValidLogs(){
+    for (int i = 0; i < MAX_LOGS; i++){
+        uint16_t logAddr = i * LOG_SIZE; // Calculate the EEPROM address for the log entry
+        uint8_t logData[LOG_ARR_LEN];
+
+        eeprom_read_page(logAddr, logData, LOG_ARR_LEN);
+        
+        int tmp_log_array_length = LOG_ARR_LEN;
+        if (logData[LOG_USE_STATUS] == 1 && verifyDataIntegrity(logData, &tmp_log_array_length) == true){                                     
+            // Check if the log entry is valid (non-zero message code)
+            uint8_t messageCode = logData[MESSAGE_CODE]; // Extract the message code
+            uint32_t timestamp = (logData[TIMESTAMP_MSB] << 24) | (logData[TIMESTAMP_MSB1] << 16) | (logData[TIMESTAMP_MSB2] << 8) | logData[TIMESTAMP_LSB];
+            uint16_t timestamp_s = timestamp / 1000;
+            // Construct timestamp from individual bytes
+
+            printf("%d: %s %u seconds after last boot.\n", i, logMessages[messageCode], timestamp_s);
+        }
+    }
+}
