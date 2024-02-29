@@ -14,16 +14,15 @@ add_compile_options(-Wall)
 
 add_executable(${PROJECT_NAME} main.cpp)
 add_library(pin src/pin.cpp)
-add_library(logHandler src/logHandler.cpp)
 add_library(eeprom src/eeprom.c)
-
+add_library(logHandler src/logHandler.cpp)
 
 pico_add_extra_outputs(${PROJECT_NAME})
 
-target_link_libraries(${PROJECT_NAME} pico_stdlib pin)
+target_link_libraries(${PROJECT_NAME} pico_stdlib pin hardware_i2c logHandler eeprom)
 target_link_libraries(pin         pico_stdlib)
-target_link_libraries(logHandler pico_stdlib eeprom)
 target_link_libraries(eeprom      pico_stdlib hardware_i2c)
+target_link_libraries(logHandler  pico_stdlib eeprom)
 
 pico_enable_stdio_usb(${PROJECT_NAME} 0)
 pico_enable_stdio_uart(${PROJECT_NAME} 1)
