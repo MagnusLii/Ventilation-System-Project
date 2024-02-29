@@ -3,17 +3,6 @@
 
 #include <stdint.h>
 
-class LogHandler {
-    public:
-        // TODO: modify to find log entries automatically later.
-        LogHandler(int unusedLogIndex, int unusedRebootStatusIndex){}; 
-        void printPrivates();
-
-    private:
-        int unusedLogIndex;
-        int unusedRebootStatusIndex;
-};
-
 extern const char *logMessages[];
 extern const char *pillDispenserStatus[];
 
@@ -64,6 +53,27 @@ typedef enum {
     TIMESTAMP_MSB2,
     TIMESTAMP_LSB
 } LogArray;
+
+class LogHandler {
+    public:
+        // TODO: modify to find log entries automatically later.
+        LogHandler(int unusedLogIndex, int unusedRebootStatusIndex) {
+            this->unusedLogIndex = unusedLogIndex;
+            this->unusedRebootStatusIndex = unusedRebootStatusIndex;
+        }
+        
+        void printPrivates() {
+            std::cout << "Log Address: " << unusedLogIndex << std::endl;
+            std::cout << "Reboot Status Address: " << unusedRebootStatusIndex << std::endl;
+        }
+
+        static void pushLogToEeprom(LogHandler *logHandlerObject, log_number messageCode, uint32_t bootTimestamp){}
+        static void updateUnusedLogIndex(LogHandler *logHandlerObject){}
+
+    private:
+        int unusedLogIndex;
+        int unusedRebootStatusIndex;
+};
 
 uint16_t crc16(const uint8_t *data, size_t length);
 int appendCrcToBase8Array(uint8_t *base8Array, int base8ArrayLen);

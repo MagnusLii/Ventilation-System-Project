@@ -11,8 +11,7 @@
 
 int main() {
     stdio_init_all();
-    int a = 42;
-    DPRINT("AA", "bbb", a);
+    
 
 
     return 0;
