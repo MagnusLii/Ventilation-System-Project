@@ -33,11 +33,11 @@ uint16_t crc16(const uint8_t *data, size_t length) {
     return crc;
 }
 
-void appendCrcToBase8Array(uint8_t *base8Array, int base8ArrayLen) {
-    uint16_t crc = crc16(base8Array, base8ArrayLen - CRC_LEN);
-    base8Array[base8ArrayLen - 2] = crc & 0xFF;
-    base8Array[base8ArrayLen - 1] = (crc >> 8) & 0xFF;
-    *base8ArrayLen += CRC_LEN;
+void appendCrcToBase8Array(uint8_t *base8Array, int *arrayLen){
+    uint16_t crc = crc16(base8Array, *arrayLen);
+    base8Array[*arrayLen] = crc >> 8;       // MSB
+    base8Array[*arrayLen + 1] = crc & 0xFF; // LSB
+    arrayLen += CRC_LEN; // Update the array length to reflect the addition of the CRC
 }
 
 int getChecksum(uint8_t *base8Array, int base8ArrayLen) {
@@ -53,7 +53,15 @@ bool verifyDataIntegrity(uint8_t *base8Array, int base8ArrayLen) {
 void enterLogToEeprom(uint8_t *base8Array, int *arrayLen, int logAddr) {
     uint8_t crcAppendedArray[*arrayLen + CRC_LEN];
     memcpy(crcAppendedArray, base8Array, *arrayLen); // copy original array to extended array
-    appendCrcToBase8Array(crcAppendedArray, *arrayLen); 
+    for(int i = 0; i < *arrayLen + CRC_LEN; i++){
+        printf("%d ", crcAppendedArray[i]);
+    }
+    std::cout << std::endl;
+    appendCrcToBase8Array(crcAppendedArray, arrayLen); 
+    for(int i = 0; i < *arrayLen + CRC_LEN; i++){
+        printf("%d ", crcAppendedArray[i]);
+    }
+    std::cout << std::endl;
     eeprom_write_page(logAddr, crcAppendedArray, *arrayLen);
 }
 
