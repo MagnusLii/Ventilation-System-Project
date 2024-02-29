@@ -33,11 +33,11 @@ uint16_t crc16(const uint8_t *data, size_t length) {
     return crc;
 }
 
-int appendCrcToBase8Array(uint8_t *base8Array, int base8ArrayLen) {
+void appendCrcToBase8Array(uint8_t *base8Array, int base8ArrayLen) {
     uint16_t crc = crc16(base8Array, base8ArrayLen - CRC_LEN);
     base8Array[base8ArrayLen - 2] = crc & 0xFF;
     base8Array[base8ArrayLen - 1] = (crc >> 8) & 0xFF;
-    return base8ArrayLen + CRC_LEN;
+    *base8ArrayLen += CRC_LEN;
 }
 
 int getChecksum(uint8_t *base8Array, int base8ArrayLen) {

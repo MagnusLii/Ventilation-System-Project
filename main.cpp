@@ -26,14 +26,14 @@ int main() {
     enterLogToEeprom(logArray, &loglength, 0);
 
     uint8_t logArray2[20];
-    eeprom_read_page(0, logArray2, 8);
+    eeprom_read_page(0, logArray2, loglength);
 
     for (int i = 0; i < 8; i++) {
         std::cout << (int)logArray2[i] << " ";
     }
     std::cout << std::endl;
 
-    int crc = getChecksum(logArray2, 6);
+    int crc = getChecksum(logArray2, loglength);
     std::cout << crc << std::endl;
     return 0;
 }
