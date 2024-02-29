@@ -1,6 +1,5 @@
 from flask_mqtt import Mqtt
 import json
-from datetime import datetime
 from ServerImports import logHandler
 
 mqttBrokerPort = 1883 # 1883 is default
@@ -72,7 +71,6 @@ def validateKeywordsInJSON(decodedJSON, keywordList, verifycationLevel):
         raise ValueError("Invalid verification level. Please provide either 1 or 2.")
 
 
-# Publishes 'message' to MQTT 'topic'.
 def publishJSONtoMQTT(topic, message):
     """
     Publishes a JSON message to a specified MQTT topic.
