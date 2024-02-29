@@ -76,7 +76,7 @@ class LogHandler {
 };
 
 uint16_t crc16(const uint8_t *data, size_t length);
-int appendCrcToBase8Array(uint8_t *base8Array, int base8ArrayLen);
+void appendCrcToBase8Array(uint8_t *base8Array, int *arrayLen);
 int getChecksum(uint8_t *base8Array, int base8ArrayLen);
 bool verifyDataIntegrity(uint8_t *base8Array, int base8ArrayLen);
 void enterLogToEeprom(uint8_t *base8Array, int *arrayLen, int logAddr);
