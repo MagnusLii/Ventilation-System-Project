@@ -2,8 +2,7 @@
 #include <vector>
 #include <string>
 #include <algorithm>
-#include "logHandlingWrapper.h"
-
+#include "logHandler.h"
 #include "pico/stdlib.h"
 
 #define DEBUG_ENABLE
