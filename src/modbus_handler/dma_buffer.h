@@ -5,29 +5,34 @@
 #include <memory>
 #include "hardware/uart.h"
 #include "hardware/dma.h"
+#include "hardware/timer.h"
 #include "uart_instance.h"
 #define BUFFER_LENGTH 128
 
 class DMABuffer {
     public:
-        DMABuffer(std::shared_ptr<Uart_instance> uart_pointer);
+        DMABuffer(shared_uart uart_pointer);
         ~DMABuffer();
+        void irq_hand();
     protected:
         int dma_channel;
-        std::shared_ptr<Uart_instance> uart;
+        shared_uart uart;
+        bool ready;
 };
 
 class DMARXBuffer : DMABuffer {
     public:
-        DMARXBuffer(std::shared_ptr<Uart_instance> uart_pointer);
+        DMARXBuffer(shared_uart uart_pointer);
+        void start_listening(uint8_t max_characters);
     private:
-        uint8_t buffer[BUFFER_LENGTH];
+        volatile uint8_t buffer[BUFFER_LENGTH];
 };
 
 class DMATXBuffer : DMABuffer {
     public:
-        DMATXBuffer(std::shared_ptr<Uart_instance> uart_pointer, uint8_t *buffer);
+        DMATXBuffer(shared_uart uart_pointer, uint8_t *buffer);
         void set_tx_buffer(uint8_t *buffer);
+        void set_transfer_in_flight(uint8_t transfer_count);
     private:
         uint8_t *buffer;
 };

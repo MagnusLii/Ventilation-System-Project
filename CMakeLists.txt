@@ -7,23 +7,24 @@ set(CMAKE_CXX_STANDARD 17)
 
 pico_sdk_init()
 
-set(source_location ${CMAKE_CURRENT_LIST_DIR}/src)
+set(modbus_src ${CMAKE_CURRENT_LIST_DIR}/src/modbus_handler)
 
 include_directories(${CMAKE_CURRENT_LIST_DIR}/src)
+include_directories(${CMAKE_CURRENT_LIST_DIR}/src/modbus_handler)
 
 add_compile_options(-Wall)
 
 add_executable(${PROJECT_NAME} main.cpp)
 add_library(pin src/pin.cpp)
-add_library(dma_buffer src/dma_buffer.cpp)
-add_library(modbus src/modbus.cpp)
+add_library(dma_buffer ${modbus_src}/dma_buffer.cpp)
+add_library(modbus ${modbus_src}/modbus.cpp)
 
 
 pico_add_extra_outputs(${PROJECT_NAME})
 
 target_link_libraries(${PROJECT_NAME} pico_stdlib pin modbus)
 target_link_libraries(pin         pico_stdlib)
-target_link_libraries(dma_buffer pico_stdlib hardware_uart hardware_dma)
+target_link_libraries(dma_buffer pico_stdlib hardware_uart hardware_dma hardware_timer)
 target_link_libraries(modbus pico_stdlib hardware_uart hardware_dma)
 
 pico_enable_stdio_usb(${PROJECT_NAME} 0)

@@ -5,14 +5,17 @@
 
 #include "pico/stdlib.h"
 
+#include "uart_instance.h"
+#include "modbus.h"
+
 #define DEBUG_ENABLE
 #include "debugprint.h"
 
 
 int main() {
     stdio_init_all();
-    int a = 42;
-    DPRINT("AA", "bbb", a);
+    shared_uart u = std::make_shared<Uart_instance>(0, 9600, )
+    ReadRegister co2reg()
 
     return 0;
 }

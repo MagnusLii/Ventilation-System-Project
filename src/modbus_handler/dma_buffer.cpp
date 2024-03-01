@@ -3,30 +3,57 @@
 #include <memory>
 #include "hardware/uart.h"
 #include "hardware/dma.h"
+#include "hardware/timer.h"
 #include "uart_instance.h"
 #include "dma_buffer.h"
 
+#define MAX_DMA_CHANNELS 12 // from datasheet
 
-DMABuffer::DMABuffer(std::shared_ptr<Uart_instance> uart_pointer) :
-uart(uart_pointer) {
+static DMABuffer *active_channels[MAX_DMA_CHANNELS] = {nullptr};
+static bool irq0_enabled = false;
+
+void dma_irq_handler(void) {
+    for (int i=0; i<MAX_DMA_CHANNELS; i++) {
+        if (active_channels[i]) {
+            if (dma_channel_get_irq0_status(i)) {
+                dma_channel_acknowledge_irq0(i);
+                active_channels[i]->irq_hand();
+            }
+        }
+    }
+}
+
+DMABuffer::DMABuffer(shared_uart uart_pointer) :
+uart(uart_pointer), ready(false) {
     dma_channel = dma_claim_unused_channel(true);
+    active_channels[dma_channel] = this;
+    if (!irq0_enabled) {
+        irq_set_exclusive_handler(DMA_IRQ_0, dma_irq_handler);
+        irq_set_enabled(DMA_IRQ_0, true);
+        irq0_enabled = true;
+    }
+}
+
+void DMABuffer::irq_hand() {
+    ready = true;
 }
 
 DMABuffer::~DMABuffer() {
     dma_channel_cleanup(dma_channel);
     dma_channel_unclaim(dma_channel);
+    active_channels[dma_channel] = nullptr;
 }
 
-DMARXBuffer::DMARXBuffer(std::shared_ptr<Uart_instance> uart_pointer) :
+
+DMARXBuffer::DMARXBuffer(shared_uart uart_pointer) :
 DMABuffer(uart_pointer) {
-    // dma_sniffer_enable(dma_channel, 0x2, true); // sniff for CRC-16-CCITT
+    
 
     dma_channel_config c = dma_get_channel_config(dma_channel);
     channel_config_set_transfer_data_size(&c, DMA_SIZE_8); // uart deals with 8 bit characters
     channel_config_set_read_increment(&c, false); // read from same fifo so no increment
     channel_config_set_write_increment(&c, true);
     channel_config_set_dreq(&c, (uart->get_index()) ? DREQ_UART1_RX : DREQ_UART0_RX);
-    channel_config_set_sniff_enable(&c, true); // sniff for crc
     dma_channel_configure(
         dma_channel,
         &c,
@@ -35,9 +62,18 @@ DMABuffer(uart_pointer) {
         0,
         false
     );
+    dma_channel_set_irq0_enabled(dma_channel, true);
 }
 
-DMATXBuffer::DMATXBuffer(std::shared_ptr<Uart_instance> uart_pointer, uint8_t *buffer) :
+
+void DMARXBuffer::start_listening(uint8_t max_characters) {
+    ready = false;
+    dma_channel_set_write_addr(dma_channel, &buffer, false);
+    dma_channel_set_trans_count(dma_channel, max_characters, true);
+}
+
+
+DMATXBuffer::DMATXBuffer(shared_uart uart_pointer, uint8_t *buffer) :
 DMABuffer(uart_pointer), buffer(buffer) {
     dma_channel_config c = dma_get_channel_config(dma_channel);
     channel_config_set_transfer_data_size(&c, DMA_SIZE_8); // uart deals with 8 bit characters
@@ -54,7 +90,12 @@ DMABuffer(uart_pointer), buffer(buffer) {
     );
 }
 
-void set_tx_buffer(uint8_t *buffer) {
+void DMATXBuffer::set_tx_buffer(uint8_t *buffer) {
     this->buffer = buffer;
     dma_channel_set_read_addr(dma_channel, buffer, false);
+}
+
+void DMATXBuffer::set_transfer_in_flight(uint8_t transfer_count) {
+    dma_channel_set_read_addr(dma_channel, buffer, false);
+    dma_channel_set_trans_count(dma_channel, transfer_count, true);
 }

@@ -3,6 +3,8 @@
 #include "pico/stdlib.h"
 #include "hardware/uart.h"
 
+#define shared_uart std::shared_ptr<Uart_instance>
+
 class Uart_instance {
     public:
         Uart_instance(uint uart_number, uint baudrate, uint TX_pin, uint RX_pin);
