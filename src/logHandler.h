@@ -47,15 +47,15 @@ class LogHandler {
             bootTimestamp = static_cast<uint32_t>(time_us_64()); // TODO: cast is pointless
         };
         
-        void printPrivates() {};
-        void updateUnusedLogIndex(){};
-        void updateUnusedRebootIndex(){};
-        void pushLog(RebootStatusCodes messageCode){};
+        void printPrivates();
+        void updateUnusedLogIndex();
+        void updateUnusedRebootIndex();
+        void pushLog(RebootStatusCodes messageCode);
         void pushRebootLog(RebootStatusCodes statusCode);
-        void zeroAllLogs(){};
-        void findFirstAvailableLog(const LogType logType){};
-        void enterLogToEeprom(uint8_t *base8Array, int *arrayLen, int logAddr) {};
-        void createLogArray(uint8_t *array, int messageCode, uint32_t timestamp){};
+        void zeroAllLogs();
+        void findFirstAvailableLog(const LogType logType);
+        void enterLogToEeprom(uint8_t *base8Array, int *arrayLen, int logAddr);
+        void createLogArray(uint8_t *array, int messageCode, uint32_t timestamp);
 
     private:
         int unusedLogIndex;
