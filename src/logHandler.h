@@ -49,7 +49,7 @@ class LogHandler {
         
         void printPrivates();
         void incrementUnusedLogIndex();
-        void incrementUnusedRebootStatusIndex();
+        void incrementUnusedRebootIndex();
         void pushLog(LogArray messageCode);
         void pushRebootLog(RebootStatusCodes statusCode);
         void zeroAllLogs(const LogType logType);
