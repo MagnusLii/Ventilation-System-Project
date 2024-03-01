@@ -14,19 +14,19 @@
 
 int main() {
     LogHandler logHandler;
-    
-    loghandler.zeroAllLogs(LOGTYPE_MSG_LOG);
-    loghandler.zeroAllLogs(LOGTYPE_REBOOT_STATUS);
 
-    loghandler.printPrivates();
+    logHandler.zeroAllLogs(LOGTYPE_MSG_LOG);
+    logHandler.zeroAllLogs(LOGTYPE_REBOOT_STATUS);
 
-    loghandler.pushLog(TEST2);
+    logHandler.printPrivates();
 
-    loghandler.printPrivates();
+    logHandler.pushLog(TEST2);
 
-    loghandler.pushRebootLog(OK);
+    logHandler.printPrivates();
 
-    loghandler.printPrivates();
+    logHandler.pushRebootLog(OK);
+
+    logHandler.printPrivates();
 
     printValidLogs();
     return 0;
