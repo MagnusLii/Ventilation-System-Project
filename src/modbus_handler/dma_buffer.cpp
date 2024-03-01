@@ -38,6 +38,10 @@ void DMABuffer::irq_hand() {
     ready = true;
 }
 
+bool DMABuffer::isready() {
+    return ready;
+}
+
 DMABuffer::~DMABuffer() {
     dma_channel_cleanup(dma_channel);
     dma_channel_unclaim(dma_channel);
@@ -47,8 +51,6 @@ DMABuffer::~DMABuffer() {
 
 DMARXBuffer::DMARXBuffer(shared_uart uart_pointer) :
 DMABuffer(uart_pointer) {
-    
-
     dma_channel_config c = dma_get_channel_config(dma_channel);
     channel_config_set_transfer_data_size(&c, DMA_SIZE_8); // uart deals with 8 bit characters
     channel_config_set_read_increment(&c, false); // read from same fifo so no increment

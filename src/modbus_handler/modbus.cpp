@@ -28,7 +28,11 @@ static uint16_t crc(const uint8_t* data, uint32_t length) {
 
 MODBUSRegister::MODBUSRegister(shared_uart uart_pointer) :
 txbuf(uart_pointer, nullptr), rxbuf(uart_pointer) {
-    
+
+}
+
+bool MODBUSRegister::isready() {
+    return rxbuf.isready();
 }
 
 

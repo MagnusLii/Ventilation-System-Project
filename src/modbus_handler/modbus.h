@@ -16,13 +16,14 @@ struct ReadPayload {
 class MODBUSRegister {
     public:
         MODBUSRegister(shared_uart uart_pointer);
+        bool isready();
     protected:
         DMATXBuffer txbuf;
         DMARXBuffer rxbuf;
 };
 
 
-class ReadRegister : MODBUSRegister {
+class ReadRegister : public MODBUSRegister {
     public:
         ReadRegister(shared_uart uart_pointer, uint8_t device_address, uint16_t register_address);
         void start_read(void);

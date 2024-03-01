@@ -14,13 +14,14 @@ class DMABuffer {
         DMABuffer(shared_uart uart_pointer);
         ~DMABuffer();
         void irq_hand();
+        bool isready();
     protected:
         int dma_channel;
         shared_uart uart;
         bool ready;
 };
 
-class DMARXBuffer : DMABuffer {
+class DMARXBuffer : public DMABuffer {
     public:
         DMARXBuffer(shared_uart uart_pointer);
         void start_listening(uint8_t max_characters);
@@ -28,7 +29,7 @@ class DMARXBuffer : DMABuffer {
         volatile uint8_t buffer[BUFFER_LENGTH];
 };
 
-class DMATXBuffer : DMABuffer {
+class DMATXBuffer : public DMABuffer {
     public:
         DMATXBuffer(shared_uart uart_pointer, uint8_t *buffer);
         void set_tx_buffer(uint8_t *buffer);
