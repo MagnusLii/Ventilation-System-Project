@@ -108,7 +108,7 @@ void LogHandler::findFirstAvailableLog(const LogType logType){
             logAddr += LOG_SIZE;
         }
 
-        Loghandler::zeroAllLogs(LOGTYPE_MSG_LOG);
+        LogHandler::zeroAllLogs(LOGTYPE_MSG_LOG);
         this->unusedLogIndex = LOG_START_ADDR;
 
         break;
@@ -121,7 +121,7 @@ void LogHandler::findFirstAvailableLog(const LogType logType){
             logAddr += LOG_SIZE;
         }
 
-        Loghandler::zeroAllLogs(LOGTYPE_REBOOT_STATUS);
+        LogHandler::zeroAllLogs(LOGTYPE_REBOOT_STATUS);
         this->unusedRebootStatusIndex = REBOOT_STATUS_START_ADDR;
 
         break;
