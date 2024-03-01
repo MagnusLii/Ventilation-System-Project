@@ -2,6 +2,7 @@
 #define logHandler_h
 
 #include <stdint.h>
+#include "hardware/timer.h"
 
 extern const char *logMessages[];
 extern const char *rebootStatusMessages[];
@@ -44,7 +45,7 @@ class LogHandler {
             // TODO: Calling member functions in constructor like this is kinda sketchy, rework maybe.
             LogHandler::findFirstAvailableLog(LOGTYPE_MSG_LOG);
             LogHandler::findFirstAvailableLog(LOGTYPE_REBOOT_STATUS);
-            bootTimestamp = static_cast<uint32_t>(time_us_64()); // TODO: cast is pointless
+            bootTimestamp = static_cast<uint32_t>(get_absolute_time()); // TODO: cast is pointless
         };
         
         void printPrivates();
