@@ -2,7 +2,7 @@
 #define logHandler_h
 
 #include <stdint.h>
-#include "hardware/timer.h"
+#include "pico/time.h"
 
 extern const char *logMessages[];
 extern const char *rebootStatusMessages[];
