@@ -15,6 +15,7 @@ add_compile_options(-Wall)
 
 add_executable(${PROJECT_NAME} main.cpp)
 add_library(pin src/pin.cpp)
+add_library(dma_buffer src/dma_buffer.cpp)
 add_library(modbus src/modbus.cpp)
 
 
@@ -22,6 +23,7 @@ pico_add_extra_outputs(${PROJECT_NAME})
 
 target_link_libraries(${PROJECT_NAME} pico_stdlib pin modbus)
 target_link_libraries(pin         pico_stdlib)
+target_link_libraries(dma_buffer pico_stdlib hardware_uart hardware_dma)
 target_link_libraries(modbus pico_stdlib hardware_uart hardware_dma)
 
 pico_enable_stdio_usb(${PROJECT_NAME} 0)
