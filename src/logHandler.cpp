@@ -42,10 +42,12 @@ void LogHandler::printPrivates() {
 
 void LogHandler::incrementUnusedLogIndex() {
     this->unusedLogIndex += 1;
+    std::cout << "New log index: " << this->unusedLogIndex << std::endl;
 }
 
 void LogHandler::incrementUnusedRebootIndex() {
     this->unusedRebootStatusIndex += 1;
+    std::cout << "New reboot status index: " << this->unusedRebootStatusIndex << std::endl;
 }
 
 void LogHandler::pushLog(LogMessage messageCode){
@@ -135,7 +137,12 @@ void LogHandler::findFirstAvailableLog(const LogType logType){
 void LogHandler::enterLogToEeprom(uint8_t *base8Array, int *arrayLen, int logAddr) {
     uint8_t crcAppendedArray[*arrayLen + CRC_LEN];
     memcpy(crcAppendedArray, base8Array, *arrayLen); // copy original array to extended array
-    appendCrcToBase8Array(crcAppendedArray, arrayLen); 
+    appendCrcToBase8Array(crcAppendedArray, arrayLen);
+    std::cout << "Log array address: " << logAddr << std::endl;
+    for (int i = 0; i < *arrayLen; i++){
+        std::cout << crcAppendedArray[i] << " ";
+    }
+    std::cout << std::endl;
     eeprom_write_page(logAddr, crcAppendedArray, *arrayLen);
 }
 
