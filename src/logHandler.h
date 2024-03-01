@@ -55,7 +55,7 @@ class LogHandler {
         void zeroAllLogs(const LogType logType);
         void findFirstAvailableLog(const LogType logType);
         void enterLogToEeprom(uint8_t *base8Array, int *arrayLen, int logAddr);
-        void createLogArray(uint8_t *array, int messageCode, uint32_t timestamp)
+        void createLogArray(uint8_t *array, int messageCode, uint32_t timestamp);
 
     private:
         int unusedLogIndex;
