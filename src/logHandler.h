@@ -45,7 +45,7 @@ class LogHandler {
             // TODO: Calling member functions in constructor like this is kinda sketchy, rework maybe.
             LogHandler::findFirstAvailableLog(LOGTYPE_MSG_LOG);
             LogHandler::findFirstAvailableLog(LOGTYPE_REBOOT_STATUS);
-            bootTimestamp = static_cast<uint32_t>(get_absolute_time()); // TODO: cast is pointless
+            bootTimestamp = (uint32_t)(get_absolute_time() / 1000000);
         };
         
         void printPrivates();
