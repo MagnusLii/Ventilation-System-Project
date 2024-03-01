@@ -134,7 +134,7 @@ void LogHandler::findFirstAvailableLog(const LogType logType){
     return;
 }
 
-void LogHandler::enterLogToEeprom(uint8_t *base8Array, int *arrayLen, int logAddr) {
+void LogHandler::enterLogToEeprom(uint8_t *base8Array, int *arrayLen, const int logAddr) {
     uint8_t crcAppendedArray[*arrayLen + CRC_LEN];
     memcpy(crcAppendedArray, base8Array, *arrayLen); // copy original array to extended array
     appendCrcToBase8Array(crcAppendedArray, arrayLen);
