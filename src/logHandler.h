@@ -45,7 +45,7 @@ class LogHandler {
             // TODO: Calling member functions in constructor like this is kinda sketchy, rework maybe.
             LogHandler::findFirstAvailableLog(LOGTYPE_MSG_LOG);
             LogHandler::findFirstAvailableLog(LOGTYPE_REBOOT_STATUS);
-            bootTimestamp = (uint32_t)(get_absolute_time() / 1000000);
+            bootTimestamp = (to_ms_since_boot(get_absolute_time()) / 1000);
         };
         
         void printPrivates();
