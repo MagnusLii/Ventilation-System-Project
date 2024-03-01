@@ -48,7 +48,7 @@ void LogHandler::incrementUnusedRebootIndex() {
     this->unusedRebootStatusIndex += 1;
 }
 
-void LogHandler::pushLog(LogArray messageCode){
+void LogHandler::pushLog(LogMessage messageCode){
     uint8_t logArray[LOG_LEN];
     int logLen = LOG_LEN;
     uint32_t timestamp = getTimestampSinceBoot(bootTimestamp);
@@ -81,6 +81,7 @@ void LogHandler::zeroAllLogs(const LogType logType){
             eeprom_write_byte(logAddr, 0);
             logAddr += LOG_SIZE;
         }
+        this->unusedLogIndex = LOG_START_ADDR;
 
         break;
     case LOGTYPE_REBOOT_STATUS:
@@ -89,6 +90,7 @@ void LogHandler::zeroAllLogs(const LogType logType){
             eeprom_write_byte(logAddr, 0);
             logAddr += LOG_SIZE;
         }
+        this->unusedRebootStatusIndex = REBOOT_STATUS_START_ADDR;
 
         break;
     }
