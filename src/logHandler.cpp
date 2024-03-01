@@ -13,12 +13,140 @@
 #define DISPENSER_STATE_LEN 6                                 // Does not include CRC
 #define DISPENSER_STATE_ARR_LEN DISPENSER_STATE_LEN + CRC_LEN // Includes CRC
 
-#define REBOOT_STATUS_ADDR LOG_END_ADDR + LOG_SIZE
+#define REBOOT_STATUS_START_ADDR LOG_END_ADDR + LOG_SIZE
+#define REBOOT_STATUS_END_ADDR REBOOT_STATUS_START_ADDR + (MAX_LOGS * LOG_SIZE)
 
 #define LOG_START_ADDR 0
-#define LOG_END_ADDR 2048
+#define LOG_END_ADDR LOG_START_ADDR + (MAX_LOGS * LOG_SIZE)
 #define LOG_SIZE 8
-#define MAX_LOGS LOG_END_ADDR / LOG_SIZE
+#define MAX_LOGS 256
+
+// TODO: Create better messages
+const char *logMessages[] = {
+    "Test",
+    "Test2"
+};
+
+// TODO: Create better messages
+const char *rebootStatusMessages[] = {
+    "OK",
+    "Crash",
+    "Forced Reboot"
+};
+
+// TODO: Delete this.
+void LogHandler::printPrivates() {
+    std::cout << "Log Address: " << this->unusedLogIndex << std::endl;
+    std::cout << "Reboot Status Address: " << this->unusedRebootStatusIndex << std::endl;
+}
+
+void LogHandler::updateUnusedLogIndex() {
+    this->unusedLogIndex += 1;
+}
+
+void LogHandler::updateUnusedRebootIndex() {
+    this->unusedRebootStatusIndex += 1;
+}
+
+void LogHandler::pushLog(LogArray messageCode){
+    uint8_t logArray[LOG_LEN];
+    uint32_t timestamp = getTimestampSinceBoot(bootTimestamp);
+    createLogArray(logArray, messageCode, timestamp);
+    LogHandler::enterLogToEeprom(logArray, &LOG_LEN, this->unusedLogIndex);
+    LogHandler::updateUnusedLogIndex();
+
+    // TODO: add mqtt message.
+}
+
+void LogHandler::pushRebootLog(RebootStatusCodes statusCode){
+    uint8_t logArray[LOG_LEN];
+    uint32_t timestamp = getTimestampSinceBoot(bootTimestamp);
+    createLogArray(logArray, statusCode, timestamp);
+    LogHandler::enterLogToEeprom(logArray, &LOG_LEN, this->unusedRebootStatusIndex);
+    LogHandler::updateUnusedRebootIndex();
+    
+    // TODO: add mqtt message.
+}
+
+// TODO: Replace switch with dynamic index placement, once other stuff is done.
+void LogHandler::zeroAllLogs(const LogType logType){
+    uint16_t logAddr = 0;
+
+    switch (logType){
+    case LOGTYPE_MSG_LOG:
+        logAddr = LOG_START_ADDR;
+        for (int i = 0; i < MAX_LOGS; i++){
+            eeprom_write_byte(logAddr, 0);
+            logAddr += LOG_SIZE;
+        }
+
+        break;
+    case LOGTYPE_REBOOT_STATUS:
+        logAddr = REBOOT_STATUS_START_ADDR;
+        for (int i = 0; i < MAX_LOGS; i++){
+            eeprom_write_byte(logAddr, 0);
+            logAddr += LOG_SIZE;
+        }
+
+        break;
+    }
+}
+
+// TODO: Replace switch with dynamic index placement, once other stuff is done.
+void LogHandler::findFirstAvailableLog(const LogType logType){
+    uint16_t logAddr = 0;
+
+    switch (logType){
+    case LOGTYPE_MSG_LOG:
+        for (int i = LOG_START_ADDR, i < MAX_LOGS, i++){
+            if (eeprom_read_byte(logAddr) == 0){
+                this->unusedLogIndex = logAddr;
+                return;
+            }
+            logAddr += LOG_SIZE;
+        }
+
+        Loghandler::zeroAllLogs(LOGTYPE_MSG_LOG);
+        this->unusedLogIndex = LOG_START_ADDR;
+
+        break;
+    case LOGTYPE_REBOOT_STATUS:
+        for (int i = REBOOT_STATUS_START_ADDR, i < MAX_LOGS, i++){
+            if (eeprom_read_byte(logAddr) == 0){
+                this->unusedRebootStatusIndex = logAddr;
+                return;
+            }
+            logAddr += LOG_SIZE;
+        }
+
+        Loghandler::zeroAllLogs(LOGTYPE_REBOOT_STATUS);
+        this->unusedRebootStatusIndex = REBOOT_STATUS_START_ADDR;
+
+        break;
+    }
+
+    return;
+}
+
+void LogHandler::enterLogToEeprom(uint8_t *base8Array, int *arrayLen, int logAddr) {
+    uint8_t crcAppendedArray[*arrayLen + CRC_LEN];
+    memcpy(crcAppendedArray, base8Array, *arrayLen); // copy original array to extended array
+    appendCrcToBase8Array(crcAppendedArray, arrayLen); 
+    eeprom_write_page(logAddr, crcAppendedArray, *arrayLen);
+}
+
+void LogHandler::createLogArray(uint8_t *array, int messageCode, uint32_t timestamp){
+    array[LOG_USE_STATUS] = LOG_IN_USE;
+    array[MESSAGE_CODE] = messageCode;
+
+    // TODO: redo replace timestamp with realtime date once RTC is implemented.
+    array[TIMESTAMP_LSB] = (uint8_t)(timestamp & 0xFF);         // LSB of timestamp
+    array[TIMESTAMP_MSB2] = (uint8_t)((timestamp >> 8) & 0xFF);
+    array[TIMESTAMP_MSB1] = (uint8_t)((timestamp >> 16) & 0xFF);
+    array[TIMESTAMP_MSB] = (uint8_t)((timestamp >> 24) & 0xFF); // MSB of timestamp
+
+    return;
+}
 
 uint16_t crc16(const uint8_t *data, size_t length) {
     uint8_t x;
@@ -48,60 +176,6 @@ int getChecksum(uint8_t *base8Array, int base8ArrayLen) {
 bool verifyDataIntegrity(uint8_t *base8Array, int base8ArrayLen) {
     if (getChecksum(base8Array, base8ArrayLen) == 0) {return true;}
     return false;
-}
-
-void enterLogToEeprom(uint8_t *base8Array, int *arrayLen, int logAddr) {
-    uint8_t crcAppendedArray[*arrayLen + CRC_LEN];
-    memcpy(crcAppendedArray, base8Array, *arrayLen); // copy original array to extended array
-    appendCrcToBase8Array(crcAppendedArray, arrayLen); 
-    for(int i = 0; i < *arrayLen; i++){
-        printf("%d ", crcAppendedArray[i]);
-    }
-    std::cout << std::endl;
-    eeprom_write_page(logAddr, crcAppendedArray, *arrayLen);
-}
-
-void zeroAllLogs(){
-    int count = 0;
-    uint16_t logAddr = 0;
-
-    // Iterate through logs and mark them as not in use by setting the first byte to 0
-    while (count < MAX_LOGS)
-    {
-        eeprom_write_byte(logAddr, 0);
-        logAddr += LOG_SIZE;
-        count++;
-    }
-}
-
-int createLogArray(uint8_t *array, int messageCode, uint32_t timestamp){
-    array[LOG_USE_STATUS] = 1;           // Mark log as in use
-    array[MESSAGE_CODE] = messageCode;
-
-    // TODO: redo replace timestamp with realtime date once RTC is implemented.
-    array[TIMESTAMP_LSB] = (uint8_t)(timestamp & 0xFF);         // LSB of timestamp
-    array[TIMESTAMP_MSB2] = (uint8_t)((timestamp >> 8) & 0xFF);
-    array[TIMESTAMP_MSB1] = (uint8_t)((timestamp >> 16) & 0xFF);
-    array[TIMESTAMP_MSB] = (uint8_t)((timestamp >> 24) & 0xFF); // MSB of timestamp
-
-    return LOG_LEN; // Return the length of the filled log array (LOG_LEN)
-}
-
-int findFirstAvailableLog(){
-    int count = 0;
-    uint16_t logAddr = 0;
-
-    // Find the first available log entry
-    while (count < MAX_LOGS){
-        if (eeprom_read_byte(logAddr) == 0){
-            return count; // Return index if an available log entry is found.
-        }
-        logAddr += LOG_SIZE; // Move to the next log entry
-        count++;
-    }
-
-    zeroAllLogs(); // Clear all logs if all entries are full
-    return 0;      // Return 0 after clearing logs
 }
 
 // TODO: Remove once RTC is implemented.
