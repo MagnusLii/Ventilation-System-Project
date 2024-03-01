@@ -1,9 +1,14 @@
 
 #include "pico/stdlib.h"
 #include "pin.h"
+#include "stdio.h"
 
+void rotary_handler(uint gpio, uint32_t event_mask) {
+    if (gpio_get(10)) printf("1 \n");
+    if (gpio_get(11)) printf("222 \n");
+}
 
-GpioPin::GpioPin(int pinNumber, bool isOutput, bool pullUp) {
+GpioPin::GpioPin(int pinNumber, bool isOutput, bool pullUp, bool isIrq) {
     this->pinNumber = pinNumber;
     gpio_init(pinNumber);
     if (isOutput) {
@@ -13,6 +18,11 @@ GpioPin::GpioPin(int pinNumber, bool isOutput, bool pullUp) {
     }
     if (pullUp) {
         gpio_pull_up(pinNumber);
+    }
+    if (isIrq) {
+        if (pinNumber == 10 || pinNumber == 11) {
+            gpio_set_irq_enabled_with_callback(pinNumber, GPIO_IRQ_EDGE_FALL, true, rotary_handler);
+        }
     }
 }
 
