@@ -40,11 +40,11 @@ void LogHandler::printPrivates() {
     std::cout << "Reboot Status Address: " << this->unusedRebootStatusIndex << std::endl;
 }
 
-void LogHandler::updateUnusedLogIndex() {
+void LogHandler::incrementUnusedLogIndex() {
     this->unusedLogIndex += 1;
 }
 
-void LogHandler::updateUnusedRebootIndex() {
+void LogHandler::incrementUnusedRebootIndex() {
     this->unusedRebootStatusIndex += 1;
 }
 
@@ -53,7 +53,7 @@ void LogHandler::pushLog(LogArray messageCode){
     uint32_t timestamp = getTimestampSinceBoot(bootTimestamp);
     createLogArray(logArray, messageCode, timestamp);
     LogHandler::enterLogToEeprom(logArray, &LOG_LEN, this->unusedLogIndex);
-    LogHandler::updateUnusedLogIndex();
+    LogHandler::incrementUnusedLogIndex();
 
     // TODO: add mqtt message.
 }
@@ -63,7 +63,7 @@ void LogHandler::pushRebootLog(RebootStatusCodes statusCode){
     uint32_t timestamp = getTimestampSinceBoot(bootTimestamp);
     createLogArray(logArray, statusCode, timestamp);
     LogHandler::enterLogToEeprom(logArray, &LOG_LEN, this->unusedRebootStatusIndex);
-    LogHandler::updateUnusedRebootIndex();
+    LogHandler::incrementUnusedRebootIndex();
     
     // TODO: add mqtt message.
 }
