@@ -69,6 +69,6 @@ void appendCrcToBase8Array(uint8_t *base8Array, int *arrayLen);
 int getChecksum(uint8_t *base8Array, int base8ArrayLen);
 bool verifyDataIntegrity(uint8_t *base8Array, int base8ArrayLen);
 uint32_t getTimestampSinceBoot(const uint64_t bootTimestamp);
-void printValidLogs();
+void printValidLogs(LogType logType);
 
 #endif

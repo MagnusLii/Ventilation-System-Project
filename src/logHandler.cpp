@@ -107,10 +107,7 @@ void LogHandler::findFirstAvailableLog(const LogType logType){
     case LOGTYPE_MSG_LOG:
         logAddr += LOG_START_ADDR;
         for (int i = 0; i < MAX_LOGS; i++){
-            int byte = eeprom_read_byte(logAddr);
-            std::cout << "Byte: " << byte << std::endl;
-            if (byte == 0){
-                std::cout << "byte == 0";
+            if ((int)eeprom_read_byte(logAddr) == 0){
                 this->unusedLogIndex = logAddr;
                 return;
             }
@@ -201,9 +198,17 @@ uint32_t getTimestampSinceBoot(const uint64_t bootTimestamp){
 }
 
 // TODO: modify once RTC is implemented.
-void printValidLogs(){
+void printValidLogs(LogType logType){
+    uint16_t logAddr = 0;
+
+    if (logType == LOGTYPE_MSG_LOG){
+        logAddr = LOG_START_ADDR;
+    } else if (logType == LOGTYPE_REBOOT_STATUS){
+        logAddr = REBOOT_STATUS_START_ADDR;
+    }
+
     for (int i = 0; i < MAX_LOGS; i++){
-        uint16_t logAddr = i * LOG_SIZE; // Calculate the EEPROM address for the log entry
+        
         uint8_t logData[LOG_ARR_LEN];
 
         eeprom_read_page(logAddr, logData, LOG_ARR_LEN);
@@ -219,4 +224,5 @@ void printValidLogs(){
             printf("%d: %s %u seconds after last boot.\n", i, logMessages[messageCode], timestamp_s);
         }
     }
+    logAddr += LOG_SIZE;
 }
