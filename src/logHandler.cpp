@@ -80,7 +80,6 @@ void LogHandler::zeroAllLogs(const LogType logType){
     case LOGTYPE_MSG_LOG:
         logAddr = LOG_START_ADDR;
         for (int i = 0; i < MAX_LOGS; i++){
-            std::cout << "log: " << i << "addr: " << logAddr << std::endl;
             eeprom_write_byte(logAddr, 0);
             logAddr += LOG_SIZE;
         }
@@ -90,7 +89,6 @@ void LogHandler::zeroAllLogs(const LogType logType){
     case LOGTYPE_REBOOT_STATUS:
         logAddr = REBOOT_STATUS_START_ADDR;
         for (int i = 0; i < MAX_LOGS; i++){
-            std::cout << "log: " << i << "addr: " << logAddr << std::endl;
             eeprom_write_byte(logAddr, 0);
             logAddr += LOG_SIZE;
         }
