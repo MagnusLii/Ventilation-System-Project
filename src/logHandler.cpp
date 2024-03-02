@@ -53,10 +53,6 @@ void LogHandler::pushLog(LogMessage messageCode){
     int logLen = LOG_LEN;
     uint32_t timestamp = getTimestampSinceBoot(this->bootTimestamp);
     createLogArray(logArray, messageCode, timestamp);
-    for (int i = 0; i < LOG_LEN; i++){
-        std::cout << (int)logArray[i] << " ";
-    }
-    std::cout << std::endl;
     LogHandler::enterLogToEeprom(logArray, &logLen, (this->unusedLogIndex * LOG_SIZE));
     LogHandler::incrementUnusedLogIndex();
 
@@ -141,13 +137,11 @@ void LogHandler::enterLogToEeprom(uint8_t *base8Array, int *arrayLen, const int 
     uint8_t crcAppendedArray[*arrayLen + CRC_LEN];
     memcpy(crcAppendedArray, base8Array, *arrayLen); // copy original array to extended array
     appendCrcToBase8Array(crcAppendedArray, arrayLen);
-    std::cout << "crcAppendedArray: ";
+    std::cout << "I: " << logAddr/8 << " addr: " << logAddr << " len: " << arrayLen << "Array: ";
     for (int i = 0; i < *arrayLen; i++){
         std::cout << (int)crcAppendedArray[i] << " ";
     }
     std::cout << std::endl;
-    std::cout << "arrayLen: " << *arrayLen << std::endl;
-    std::cout << "logAddr: " << logAddr << std::endl;
     eeprom_write_page(logAddr, crcAppendedArray, *arrayLen);
 }
 
