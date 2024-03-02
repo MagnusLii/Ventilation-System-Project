@@ -97,6 +97,12 @@ void eeprom_write_page(uint16_t address, uint8_t *src, size_t size) {
         out[i + 2] = src[i];
     }
 
+    printf("array: ");
+    for (int i = 0; i < size + 2; i++) {
+        printf("%d ", out[i]);
+    }
+    printf("address: %d size: %d\n", address, size+2);
+
     eeprom_write_cycle_block(); // Ensure EEPROM write cycle duration is within limits
 
     i2c_write_blocking(i2c0, EEPROM_ADDRESS, out, size + 2, false);
