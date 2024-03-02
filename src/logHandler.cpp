@@ -72,7 +72,6 @@ void LogHandler::pushRebootLog(RebootStatusCodes statusCode){
     // TODO: add mqtt message.
 }
 
-// TODO: Replace switch with dynamic index placement, once other stuff is done.
 void LogHandler::zeroAllLogs(const LogType logType){
     uint16_t logAddr = 0;
 
@@ -195,28 +194,47 @@ uint32_t getTimestampSinceBoot(const uint64_t bootTimestamp){
 void printValidLogs(LogType logType){
     uint16_t logAddr = 0;
 
-    if (logType == LOGTYPE_MSG_LOG){
-        logAddr = LOG_START_ADDR;
-    } else if (logType == LOGTYPE_REBOOT_STATUS){
-        logAddr = REBOOT_STATUS_START_ADDR;
-    }
+    switch (logType){
+        case LOGTYPE_MSG_LOG:
+            logAddr = LOG_START_ADDR;
+            for (int i = 0; i < MAX_LOGS; i++){
+    
+            uint8_t logData[LOG_ARR_LEN];
 
-    for (int i = 0; i < MAX_LOGS; i++){
-        
-        uint8_t logData[LOG_ARR_LEN];
+            eeprom_read_page(logAddr, logData, LOG_ARR_LEN);
+            
+            int tmp_log_array_length = LOG_ARR_LEN;
+            if (logData[LOG_USE_STATUS] == 1 && verifyDataIntegrity(logData, tmp_log_array_length) == true){
+                uint8_t messageCode = logData[MESSAGE_CODE];
+                uint32_t timestamp = (logData[TIMESTAMP_MSB] << 24) | (logData[TIMESTAMP_MSB1] << 16) | (logData[TIMESTAMP_MSB2] << 8) | logData[TIMESTAMP_LSB];
+                uint16_t timestamp_s = timestamp / 1000;
 
-        eeprom_read_page(logAddr, logData, LOG_ARR_LEN);
-        
-        int tmp_log_array_length = LOG_ARR_LEN;
-        if (logData[LOG_USE_STATUS] == 1 && verifyDataIntegrity(logData, tmp_log_array_length) == true){                                     
-            // Check if the log entry is valid (non-zero message code)
-            uint8_t messageCode = logData[MESSAGE_CODE]; // Extract the message code
-            uint32_t timestamp = (logData[TIMESTAMP_MSB] << 24) | (logData[TIMESTAMP_MSB1] << 16) | (logData[TIMESTAMP_MSB2] << 8) | logData[TIMESTAMP_LSB];
-            uint16_t timestamp_s = timestamp / 1000;
-            // Construct timestamp from individual bytes
+                printf("%d: %s %u seconds after last boot.\n", logAddr, logMessages[messageCode], timestamp_s);
+            }
+            logAddr += LOG_SIZE;
+            }   
+            break;
 
-            printf("%d: %s %u seconds after last boot.\n", logAddr, logMessages[messageCode], timestamp_s);
-        }
-        logAddr += LOG_SIZE;
-    }
+        case LOGTYPE_REBOOT_STATUS:
+            logAddr = REBOOT_STATUS_START_ADDR;
+            for (int i = 0; i < MAX_LOGS; i++){
+    
+            uint8_t logData[LOG_ARR_LEN];
+
+            eeprom_read_page(logAddr, logData, LOG_ARR_LEN);
+            
+            int tmp_log_array_length = LOG_ARR_LEN;
+            if (logData[LOG_USE_STATUS] == 1 && verifyDataIntegrity(logData, tmp_log_array_length) == true){
+                uint8_t messageCode = logData[MESSAGE_CODE];
+                uint32_t timestamp = (logData[TIMESTAMP_MSB] << 24) | (logData[TIMESTAMP_MSB1] << 16) | (logData[TIMESTAMP_MSB2] << 8) | logData[TIMESTAMP_LSB];
+                uint16_t timestamp_s = timestamp / 1000;
+
+                printf("%d: %s %u seconds after last boot.\n", logAddr, rebootStatusMessages[messageCode], timestamp_s);
+            }
+            logAddr += LOG_SIZE;
+            }   
+            break;
+
+
+}
 }
