@@ -82,7 +82,7 @@ void LogHandler::zeroAllLogs(const LogType logType){
             eeprom_write_byte(logAddr, 0);
             logAddr += LOG_SIZE;
         }
-        this->unusedLogIndex = LOG_START_ADDR;
+        this->unusedLogIndex = LOG_START_ADDR / LOG_SIZE;
 
         break;
     case LOGTYPE_REBOOT_STATUS:
@@ -91,7 +91,7 @@ void LogHandler::zeroAllLogs(const LogType logType){
             eeprom_write_byte(logAddr, 0);
             logAddr += LOG_SIZE;
         }
-        this->unusedRebootStatusIndex = REBOOT_STATUS_START_ADDR;
+        this->unusedRebootStatusIndex = REBOOT_STATUS_START_ADDR / LOG_SIZE;
 
         break;
     }
@@ -120,7 +120,6 @@ void LogHandler::findFirstAvailableLog(const LogType logType){
         logAddr = REBOOT_STATUS_START_ADDR;
         for (int i = 0; i < MAX_LOGS; i++){
             if ((int)eeprom_read_byte(logAddr) == 0){
-                std::cout << "Unused reboot status index: " << logAddr / LOG_SIZE << std::endl;
                 this->unusedRebootStatusIndex = logAddr / LOG_SIZE;
                 return;
             }
@@ -128,7 +127,6 @@ void LogHandler::findFirstAvailableLog(const LogType logType){
         }
 
         LogHandler::zeroAllLogs(LOGTYPE_REBOOT_STATUS);
-        std::cout << "Unused reboot status index: " << REBOOT_STATUS_START_ADDR / LOG_SIZE << std::endl;
         this->unusedRebootStatusIndex = REBOOT_STATUS_START_ADDR / LOG_SIZE;
 
         break;

@@ -46,8 +46,6 @@ class LogHandler {
             LogHandler::findFirstAvailableLog(LOGTYPE_MSG_LOG);
             LogHandler::findFirstAvailableLog(LOGTYPE_REBOOT_STATUS);
             bootTimestamp = (to_ms_since_boot(get_absolute_time()) / 1000);
-            std::cout << "log index: " << unusedLogIndex << std::endl;
-            std::cout << "reboot index: " << unusedRebootStatusIndex << std::endl;
         };
         
         void printPrivates();
