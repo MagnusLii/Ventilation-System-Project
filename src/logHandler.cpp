@@ -101,11 +101,11 @@ void LogHandler::zeroAllLogs(const LogType logType){
 
 // TODO: Replace switch with dynamic index placement, once other stuff is done.
 void LogHandler::findFirstAvailableLog(const LogType logType){
-    uint16_t logAddr = 0;
 
     switch (logType){
     case LOGTYPE_MSG_LOG:
-        for (int i = LOG_START_ADDR; i < MAX_LOGS; i++){
+        uint16_t logAddr = LOG_START_ADDR;
+        for (int i = 0; i < MAX_LOGS; i++){
             int byte = eeprom_read_byte(logAddr);
             std::cout << "Byte: " << byte << std::endl;
             if (byte == 0){
@@ -121,7 +121,8 @@ void LogHandler::findFirstAvailableLog(const LogType logType){
 
         break;
     case LOGTYPE_REBOOT_STATUS:
-        for (int i = REBOOT_STATUS_START_ADDR; i < MAX_LOGS; i++){
+        uint16_t logAddr = REBOOT_STATUS_START_ADDR;
+        for (int i = 0; i < MAX_LOGS; i++){
             if ((int)eeprom_read_byte(logAddr) == 0){
                 this->unusedRebootStatusIndex = logAddr;
                 return;
