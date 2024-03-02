@@ -13,10 +13,11 @@ int main() {
     stdio_init_all();
     int a = 42;
     DPRINT("AA", "bbb", a);
+    RotaryEncoder A; //Create an object for rotary encoder.
 
-    GpioPin(10, false, false, true);
-    GpioPin(11, false, false, true);
-
-    while(true) {}
+    while(true) {
+        std::cout << A.returnVal() << std::endl; //shows that the data is changed and can be accessed
+        sleep_ms(5000);
+    }
     return 0;
 }
