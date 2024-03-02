@@ -22,12 +22,14 @@ int main() {
     logHandler.zeroAllLogs(LOGTYPE_REBOOT_STATUS);
     logHandler.printPrivates();
 
+    /*
     logHandler.pushLog(TEST);
     logHandler.pushLog(TEST2);
     logHandler.pushLog(TEST2);
     logHandler.pushLog(TEST2);
     logHandler.pushLog(TEST);
-
+    */
+   
     /*
     logHandler.pushRebootLog(OK);
     logHandler.pushRebootLog(CRASH);
