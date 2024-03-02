@@ -51,7 +51,7 @@ DMABuffer::~DMABuffer() {
 
 DMARXBuffer::DMARXBuffer(shared_uart uart_pointer) :
 DMABuffer(uart_pointer) {
-    dma_channel_config c = dma_get_channel_config(dma_channel);
+    dma_channel_config c = dma_channel_get_default_config(dma_channel);
     channel_config_set_transfer_data_size(&c, DMA_SIZE_8); // uart deals with 8 bit characters
     channel_config_set_read_increment(&c, false); // read from same fifo so no increment
     channel_config_set_write_increment(&c, true);
@@ -77,11 +77,11 @@ void DMARXBuffer::start_listening(uint8_t max_characters) {
 
 DMATXBuffer::DMATXBuffer(shared_uart uart_pointer, uint8_t *buffer) :
 DMABuffer(uart_pointer), buffer(buffer) {
-    dma_channel_config c = dma_get_channel_config(dma_channel);
+    dma_channel_config c = dma_channel_get_default_config(dma_channel);
     channel_config_set_transfer_data_size(&c, DMA_SIZE_8); // uart deals with 8 bit characters
     channel_config_set_read_increment(&c, true);
     channel_config_set_write_increment(&c, false); // always write to uart tx fifo
-    channel_config_set_dreq(&c, (uart->get_index()) ? DREQ_UART1_RX : DREQ_UART0_RX);
+    channel_config_set_dreq(&c, (uart->get_index()) ? DREQ_UART1_TX : DREQ_UART0_TX);
     dma_channel_configure(
         dma_channel,
         &c,
