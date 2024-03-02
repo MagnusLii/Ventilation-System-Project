@@ -87,6 +87,7 @@ void LogHandler::zeroAllLogs(const LogType logType){
         std::cout << "logaddr: " << REBOOT_STATUS_START_ADDR << std::endl;
         logAddr = REBOOT_STATUS_START_ADDR;
         for (int i = 0; i < MAX_LOGS; i++){
+            std::cout << logAddr << std::endl;
             eeprom_write_byte(logAddr, 0);
             logAddr += LOG_SIZE;
         }
