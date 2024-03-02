@@ -84,6 +84,7 @@ void LogHandler::zeroAllLogs(const LogType logType){
 
         break;
     case LOGTYPE_REBOOT_STATUS:
+        std::cout << "logaddr: " << REBOOT_STATUS_START_ADDR << std::endl;
         logAddr = REBOOT_STATUS_START_ADDR;
         for (int i = 0; i < MAX_LOGS; i++){
             eeprom_write_byte(logAddr, 0);
