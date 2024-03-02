@@ -20,20 +20,11 @@ int main() {
 
     //logHandler.zeroAllLogs(LOGTYPE_MSG_LOG);
     //logHandler.zeroAllLogs(LOGTYPE_REBOOT_STATUS);
-
     logHandler.pushLog(TEST);
     logHandler.pushLog(TEST2);
-
-    logHandler.pushRebootLog(OK);
-
-    logHandler.pushLog(TEST);
-
     logHandler.pushLog(TEST2);
-
-    //logHandler.pushLog(TEST2);
-
-    //logHandler.pushRebootLog(OK);
+    logHandler.pushLog(TEST2);
+    logHandler.pushLog(TEST);
     printValidLogs(LOGTYPE_MSG_LOG);
-    printValidLogs(LOGTYPE_REBOOT_STATUS);
     return 0;
 }
