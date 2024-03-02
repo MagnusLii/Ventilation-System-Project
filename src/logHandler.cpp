@@ -49,7 +49,6 @@ void LogHandler::incrementUnusedRebootIndex() {
 }
 
 void LogHandler::pushLog(LogMessage messageCode){
-    std::cout << "Pushing log: " << logMessages[messageCode] << " to address: " << (this->unusedLogIndex * LOG_SIZE) << std::endl;
     uint8_t logArray[LOG_LEN];
     int logLen = LOG_LEN;
     uint32_t timestamp = getTimestampSinceBoot(this->bootTimestamp);
@@ -65,7 +64,6 @@ void LogHandler::pushLog(LogMessage messageCode){
 }
 
 void LogHandler::pushRebootLog(RebootStatusCodes statusCode){
-    std::cout << "Pushing reboot log: " << rebootStatusMessages[statusCode] << " to address: " << (this->unusedRebootStatusIndex * LOG_SIZE) << std::endl;
     uint8_t logArray[LOG_LEN];
     int logLen = LOG_LEN;
     uint32_t timestamp = getTimestampSinceBoot(this->bootTimestamp);
