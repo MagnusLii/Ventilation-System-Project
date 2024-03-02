@@ -103,7 +103,7 @@ void LogHandler::findFirstAvailableLog(const LogType logType){
 
     switch (logType){
     case LOGTYPE_MSG_LOG:
-        logAddr += LOG_START_ADDR;
+        logAddr = LOG_START_ADDR;
         for (int i = 0; i < MAX_LOGS; i++){
             if ((int)eeprom_read_byte(logAddr) == 0){
                 this->unusedLogIndex = logAddr;
@@ -117,7 +117,7 @@ void LogHandler::findFirstAvailableLog(const LogType logType){
 
         break;
     case LOGTYPE_REBOOT_STATUS:
-        logAddr += REBOOT_STATUS_START_ADDR;
+        logAddr = REBOOT_STATUS_START_ADDR;
         for (int i = 0; i < MAX_LOGS; i++){
             if ((int)eeprom_read_byte(logAddr) == 0){
                 this->unusedRebootStatusIndex = logAddr;
