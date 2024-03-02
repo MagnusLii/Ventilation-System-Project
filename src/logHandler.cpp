@@ -213,7 +213,7 @@ void printValidLogs(LogType logType){
                 std::cout << (int)logData[i] << " ";
             }
             std::cout << std::endl;
-            std::cout << "crc: " << crc << std::endl;
+            std::cout << "Ind: " << i << "logData: ";
             std::cout << "integrity: " << integrity << std::endl;
             if (logData[LOG_USE_STATUS] == 1 && integrity == true){
                 uint8_t messageCode = logData[MESSAGE_CODE];
@@ -234,7 +234,7 @@ void printValidLogs(LogType logType){
             int crc = getChecksum(logData, tmp_log_array_length);
             bool integrity = verifyDataIntegrity(logData, tmp_log_array_length);
             std::cout << std::endl << std::endl;
-            std::cout << "logData: ";
+            std::cout << "Ind: " << i << "logData: ";
             for (int i = 0; i < tmp_log_array_length; i++){
                 std::cout << (int)logData[i] << " ";
             }
