@@ -49,7 +49,7 @@ void LogHandler::incrementUnusedLogIndex() {
 
 void LogHandler::incrementUnusedRebootIndex() {
     this->unusedRebootStatusIndex += 1;
-    if (this->unusedRebootStatusIndex >= (REBOOT_STATUS_END_ADDR / LOG_SIZE){
+    if (this->unusedRebootStatusIndex >= (REBOOT_STATUS_END_ADDR / LOG_SIZE)){
         this->zeroAllLogs(LOGTYPE_REBOOT_STATUS);
     }
 }
