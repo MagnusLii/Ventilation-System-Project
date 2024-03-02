@@ -193,17 +193,15 @@ uint32_t getTimestampSinceBoot(const uint64_t bootTimestamp){
 // TODO: modify once RTC is implemented.
 void printValidLogs(LogType logType){
     uint16_t logAddr = 0;
+    uint8_t logData[LOG_ARR_LEN];
+    int tmp_log_array_length = LOG_ARR_LEN;
 
     switch (logType){
         case LOGTYPE_MSG_LOG:
             logAddr = LOG_START_ADDR;
             for (int i = 0; i < MAX_LOGS; i++){
-    
-            uint8_t logData[LOG_ARR_LEN];
 
             eeprom_read_page(logAddr, logData, LOG_ARR_LEN);
-            
-            int tmp_log_array_length = LOG_ARR_LEN;
             if (logData[LOG_USE_STATUS] == 1 && verifyDataIntegrity(logData, tmp_log_array_length) == true){
                 uint8_t messageCode = logData[MESSAGE_CODE];
                 uint32_t timestamp = (logData[TIMESTAMP_MSB] << 24) | (logData[TIMESTAMP_MSB1] << 16) | (logData[TIMESTAMP_MSB2] << 8) | logData[TIMESTAMP_LSB];
@@ -218,12 +216,8 @@ void printValidLogs(LogType logType){
         case LOGTYPE_REBOOT_STATUS:
             logAddr = REBOOT_STATUS_START_ADDR;
             for (int i = 0; i < MAX_LOGS; i++){
-    
-            uint8_t logData[LOG_ARR_LEN];
 
             eeprom_read_page(logAddr, logData, LOG_ARR_LEN);
-            
-            int tmp_log_array_length = LOG_ARR_LEN;
             if (logData[LOG_USE_STATUS] == 1 && verifyDataIntegrity(logData, tmp_log_array_length) == true){
                 uint8_t messageCode = logData[MESSAGE_CODE];
                 uint32_t timestamp = (logData[TIMESTAMP_MSB] << 24) | (logData[TIMESTAMP_MSB1] << 16) | (logData[TIMESTAMP_MSB2] << 8) | logData[TIMESTAMP_LSB];
