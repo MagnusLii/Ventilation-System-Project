@@ -137,6 +137,7 @@ void LogHandler::enterLogToEeprom(uint8_t *base8Array, int *arrayLen, const int 
     uint8_t crcAppendedArray[*arrayLen + CRC_LEN];
     memcpy(crcAppendedArray, base8Array, *arrayLen); // copy original array to extended array
     appendCrcToBase8Array(crcAppendedArray, arrayLen);
+    /*
     std::cout << "crcAppendedArray: ";
     for (int i = 0; i < *arrayLen; i++){
         std::cout << (int)crcAppendedArray[i] << " ";
@@ -144,6 +145,7 @@ void LogHandler::enterLogToEeprom(uint8_t *base8Array, int *arrayLen, const int 
     std::cout << std::endl;
     std::cout << "arrayLen: " << *arrayLen << std::endl;
     std::cout << "logAddr: " << logAddr << std::endl;
+    */
     eeprom_write_page(logAddr, crcAppendedArray, *arrayLen);
 }
 
@@ -207,6 +209,7 @@ void printValidLogs(LogType logType){
             for (int i = 0; i < MAX_LOGS; i++){
 
             eeprom_read_page(logAddr, logData, LOG_ARR_LEN);
+            /*
             int crc = getChecksum(logData, tmp_log_array_length);
             bool integrity = verifyDataIntegrity(logData, tmp_log_array_length);
             std::cout << std::endl << std::endl;
@@ -217,7 +220,8 @@ void printValidLogs(LogType logType){
             std::cout << std::endl;
             std::cout << "crc: " << crc << std::endl;
             std::cout << "integrity: " << integrity << std::endl;
-            if (logData[LOG_USE_STATUS] == 1 && integrity == true){
+            */
+            if (logData[LOG_USE_STATUS] == 1 && verifyDataIntegrity(logData, tmp_log_array_length) == true){
                 uint8_t messageCode = logData[MESSAGE_CODE];
                 uint32_t timestamp = (logData[TIMESTAMP_MSB] << 24) | (logData[TIMESTAMP_MSB1] << 16) | (logData[TIMESTAMP_MSB2] << 8) | logData[TIMESTAMP_LSB];
                 uint16_t timestamp_s = timestamp / 1000;
@@ -233,6 +237,7 @@ void printValidLogs(LogType logType){
             for (int i = 0; i < MAX_LOGS; i++){
 
             eeprom_read_page(logAddr, logData, LOG_ARR_LEN);
+            /*
             int crc = getChecksum(logData, tmp_log_array_length);
             bool integrity = verifyDataIntegrity(logData, tmp_log_array_length);
             std::cout << std::endl << std::endl;
@@ -243,7 +248,8 @@ void printValidLogs(LogType logType){
             std::cout << std::endl;
             std::cout << "crc: " << crc << std::endl;
             std::cout << "integrity: " << integrity << std::endl;
-            if (logData[LOG_USE_STATUS] == 1 && integrity == true){
+            */
+            if (logData[LOG_USE_STATUS] == 1 && verifyDataIntegrity(logData, tmp_log_array_length) == true){
                 uint8_t messageCode = logData[MESSAGE_CODE];
                 uint32_t timestamp = (logData[TIMESTAMP_MSB] << 24) | (logData[TIMESTAMP_MSB1] << 16) | (logData[TIMESTAMP_MSB2] << 8) | logData[TIMESTAMP_LSB];
                 uint16_t timestamp_s = timestamp / 1000;
