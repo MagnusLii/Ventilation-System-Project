@@ -51,7 +51,7 @@ void LogHandler::incrementUnusedRebootIndex() {
 void LogHandler::pushLog(LogMessage messageCode){
     uint8_t logArray[LOG_LEN];
     int logLen = LOG_LEN;
-    uint32_t timestamp = getTimestampSinceBoot(bootTimestamp);
+    uint32_t timestamp = getTimestampSinceBoot(this->bootTimestamp);
     createLogArray(logArray, messageCode, timestamp);
     LogHandler::enterLogToEeprom(logArray, &logLen, this->unusedLogIndex);
     LogHandler::incrementUnusedLogIndex();
@@ -62,7 +62,7 @@ void LogHandler::pushLog(LogMessage messageCode){
 void LogHandler::pushRebootLog(RebootStatusCodes statusCode){
     uint8_t logArray[LOG_LEN];
     int logLen = LOG_LEN;
-    uint32_t timestamp = getTimestampSinceBoot(bootTimestamp);
+    uint32_t timestamp = getTimestampSinceBoot(this->bootTimestamp);
     createLogArray(logArray, statusCode, timestamp);
     LogHandler::enterLogToEeprom(logArray, &logLen, this->unusedRebootStatusIndex);
     LogHandler::incrementUnusedRebootIndex();
