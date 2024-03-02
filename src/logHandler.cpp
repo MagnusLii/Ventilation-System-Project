@@ -109,6 +109,7 @@ void LogHandler::findFirstAvailableLog(const LogType logType){
             int byte = eeprom_read_byte(logAddr);
             std::cout << "Byte: " << byte << std::endl;
             if (byte == 0){
+                std::cout << "byte == 0";
                 this->unusedLogIndex = logAddr;
                 return;
             }
