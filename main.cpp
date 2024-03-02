@@ -35,6 +35,8 @@ int main() {
     logHandler.pushRebootLog(OK);
     */
 
+    eeprom_write_byte(4096, 0);
+
     printValidLogs(LOGTYPE_MSG_LOG);
     printValidLogs(LOGTYPE_REBOOT_STATUS);
     return 0;
