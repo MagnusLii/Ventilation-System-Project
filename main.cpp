@@ -18,7 +18,7 @@ int main() {
 
     LogHandler logHandler;
 
-    logHandler.zeroAllLogs(LOGTYPE_MSG_LOG);
+    //logHandler.zeroAllLogs(LOGTYPE_MSG_LOG);
     logHandler.pushLog(TEST2);
 
     printValidLogs();
