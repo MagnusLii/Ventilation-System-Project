@@ -21,17 +21,19 @@ int main() {
     logHandler.zeroAllLogs(LOGTYPE_MSG_LOG);
     logHandler.zeroAllLogs(LOGTYPE_REBOOT_STATUS);
     logHandler.printPrivates();
-    
+
     logHandler.pushLog(TEST);
     logHandler.pushLog(TEST2);
     logHandler.pushLog(TEST2);
     logHandler.pushLog(TEST2);
     logHandler.pushLog(TEST);
 
+    /*
     logHandler.pushRebootLog(OK);
     logHandler.pushRebootLog(CRASH);
     logHandler.pushRebootLog(FORCED_REBOOT);
     logHandler.pushRebootLog(OK);
+    */
 
     printValidLogs(LOGTYPE_MSG_LOG);
     printValidLogs(LOGTYPE_REBOOT_STATUS);
