@@ -42,12 +42,10 @@ void LogHandler::printPrivates() {
 
 void LogHandler::incrementUnusedLogIndex() {
     this->unusedLogIndex += 1;
-    std::cout << "New log index: " << this->unusedLogIndex << std::endl;
 }
 
 void LogHandler::incrementUnusedRebootIndex() {
     this->unusedRebootStatusIndex += 1;
-    std::cout << "New reboot status index: " << this->unusedRebootStatusIndex << std::endl;
 }
 
 void LogHandler::pushLog(LogMessage messageCode){
