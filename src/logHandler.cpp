@@ -54,6 +54,10 @@ void LogHandler::pushLog(LogMessage messageCode){
     int logLen = LOG_LEN;
     uint32_t timestamp = getTimestampSinceBoot(this->bootTimestamp);
     createLogArray(logArray, messageCode, timestamp);
+    for (int i = 0; i < LOG_LEN; i++){
+        std::cout << (int)logArray[i] << " ";
+    }
+    std::cout << std::endl;
     LogHandler::enterLogToEeprom(logArray, &logLen, (this->unusedLogIndex * LOG_SIZE));
     LogHandler::incrementUnusedLogIndex();
 
