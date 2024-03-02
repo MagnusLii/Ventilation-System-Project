@@ -18,6 +18,8 @@ int main() {
 
     LogHandler logHandler;
 
+    std::cout << (REBOOT_STATUS_START_ADDR / LOG_SIZE) << std::endl;
+
     logHandler.zeroAllLogs(LOGTYPE_MSG_LOG);
     logHandler.zeroAllLogs(LOGTYPE_REBOOT_STATUS);
     logHandler.printPrivates();
