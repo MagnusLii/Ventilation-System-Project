@@ -66,7 +66,7 @@ void LogHandler::pushRebootLog(RebootStatusCodes statusCode){
     int logLen = LOG_LEN;
     uint32_t timestamp = getTimestampSinceBoot(this->bootTimestamp);
     createLogArray(logArray, statusCode, timestamp);
-    LogHandler::enterLogToEeprom(logArray, &logLen, (this->unusedLogIndex * LOG_SIZE));
+    LogHandler::enterLogToEeprom(logArray, &logLen, (this->unusedRebootStatusIndex * LOG_SIZE));
     LogHandler::incrementUnusedRebootIndex();
     
     // TODO: add mqtt message.
@@ -228,7 +228,6 @@ void printValidLogs(LogType logType){
                 uint32_t timestamp = (logData[TIMESTAMP_MSB] << 24) | (logData[TIMESTAMP_MSB1] << 16) | (logData[TIMESTAMP_MSB2] << 8) | logData[TIMESTAMP_LSB];
                 uint16_t timestamp_s = timestamp / 1000;
 
-                std::cout << logAddr << ": " << messageCode << " " << timestamp_s << std::endl;
                 std::cout << logAddr << ": " << logMessages[messageCode] << " " << timestamp_s << " seconds after last boot." << std::endl;
             }
             logAddr += LOG_SIZE;
@@ -257,7 +256,6 @@ void printValidLogs(LogType logType){
                 uint32_t timestamp = (logData[TIMESTAMP_MSB] << 24) | (logData[TIMESTAMP_MSB1] << 16) | (logData[TIMESTAMP_MSB2] << 8) | logData[TIMESTAMP_LSB];
                 uint16_t timestamp_s = timestamp / 1000;
 
-                std::cout << logAddr << ": " << messageCode << " " << timestamp_s << std::endl;
                 std::cout << logAddr << ": " << rebootStatusMessages[messageCode] << " " << timestamp_s << " seconds after last boot." << std::endl;
             }
             logAddr += LOG_SIZE;
