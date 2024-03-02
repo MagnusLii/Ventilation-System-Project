@@ -53,7 +53,7 @@ void LogHandler::pushLog(LogMessage messageCode){
     int logLen = LOG_LEN;
     uint32_t timestamp = getTimestampSinceBoot(this->bootTimestamp);
     createLogArray(logArray, messageCode, timestamp);
-    LogHandler::enterLogToEeprom(logArray, &logLen, this->unusedLogIndex);
+    LogHandler::enterLogToEeprom(logArray, &logLen, (this->unusedLogIndex * LOG_SIZE));
     LogHandler::incrementUnusedLogIndex();
 
     // TODO: add mqtt message.
@@ -64,7 +64,7 @@ void LogHandler::pushRebootLog(RebootStatusCodes statusCode){
     int logLen = LOG_LEN;
     uint32_t timestamp = getTimestampSinceBoot(this->bootTimestamp);
     createLogArray(logArray, statusCode, timestamp);
-    LogHandler::enterLogToEeprom(logArray, &logLen, this->unusedRebootStatusIndex);
+    LogHandler::enterLogToEeprom(logArray, &logLen, (this->unusedLogIndex * LOG_SIZE));
     LogHandler::incrementUnusedRebootIndex();
     
     // TODO: add mqtt message.
