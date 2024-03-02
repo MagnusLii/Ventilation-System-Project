@@ -23,8 +23,8 @@ int main() {
 
     
     logHandler.pushLog(TEST);
-    logHandler.pushLog(TEST2);
     /*logHandler.pushLog(TEST2);
+    logHandler.pushLog(TEST2);
     logHandler.pushLog(TEST2);
     logHandler.pushLog(TEST);
     */
