@@ -79,26 +79,23 @@ void LogHandler::pushRebootLog(RebootStatusCodes statusCode){
 void LogHandler::zeroAllLogs(const LogType logType){
     uint16_t logAddr = 0;
 
-    switch (logType){
-    case LOGTYPE_MSG_LOG:
+    if (logType == LOGTYPE_MSG_LOG){
         logAddr = LOG_START_ADDR;
         for (int i = 0; i < MAX_LOGS; i++){
             eeprom_write_byte(logAddr, 0);
             logAddr += LOG_SIZE;
         }
         this->unusedLogIndex = LOG_START_ADDR / LOG_SIZE;
-
-        break;
-    case LOGTYPE_REBOOT_STATUS:
+    }
+    else if (logType == LOGTYPE_REBOOT_STATUS){
         logAddr = REBOOT_STATUS_START_ADDR;
         for (int i = 0; i < MAX_LOGS; i++){
             eeprom_write_byte(logAddr, 0);
             logAddr += LOG_SIZE;
         }
         this->unusedRebootStatusIndex = REBOOT_STATUS_START_ADDR / LOG_SIZE;
-
-        break;
     }
+    return;
 }
 
 // TODO: Replace switch with dynamic index placement, once other stuff is done.
@@ -207,46 +204,41 @@ void printValidLogs(LogType logType){
     uint8_t logData[LOG_ARR_LEN];
     int tmp_log_array_length = LOG_ARR_LEN;
 
-    switch (logType){
-        case LOGTYPE_MSG_LOG:
-            logAddr = LOG_START_ADDR;
-            for (int i = 0; i < MAX_LOGS; i++){
+    if (logType == LOGTYPE_MSG_LOG){
+        logAddr = LOG_START_ADDR;
+        for (int i = 0; i < MAX_LOGS; i++){
+        eeprom_read_page(logAddr, logData, LOG_ARR_LEN);
+        if (logData[LOG_USE_STATUS] == 1 && verifyDataIntegrity(logData, tmp_log_array_length) == true){
+            uint8_t messageCode = logData[MESSAGE_CODE];
+            uint32_t timestamp = (logData[TIMESTAMP_MSB] << 24) | (logData[TIMESTAMP_MSB1] << 16) | (logData[TIMESTAMP_MSB2] << 8) | logData[TIMESTAMP_LSB];
+            uint16_t timestamp_s = timestamp / 1000;
 
-            eeprom_read_page(logAddr, logData, LOG_ARR_LEN);
-            if (logData[LOG_USE_STATUS] == 1 && verifyDataIntegrity(logData, tmp_log_array_length) == true){
-                uint8_t messageCode = logData[MESSAGE_CODE];
-                uint32_t timestamp = (logData[TIMESTAMP_MSB] << 24) | (logData[TIMESTAMP_MSB1] << 16) | (logData[TIMESTAMP_MSB2] << 8) | logData[TIMESTAMP_LSB];
-                uint16_t timestamp_s = timestamp / 1000;
-
-                std::cout << logAddr << ": " << logMessages[messageCode] << " " << timestamp << " seconds after last boot." << std::endl;
-                for (int j = 0; j < LOG_ARR_LEN; j++){
-                    std::cout << (int)logData[j] << " ";
-                }
-                std::cout << std::endl;
+            std::cout << logAddr << ": " << logMessages[messageCode] << " " << timestamp << " seconds after last boot." << std::endl;
+            for (int j = 0; j < LOG_ARR_LEN; j++){
+                std::cout << (int)logData[j] << " ";
             }
-            logAddr += LOG_SIZE;
-            }   
-            break;
+            std::cout << std::endl;
+        }
+        logAddr += LOG_SIZE;
+        }   
+    }
+    else if (logType == LOGTYPE_REBOOT_STATUS){
+        logAddr = REBOOT_STATUS_START_ADDR;
+        for (int i = 0; i < MAX_LOGS; i++){
+        eeprom_read_page(logAddr, logData, LOG_ARR_LEN);
+        if (logData[LOG_USE_STATUS] == 1 && verifyDataIntegrity(logData, tmp_log_array_length) == true){
+            uint8_t messageCode = logData[MESSAGE_CODE];
+            uint32_t timestamp = (logData[TIMESTAMP_MSB] << 24) | (logData[TIMESTAMP_MSB1] << 16) | (logData[TIMESTAMP_MSB2] << 8) | logData[TIMESTAMP_LSB];
+            uint16_t timestamp_s = timestamp / 1000;
 
-        case LOGTYPE_REBOOT_STATUS:
-            logAddr = REBOOT_STATUS_START_ADDR;
-            for (int i = 0; i < MAX_LOGS; i++){
-
-            eeprom_read_page(logAddr, logData, LOG_ARR_LEN);
-            if (logData[LOG_USE_STATUS] == 1 && verifyDataIntegrity(logData, tmp_log_array_length) == true){
-                uint8_t messageCode = logData[MESSAGE_CODE];
-                uint32_t timestamp = (logData[TIMESTAMP_MSB] << 24) | (logData[TIMESTAMP_MSB1] << 16) | (logData[TIMESTAMP_MSB2] << 8) | logData[TIMESTAMP_LSB];
-                uint16_t timestamp_s = timestamp / 1000;
-
-                std::cout << logAddr << ": " << rebootStatusMessages[messageCode] << " " << timestamp << " seconds after last boot." << std::endl;
-                for (int j = 0; j < LOG_ARR_LEN; j++){
-                    std::cout << (int)logData[j] << " ";
-                }
-                std::cout << std::endl;
+            std::cout << logAddr << ": " << rebootStatusMessages[messageCode] << " " << timestamp << " seconds after last boot." << std::endl;
+            for (int j = 0; j < LOG_ARR_LEN; j++){
+                std::cout << (int)logData[j] << " ";
             }
-            logAddr += LOG_SIZE;
-            }   
-            break;
+            std::cout << std::endl;
+        }
+        logAddr += LOG_SIZE;
+        }   
     }
     return;
 }
