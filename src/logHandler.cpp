@@ -205,7 +205,9 @@ void printValidLogs(LogType logType){
             for (int i = 0; i < MAX_LOGS; i++){
 
             eeprom_read_page(logAddr, logData, LOG_ARR_LEN);
-            if (logData[LOG_USE_STATUS] == 1 && verifyDataIntegrity(logData, tmp_log_array_length) == true){
+            int crc = getChecksum(logData, tmp_log_array_length);
+            bool integrity = verifyDataIntegrity(logData, tmp_log_array_length);
+            if (logData[LOG_USE_STATUS] == 1 && integrity == true){
                 uint8_t messageCode = logData[MESSAGE_CODE];
                 uint32_t timestamp = (logData[TIMESTAMP_MSB] << 24) | (logData[TIMESTAMP_MSB1] << 16) | (logData[TIMESTAMP_MSB2] << 8) | logData[TIMESTAMP_LSB];
                 uint16_t timestamp_s = timestamp / 1000;
@@ -221,7 +223,9 @@ void printValidLogs(LogType logType){
             for (int i = 0; i < MAX_LOGS; i++){
 
             eeprom_read_page(logAddr, logData, LOG_ARR_LEN);
-            if (logData[LOG_USE_STATUS] == 1 && verifyDataIntegrity(logData, tmp_log_array_length) == true){
+            int crc = getChecksum(logData, tmp_log_array_length);
+            bool integrity = verifyDataIntegrity(logData, tmp_log_array_length);
+            if (logData[LOG_USE_STATUS] == 1 && integrity == true){
                 uint8_t messageCode = logData[MESSAGE_CODE];
                 uint32_t timestamp = (logData[TIMESTAMP_MSB] << 24) | (logData[TIMESTAMP_MSB1] << 16) | (logData[TIMESTAMP_MSB2] << 8) | logData[TIMESTAMP_LSB];
                 uint16_t timestamp_s = timestamp / 1000;
