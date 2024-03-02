@@ -20,7 +20,7 @@
 #define INDEX_WRITE_CRC_LSB 9
 #define INDEX_WRITE_CRC_MSB 10
 
-#define READ_EXPECTED_CHARACTERS 9
+#define READ_EXPECTED_CHARACTERS 7
 
 /*
 This function is shamelessly copied from nanomodbus library
@@ -58,14 +58,14 @@ bool MODBUSRegister::isready() {
 ReadRegister::ReadRegister(shared_uart uart_pointer, uint8_t device_address, uint16_t register_address) :
 MODBUSRegister(uart_pointer, device_address, register_address) {
     payload[INDEX_FUNC] = FUNC_READ_HOLDING_REGISTER;
-    uint16_t pl_crc = crc(payload, 6);
-    payload[INDEX_READ_CRC_MSB] = (uint8_t)(pl_crc >> 8);
-    payload[INDEX_READ_CRC_LSB] = (uint8_t)pl_crc;
+    uint16_t pl_crc = crc(payload, 6); // this is already in little endian format
+    payload[INDEX_READ_CRC_LSB] = (uint8_t)(pl_crc >> 8);
+    payload[INDEX_READ_CRC_MSB] = (uint8_t)pl_crc;
     payload_len = 8;
 }
 
 
 void ReadRegister::start_read(void) {
     rxbuf.start_listening(READ_EXPECTED_CHARACTERS);
-    txbuf.set_transfer_in_flight(sizeof(payload));
+    txbuf.set_transfer_in_flight(payload_len);
 }
