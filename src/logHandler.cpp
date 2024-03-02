@@ -8,18 +8,18 @@
 
 #define CRC_LEN 2
 #define LOG_LEN 6                     // Does not include CRC
-#define LOG_ARR_LEN LOG_LEN + CRC_LEN // Includes CRC
+#define LOG_ARR_LEN (LOG_LEN + CRC_LEN) // Includes CRC
 
 #define DISPENSER_STATE_LEN 6                                 // Does not include CRC
-#define DISPENSER_STATE_ARR_LEN DISPENSER_STATE_LEN + CRC_LEN // Includes CRC
+#define DISPENSER_STATE_ARR_LEN (DISPENSER_STATE_LEN + CRC_LEN) // Includes CRC
 
 #define LOG_START_ADDR 0
-#define LOG_END_ADDR LOG_START_ADDR + (MAX_LOGS * LOG_SIZE)  // The final address is never actually used due the starting from 0. Acts as a separator for the next log type
+#define LOG_END_ADDR (LOG_START_ADDR + (MAX_LOGS * LOG_SIZE))  // The final address is never actually used due the starting from 0. Acts as a separator for the next log type
 #define LOG_SIZE 8
 #define MAX_LOGS 256
 
-#define REBOOT_STATUS_START_ADDR LOG_END_ADDR + LOG_SIZE
-#define REBOOT_STATUS_END_ADDR REBOOT_STATUS_START_ADDR + (MAX_LOGS * LOG_SIZE)
+#define REBOOT_STATUS_START_ADDR (LOG_END_ADDR + LOG_SIZE)
+#define REBOOT_STATUS_END_ADDR (REBOOT_STATUS_START_ADDR + (MAX_LOGS * LOG_SIZE))
 
 // TODO: Create better messages
 const char *logMessages[] = {
