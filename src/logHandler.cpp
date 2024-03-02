@@ -229,6 +229,10 @@ void printValidLogs(LogType logType){
                 uint16_t timestamp_s = timestamp / 1000;
 
                 std::cout << logAddr << ": " << logMessages[messageCode] << " " << timestamp_s << " seconds after last boot." << std::endl;
+                for (int j = 0; j < LOG_ARR_LEN; j++){
+                    std::cout << (int)logData[j] << " ";
+                }
+                std::cout << std::endl;
             }
             logAddr += LOG_SIZE;
             }   
@@ -257,6 +261,10 @@ void printValidLogs(LogType logType){
                 uint16_t timestamp_s = timestamp / 1000;
 
                 std::cout << logAddr << ": " << rebootStatusMessages[messageCode] << " " << timestamp_s << " seconds after last boot." << std::endl;
+                for (int j = 0; j < LOG_ARR_LEN; j++){
+                    std::cout << (int)logData[j] << " ";
+                }
+                std::cout << std::endl;
             }
             logAddr += LOG_SIZE;
             }   
