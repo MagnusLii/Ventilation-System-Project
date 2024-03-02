@@ -42,10 +42,16 @@ void LogHandler::printPrivates() {
 
 void LogHandler::incrementUnusedLogIndex() {
     this->unusedLogIndex += 1;
+    if (this->unusedLogIndex >= (LOG_END_ADDR / LOG_SIZE)){
+        this->zeroAllLogs(LOGTYPE_MSG_LOG);
+    }
 }
 
 void LogHandler::incrementUnusedRebootIndex() {
     this->unusedRebootStatusIndex += 1;
+    if (this->unusedRebootStatusIndex >= (REBOOT_STATUS_END_ADDR / LOG_SIZE){
+        this->zeroAllLogs(LOGTYPE_REBOOT_STATUS);
+    }
 }
 
 void LogHandler::pushLog(LogMessage messageCode){
