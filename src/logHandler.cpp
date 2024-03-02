@@ -84,7 +84,6 @@ void LogHandler::zeroAllLogs(const LogType logType){
 
         break;
     case LOGTYPE_REBOOT_STATUS:
-        std::cout << "logaddr: " << REBOOT_STATUS_START_ADDR << std::endl;
         logAddr = REBOOT_STATUS_START_ADDR;
         for (int i = 0; i < MAX_LOGS; i++){
             eeprom_write_byte(logAddr, 0);
@@ -208,24 +207,12 @@ void printValidLogs(LogType logType){
             for (int i = 0; i < MAX_LOGS; i++){
 
             eeprom_read_page(logAddr, logData, LOG_ARR_LEN);
-            /*
-            int crc = getChecksum(logData, tmp_log_array_length);
-            bool integrity = verifyDataIntegrity(logData, tmp_log_array_length);
-            std::cout << std::endl << std::endl;
-            std::cout << "Ind: " << i << " logData: ";
-            for (int j = 0; j < tmp_log_array_length; j++){
-                std::cout << (int)logData[j] << " ";
-            }
-            std::cout << std::endl;
-            std::cout << "crc: " << crc << std::endl;
-            std::cout << "integrity: " << integrity << std::endl;
-            */
             if (logData[LOG_USE_STATUS] == 1 && verifyDataIntegrity(logData, tmp_log_array_length) == true){
                 uint8_t messageCode = logData[MESSAGE_CODE];
                 uint32_t timestamp = (logData[TIMESTAMP_MSB] << 24) | (logData[TIMESTAMP_MSB1] << 16) | (logData[TIMESTAMP_MSB2] << 8) | logData[TIMESTAMP_LSB];
                 uint16_t timestamp_s = timestamp / 1000;
 
-                std::cout << logAddr << ": " << logMessages[messageCode] << " " << timestamp_s << " seconds after last boot." << std::endl;
+                std::cout << logAddr << ": " << logMessages[messageCode] << " " << timestamp << " seconds after last boot." << std::endl;
                 for (int j = 0; j < LOG_ARR_LEN; j++){
                     std::cout << (int)logData[j] << " ";
                 }
@@ -240,24 +227,12 @@ void printValidLogs(LogType logType){
             for (int i = 0; i < MAX_LOGS; i++){
 
             eeprom_read_page(logAddr, logData, LOG_ARR_LEN);
-            /*
-            int crc = getChecksum(logData, tmp_log_array_length);
-            bool integrity = verifyDataIntegrity(logData, tmp_log_array_length);
-            std::cout << std::endl << std::endl;
-            std::cout << "Ind: " << i << " logData: ";
-            for (int j = 0; j < tmp_log_array_length; j++){
-                std::cout << (int)logData[j] << " ";
-            }
-            std::cout << std::endl;
-            std::cout << "crc: " << crc << std::endl;
-            std::cout << "integrity: " << integrity << std::endl;
-            */
             if (logData[LOG_USE_STATUS] == 1 && verifyDataIntegrity(logData, tmp_log_array_length) == true){
                 uint8_t messageCode = logData[MESSAGE_CODE];
                 uint32_t timestamp = (logData[TIMESTAMP_MSB] << 24) | (logData[TIMESTAMP_MSB1] << 16) | (logData[TIMESTAMP_MSB2] << 8) | logData[TIMESTAMP_LSB];
                 uint16_t timestamp_s = timestamp / 1000;
 
-                std::cout << logAddr << ": " << rebootStatusMessages[messageCode] << " " << timestamp_s << " seconds after last boot." << std::endl;
+                std::cout << logAddr << ": " << rebootStatusMessages[messageCode] << " " << timestamp << " seconds after last boot." << std::endl;
                 for (int j = 0; j < LOG_ARR_LEN; j++){
                     std::cout << (int)logData[j] << " ";
                 }
@@ -266,7 +241,6 @@ void printValidLogs(LogType logType){
             logAddr += LOG_SIZE;
             }   
             break;
-
-
-}
+    }
+    return;
 }
