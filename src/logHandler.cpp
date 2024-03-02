@@ -138,14 +138,12 @@ void LogHandler::enterLogToEeprom(uint8_t *base8Array, int *arrayLen, const int 
     memcpy(crcAppendedArray, base8Array, *arrayLen); // copy original array to extended array
     appendCrcToBase8Array(crcAppendedArray, arrayLen);
 
-    /*
     std::cout << "I: " << logAddr/8 << " addr: " << logAddr << " len: " << *arrayLen << " Array: ";
     for (int i = 0; i < *arrayLen; i++){
         std::cout << (int)crcAppendedArray[i] << " ";
     }
-    */
-   
     std::cout << std::endl;
+
     eeprom_write_page(logAddr, crcAppendedArray, *arrayLen);
 }
 
