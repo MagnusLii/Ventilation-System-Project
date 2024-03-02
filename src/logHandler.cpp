@@ -75,8 +75,6 @@ void LogHandler::pushRebootLog(RebootStatusCodes statusCode){
 void LogHandler::zeroAllLogs(const LogType logType){
     uint16_t logAddr = 0;
 
-    std::cout << REBOOT_STATUS_START_ADDR / LOG_SIZE << std::endl;
-
     switch (logType){
     case LOGTYPE_MSG_LOG:
         logAddr = LOG_START_ADDR;
