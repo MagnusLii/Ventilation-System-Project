@@ -14,13 +14,11 @@
 #define DISPENSER_STATE_ARR_LEN DISPENSER_STATE_LEN + CRC_LEN // Includes CRC
 
 #define LOG_START_ADDR 0
-#define LOG_START_INDEX LOG_START_ADDR / LOG_SIZE
 #define LOG_END_ADDR LOG_START_ADDR + (MAX_LOGS * LOG_SIZE)  // The final address is never actually used due the starting from 0. Acts as a separator for the next log type
 #define LOG_SIZE 8
 #define MAX_LOGS 256
 
 #define REBOOT_STATUS_START_ADDR LOG_END_ADDR + LOG_SIZE
-#define REBOOT_STATUS_START_INDEX REBOOT_STATUS_START_ADDR / LOG_SIZE
 #define REBOOT_STATUS_END_ADDR REBOOT_STATUS_START_ADDR + (MAX_LOGS * LOG_SIZE)
 
 // TODO: Create better messages
@@ -108,28 +106,28 @@ void LogHandler::findFirstAvailableLog(const LogType logType){
         logAddr = LOG_START_ADDR;
         for (int i = 0; i < MAX_LOGS; i++){
             if ((int)eeprom_read_byte(logAddr) == 0){
-                this->unusedLogIndex = logAddr;
+                this->unusedLogIndex = logAddr / LOG_SIZE;
                 return;
             }
             logAddr += LOG_SIZE;
         }
 
         LogHandler::zeroAllLogs(LOGTYPE_MSG_LOG);
-        this->unusedLogIndex = LOG_START_INDEX;
+        this->unusedLogIndex = LOG_START_ADDR / LOG_SIZE;
 
         break;
     case LOGTYPE_REBOOT_STATUS:
         logAddr = REBOOT_STATUS_START_ADDR;
         for (int i = 0; i < MAX_LOGS; i++){
             if ((int)eeprom_read_byte(logAddr) == 0){
-                this->unusedRebootStatusIndex = logAddr;
+                this->unusedRebootStatusIndex = logAddr / LOG_SIZE;
                 return;
             }
             logAddr += LOG_SIZE;
         }
 
         LogHandler::zeroAllLogs(LOGTYPE_REBOOT_STATUS);
-        this->unusedRebootStatusIndex = REBOOT_STATUS_START_INDEX;
+        this->unusedRebootStatusIndex = REBOOT_STATUS_START_ADDR / LOG_SIZE;
 
         break;
     }
