@@ -18,7 +18,8 @@ int main() {
 
     LogHandler logHandler;
 
-    //logHandler.zeroAllLogs(LOGTYPE_MSG_LOG);
+    logHandler.zeroAllLogs(LOGTYPE_MSG_LOG);
+    logHandler.zeroAllLogs(LOGTYPE_REBOOT_STATUS);
     logHandler.pushLog(TEST2);
     logHandler.pushRebootLog(OK);
     printValidLogs(LOGTYPE_MSG_LOG);

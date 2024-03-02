@@ -74,7 +74,6 @@ void LogHandler::pushRebootLog(RebootStatusCodes statusCode){
 
 // TODO: Replace switch with dynamic index placement, once other stuff is done.
 void LogHandler::zeroAllLogs(const LogType logType){
-    std::cout << "Zeroing all logs." << std::endl;
     uint16_t logAddr = 0;
 
     switch (logType){
@@ -141,11 +140,6 @@ void LogHandler::enterLogToEeprom(uint8_t *base8Array, int *arrayLen, const int 
     uint8_t crcAppendedArray[*arrayLen + CRC_LEN];
     memcpy(crcAppendedArray, base8Array, *arrayLen); // copy original array to extended array
     appendCrcToBase8Array(crcAppendedArray, arrayLen);
-    std::cout << "Log array address: " << logAddr << std::endl;
-    for (int i = 0; i < *arrayLen; i++){
-        std::cout << (int)crcAppendedArray[i] << " ";
-    }
-    std::cout << std::endl;
     eeprom_write_page(logAddr, crcAppendedArray, *arrayLen);
 }
 
@@ -221,7 +215,7 @@ void printValidLogs(LogType logType){
             uint16_t timestamp_s = timestamp / 1000;
             // Construct timestamp from individual bytes
 
-            printf("%d: %s %u seconds after last boot.\n", i, logMessages[messageCode], timestamp_s);
+            printf("%d: %s %u seconds after last boot.\n", logAddr, logMessages[messageCode], timestamp_s);
         }
     }
     logAddr += LOG_SIZE;
