@@ -49,6 +49,7 @@ void LogHandler::incrementUnusedRebootIndex() {
 }
 
 void LogHandler::pushLog(LogMessage messageCode){
+    std::cout << "Pushing log: " << logMessages[messageCode] << " to address: " << this->unusedLogIndex << std::endl;
     uint8_t logArray[LOG_LEN];
     int logLen = LOG_LEN;
     uint32_t timestamp = getTimestampSinceBoot(this->bootTimestamp);
@@ -60,6 +61,7 @@ void LogHandler::pushLog(LogMessage messageCode){
 }
 
 void LogHandler::pushRebootLog(RebootStatusCodes statusCode){
+    std::cout << "Pushing reboot log: " << rebootStatusMessages[statusCode] << " to address: " << this->unusedRebootStatusIndex << std::endl;
     uint8_t logArray[LOG_LEN];
     int logLen = LOG_LEN;
     uint32_t timestamp = getTimestampSinceBoot(this->bootTimestamp);
@@ -226,7 +228,8 @@ void printValidLogs(LogType logType){
                 uint32_t timestamp = (logData[TIMESTAMP_MSB] << 24) | (logData[TIMESTAMP_MSB1] << 16) | (logData[TIMESTAMP_MSB2] << 8) | logData[TIMESTAMP_LSB];
                 uint16_t timestamp_s = timestamp / 1000;
 
-                printf("%d: %s %u seconds after last boot.\n", logAddr, logMessages[messageCode], timestamp_s);
+                std::cout << logAddr << ": " << messageCode << " " << timestamp_s << std::endl;
+                std::cout << logAddr << ": " << logMessages[messageCode] << " " << timestamp_s << " seconds after last boot." << std::endl;
             }
             logAddr += LOG_SIZE;
             }   
@@ -254,7 +257,8 @@ void printValidLogs(LogType logType){
                 uint32_t timestamp = (logData[TIMESTAMP_MSB] << 24) | (logData[TIMESTAMP_MSB1] << 16) | (logData[TIMESTAMP_MSB2] << 8) | logData[TIMESTAMP_LSB];
                 uint16_t timestamp_s = timestamp / 1000;
 
-                printf("%d: %s %u seconds after last boot.\n", logAddr, rebootStatusMessages[messageCode], timestamp_s);
+                std::cout << logAddr << ": " << messageCode << " " << timestamp_s << std::endl;
+                std::cout << logAddr << ": " << rebootStatusMessages[messageCode] << " " << timestamp_s << " seconds after last boot." << std::endl;
             }
             logAddr += LOG_SIZE;
             }   
