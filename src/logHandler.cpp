@@ -74,6 +74,7 @@ void LogHandler::pushRebootLog(RebootStatusCodes statusCode){
 
 // TODO: Replace switch with dynamic index placement, once other stuff is done.
 void LogHandler::zeroAllLogs(const LogType logType){
+    std::cout << "Zeroing all logs." << std::endl;
     uint16_t logAddr = 0;
 
     switch (logType){
