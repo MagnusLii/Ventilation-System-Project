@@ -5,6 +5,21 @@
 #define FUNC_READ_HOLDING_REGISTER 0x3
 #define FUNC_WRITE_MULTIPLE_REGISTERS 0x10
 
+#define INDEX_DEVADDR 0
+#define INDEX_FUNC 1
+#define INDEX_REGADDR_MSB 2
+#define INDEX_REGADDR_LSB 3
+#define INDEX_REG_COUNT_MSB 4
+#define INDEX_REG_COUNT_LSB 5
+#define INDEX_READ_CRC_LSB 6
+#define INDEX_READ_CRC_MSB 7
+
+#define INDEX_DATA_BYTE_COUNT 6
+#define INDEX_DATA_LSB 7
+#define INDEX_DATA_MSB 8
+#define INDEX_WRITE_CRC_LSB 9
+#define INDEX_WRITE_CRC_MSB 10
+
 #define READ_EXPECTED_CHARACTERS 9
 
 /*
@@ -26,9 +41,13 @@ static uint16_t crc(const uint8_t* data, uint32_t length) {
     return (uint16_t) (crc << 8) | (uint16_t) (crc >> 8);
 }
 
-MODBUSRegister::MODBUSRegister(shared_uart uart_pointer) :
-txbuf(uart_pointer, nullptr), rxbuf(uart_pointer) {
-
+MODBUSRegister::MODBUSRegister(shared_uart uart_pointer, uint8_t device_address, uint16_t register_address) :
+txbuf(uart_pointer, payload), rxbuf(uart_pointer) {
+    payload[INDEX_DEVADDR] = device_address;
+    payload[INDEX_REGADDR_MSB] = (uint8_t)(register_address >> 8);
+    payload[INDEX_REGADDR_LSB] = (uint8_t)register_address;
+    payload[INDEX_REG_COUNT_MSB] = 0; // not doing that many registers at once
+    payload[INDEX_REG_COUNT_LSB] = 1; // just doing one (for now)
 }
 
 bool MODBUSRegister::isready() {
@@ -37,14 +56,12 @@ bool MODBUSRegister::isready() {
 
 
 ReadRegister::ReadRegister(shared_uart uart_pointer, uint8_t device_address, uint16_t register_address) :
-MODBUSRegister(uart_pointer) {
-     payload.devaddr = device_address;
-     payload.function = FUNC_READ_HOLDING_REGISTER;
-     payload.regaddr = register_address;
-     payload.write_count = 1;
-     payload.crc = crc((uint8_t *)&payload, sizeof(payload) - 2);
-
-     txbuf.set_tx_buffer((uint8_t *)&payload);
+MODBUSRegister(uart_pointer, device_address, register_address) {
+    payload[INDEX_FUNC] = FUNC_READ_HOLDING_REGISTER;
+    uint16_t pl_crc = crc(payload, 6);
+    payload[INDEX_READ_CRC_MSB] = (uint8_t)(pl_crc >> 8);
+    payload[INDEX_READ_CRC_LSB] = (uint8_t)pl_crc;
+    payload_len = 8;
 }
 
 
