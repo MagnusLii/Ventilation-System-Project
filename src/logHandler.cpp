@@ -217,6 +217,6 @@ void printValidLogs(LogType logType){
 
             printf("%d: %s %u seconds after last boot.\n", logAddr, logMessages[messageCode], timestamp_s);
         }
+        logAddr += LOG_SIZE;
     }
-    logAddr += LOG_SIZE;
 }
