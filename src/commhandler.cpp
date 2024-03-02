@@ -3,10 +3,13 @@
 #include "debugprint.h"
 
 CommHandler::CommHandler(IPStack &ipstack, MQTT::Client<IPStack, Countdown> &client,
-                         int mqtt_version, const char *client_id, const char *topic)
-    : ipstack(ipstack), client(client), topic(topic) {
+                         int mqtt_version, const char *client_id)
+    : ipstack(ipstack), client(client) {
     connect_data.MQTTVersion = mqtt_version;
     connect_data.clientID.cstring = (char *)client_id;
+    topics = {{TopicType::DATA_TOPIC, std::make_pair("data", 0)},
+              {TopicType::CONTROL_TOPIC, std::make_pair("control", 0)},
+              {TopicType::OTHER_TOPIC, std::make_pair("other", 0)}};
 }
 
 int CommHandler::connect_to_server(const char *hostname, int port) {
@@ -30,8 +33,6 @@ int CommHandler::connect_to_broker() {
     if (return_code != 0) {
         DPRINT("Failed to connect. RC: ", return_code);
         // goto cry;
-        while (true)
-            tight_loop_contents();
     } else {
         DPRINT("MQTT connected to broker.");
     }
@@ -39,38 +40,59 @@ int CommHandler::connect_to_broker() {
     return return_code;
 }
 
-int CommHandler::subscribe() {
+int CommHandler::subscribe(TopicType topic_type) {
+    const char *topic = topics.at(topic_type).first;
+    return subscribe(topic_type, topic);
+}
+
+int CommHandler::subscribe(TopicType topic_type, const char *topic) {
+    int return_code = -2;
+    if (is_subscribed(topic_type)) {
+        DPRINT("Already subscribed to topic type ", topic_type, ".");
+        if (unsubscribe(topic_type) != 0) {
+            DPRINT("Failed to subscribe topic ", topic, ". RC: ", return_code);
+            return return_code;
+        }
+    }
+
+    if (topics.at(topic_type).first != topic) set_topic(topic_type, topic);
+
     DPRINT("MQTT subscribing to topic: ", topic, "...");
-    int return_code = client.subscribe(topic, MQTT::QOS2, message_arrived);
+    return_code = client.subscribe(topic, MQTT::QOS2, message_arrived);
     if (return_code != 0) {
         DPRINT("Failed to subscribe to topic ", topic, ". RC: ", return_code);
         // goto cry;
-        while (true)
-            tight_loop_contents();
+    } else {
+        DPRINT("MQTT subscribed to topic.");
+        topics.at(topic_type).second = 1;
     }
-    DPRINT("MQTT subscribed to topic.");
 
     return return_code;
 }
 
-int CommHandler::subscribe(const char *topic_name) {
-    set_topic(topic_name);
-
-    DPRINT("MQTT subscribing to topic: ", topic, "...");
-    int return_code = client.subscribe(topic, MQTT::QOS2, message_arrived);
-    if (return_code != 0) {
-        DPRINT("Failed to subscribe to topic ", topic, ". RC: ", return_code);
-        // goto cry;
-        while (true)
-            tight_loop_contents();
+int CommHandler::unsubscribe(TopicType topic_type) {
+    if (topics.at(topic_type).second == 0) {
+        DPRINT("Topic ", topics.at(topic_type).first, " already unsubscribed.");
+        return 0;
     }
-    DPRINT("MQTT subscribed to topic.");
+
+    const char *topic = topics.at(topic_type).first;
+    DPRINT("MQTT unsubscribing from topic: ", topic, "...");
+    int return_code = client.unsubscribe(topic);
+    if (return_code != 0) {
+        DPRINT("Failed to unsubscribe from topic ", topic, ". RC: ", return_code);
+        // goto cry;
+    } else {
+        DPRINT("MQTT unsubscribed from topic.");
+        topics.at(topic_type).second = 0;
+    }
 
     return return_code;
 }
 
-int CommHandler::publish(const char *payload) {
-    DPRINT("MQTT publishing: ", payload, "...");
+int CommHandler::publish(TopicType topic_type, const char *payload) {
+    const char *topic = topics.at(topic_type).first;
+    DPRINT("MQTT publishing: ", payload, " to topic ", topic, "...");
     MQTT::Message message;
     message.retained = false;
     message.dup = false;
@@ -78,14 +100,13 @@ int CommHandler::publish(const char *payload) {
     message.qos = MQTT::QOS0;
     message.payloadlen = strlen(payload) + 1;
 
-    int return_code = client.publish(topic, message); // 0 = success, -1 = failure
+    int return_code = client.publish(topic, message);
     if (return_code != 0) {
         DPRINT("Failed to publish. RC: ", return_code);
         // goto cry;
-        while (true)
-            tight_loop_contents();
+    } else {
+        DPRINT("MQTT message published.");
     }
-    DPRINT("MQTT message published.");
 
     return return_code;
 }
@@ -98,15 +119,18 @@ int CommHandler::reconnect() {
     if (return_code != 0) {
         DPRINT("Failed to connect. RC: ", return_code);
         // goto cry;
-        while (true)
-            tight_loop_contents();
+    } else {
+        DPRINT("MQTT reconnected.");
     }
-    DPRINT("MQTT reconnected.");
 
     return return_code;
 }
 
-void CommHandler::set_topic(const char *new_topic) { topic = new_topic; }
+void CommHandler::set_topic(TopicType topic_type, const char *new_topic) {
+    topics.at(topic_type).first = new_topic;
+}
+
+int CommHandler::is_subscribed(TopicType topic_type) { return topics.at(topic_type).second; }
 
 void message_arrived(MQTT::MessageData &data) {
     MQTT::Message &message = data.message;
