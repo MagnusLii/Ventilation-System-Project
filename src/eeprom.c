@@ -73,7 +73,7 @@ void eeprom_write_address(uint16_t address) {
  * @param c       The byte of data to be written.
  */
 void eeprom_write_byte(uint16_t address, char c) {
-    uint8_t out[3] = {address >> 4, address, c};
+    uint8_t out[3] = {address >> 8, address, c};
 
     eeprom_write_cycle_block();
 
@@ -91,7 +91,7 @@ void eeprom_write_byte(uint16_t address, char c) {
  */
 void eeprom_write_page(uint16_t address, uint8_t *src, size_t size) {
     uint8_t out[size + 2];
-    out[0] = address >> 4; // Upper bits of the address
+    out[0] = address >> 8; // Upper bits of the address
     out[1] = address; // Lower bits of the address
     for (int i = 0; i < size; i++) {
         out[i + 2] = src[i];
