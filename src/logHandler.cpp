@@ -212,8 +212,6 @@ void printValidLogs(LogType logType){
             uint8_t messageCode = logData[MESSAGE_CODE];
             uint32_t timestamp = (logData[TIMESTAMP_MSB] << 24) | (logData[TIMESTAMP_MSB1] << 16) | (logData[TIMESTAMP_MSB2] << 8) | logData[TIMESTAMP_LSB];
 
-            // TODO: Remove before showcase
-            std::cout << logAddr << ": " << logMessages[messageCode] << " " << timestamp << " seconds after last boot." << std::endl;
             for (int j = 0; j < LOG_ARR_LEN; j++){
                 std::cout << (int)logData[j] << " ";
             }
@@ -231,9 +229,7 @@ void printValidLogs(LogType logType){
             uint8_t messageCode = logData[MESSAGE_CODE];
             uint32_t timestamp = (logData[TIMESTAMP_MSB] << 24) | (logData[TIMESTAMP_MSB1] << 16) | (logData[TIMESTAMP_MSB2] << 8) | logData[TIMESTAMP_LSB];
 
-            // TODO: Remove before showcase
-            std::cout << logAddr << ": " << rebootStatusMessages[messageCode] << " " << timestamp << " seconds after last boot." << std::endl;
-            for (int j = 0; j < LOG_ARR_LEN; j++){
+               for (int j = 0; j < LOG_ARR_LEN; j++){
                 std::cout << (int)logData[j] << " ";
             }
             std::cout << std::endl;

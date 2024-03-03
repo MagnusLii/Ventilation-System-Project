@@ -18,8 +18,8 @@ int main() {
 
     LogHandler logHandler;
 
-    logHandler.clearAllLogs(LOGTYPE_MSG_LOG); // clears all logs from addrs 0-2048
-    logHandler.clearAllLogs(LOGTYPE_REBOOT_STATUS); // clears all logs from addrs 2056-4096
+    //logHandler.clearAllLogs(LOGTYPE_MSG_LOG); // clears all logs from addrs 0-2048
+    //logHandler.clearAllLogs(LOGTYPE_REBOOT_STATUS); // clears all logs from addrs 2056-4096
 
     logHandler.pushLog(TEST); // pushes log to addr 0 (and 4096 ????)
     logHandler.pushLog(TEST2); // pushes log to addr 8 (and 2056 ????)
