@@ -3,7 +3,15 @@
 #include "modbus_controller.h"
 
 ModbusCtrl::ModbusCtrl(shared_uart uart_pointer) :
-    uart_ptr(uart_pointer), uart_baud(uart_pointer->get_baud()), busy(false), ctrl_time(0) {}
+    tx_channel(uart_pointer, true),
+    rx_channel(uart_pointer, false),
+    uart_ptr(uart_pointer),
+    uart_baud(uart_pointer->get_baud()),
+    busy(false),
+    ctrl_time(0) {
+        irq_set_exclusive_handler(DMA_IRQ_0, //TODO);
+        irq_set_enabled(DMA_IRQ_0, true);
+    }
 
 
 static inline uint64_t get_char_delay(uint baud) {

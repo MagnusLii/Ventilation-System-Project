@@ -8,6 +8,8 @@
 #include "modbus_register.h"
 #include "dma_buffer.h"
 
+#include "dma_channel.h"
+
 #define MAX_DMA_CHANNELS 12 // from datasheet
 
 static DMABuffer *active_channels[MAX_DMA_CHANNELS] = {nullptr};
