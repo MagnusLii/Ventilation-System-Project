@@ -16,3 +16,7 @@ io_rw_32 *Uart_instance::get_dr_address(void) {
 uint Uart_instance::get_index(void) {
     return uart_get_index(uart);
 }
+
+uint Uart_instance::get_baud(void) {
+    return baudrate;
+}

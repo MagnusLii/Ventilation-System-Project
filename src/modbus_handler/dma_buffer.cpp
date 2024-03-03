@@ -5,6 +5,7 @@
 #include "hardware/dma.h"
 #include "hardware/timer.h"
 #include "uart_instance.h"
+#include "modbus_register.h"
 #include "dma_buffer.h"
 
 #define MAX_DMA_CHANNELS 12 // from datasheet
@@ -23,8 +24,8 @@ void dma_irq_handler(void) {
     }
 }
 
-DMABuffer::DMABuffer(shared_uart uart_pointer) :
-uart(uart_pointer), ready(false) {
+DMABuffer::DMABuffer(shared_uart uart_pointer, MODBUSRegister *owner) :
+uart(uart_pointer), owner(owner) {
     dma_channel = dma_claim_unused_channel(true);
     active_channels[dma_channel] = this;
     if (!irq0_enabled) {
@@ -35,12 +36,9 @@ uart(uart_pointer), ready(false) {
 }
 
 void DMABuffer::irq_hand() {
-    ready = true;
+    owner->done();
 }
 
-bool DMABuffer::isready() {
-    return ready;
-}
 
 DMABuffer::~DMABuffer() {
     dma_channel_cleanup(dma_channel);
@@ -49,8 +47,8 @@ DMABuffer::~DMABuffer() {
 }
 
 
-DMARXBuffer::DMARXBuffer(shared_uart uart_pointer) :
-DMABuffer(uart_pointer) {
+DMARXBuffer::DMARXBuffer(shared_uart uart_pointer, MODBUSRegister *owner) :
+DMABuffer(uart_pointer, owner) {
     dma_channel_config c = dma_channel_get_default_config(dma_channel);
     channel_config_set_transfer_data_size(&c, DMA_SIZE_8); // uart deals with 8 bit characters
     channel_config_set_read_increment(&c, false); // read from same fifo so no increment
@@ -69,14 +67,13 @@ DMABuffer(uart_pointer) {
 
 
 void DMARXBuffer::start_listening(uint8_t max_characters) {
-    ready = false;
     dma_channel_set_write_addr(dma_channel, &buffer, false);
     dma_channel_set_trans_count(dma_channel, max_characters, true);
 }
 
 
-DMATXBuffer::DMATXBuffer(shared_uart uart_pointer, uint8_t *buffer) :
-DMABuffer(uart_pointer), buffer(buffer) {
+DMATXBuffer::DMATXBuffer(shared_uart uart_pointer, uint8_t *buffer, MODBUSRegister *owner) :
+DMABuffer(uart_pointer, owner), buffer(buffer) {
     dma_channel_config c = dma_channel_get_default_config(dma_channel);
     channel_config_set_transfer_data_size(&c, DMA_SIZE_8); // uart deals with 8 bit characters
     channel_config_set_read_increment(&c, true);

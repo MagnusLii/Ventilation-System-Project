@@ -1,6 +1,6 @@
 #include "pico/stdlib.h"
 
-#include "modbus.h"
+#include "modbus_register.h"
 
 #define FUNC_READ_HOLDING_REGISTER 0x3
 #define FUNC_WRITE_MULTIPLE_REGISTERS 0x10
@@ -41,8 +41,8 @@ static uint16_t crc(const uint8_t* data, uint32_t length) {
     return (uint16_t) (crc << 8) | (uint16_t) (crc >> 8);
 }
 
-MODBUSRegister::MODBUSRegister(shared_uart uart_pointer, uint8_t device_address, uint16_t register_address) :
-txbuf(uart_pointer, payload), rxbuf(uart_pointer) {
+MODBUSRegister::MODBUSRegister(shared_modbus modbus, uint8_t device_address, uint16_t register_address) :
+    modbus(modbus), txbuf(modbus->uart_ptr, payload, this), rxbuf(modbus->uart_ptr, this) {
     payload[INDEX_DEVADDR] = device_address;
     payload[INDEX_REGADDR_MSB] = (uint8_t)(register_address >> 8);
     payload[INDEX_REGADDR_LSB] = (uint8_t)register_address;
@@ -50,13 +50,9 @@ txbuf(uart_pointer, payload), rxbuf(uart_pointer) {
     payload[INDEX_REG_COUNT_LSB] = 1; // just doing one (for now)
 }
 
-bool MODBUSRegister::isready() {
-    return rxbuf.isready();
-}
 
-
-ReadRegister::ReadRegister(shared_uart uart_pointer, uint8_t device_address, uint16_t register_address) :
-MODBUSRegister(uart_pointer, device_address, register_address) {
+ReadRegister::ReadRegister(shared_modbus modbus, uint8_t device_address, uint16_t register_address) :
+MODBUSRegister(modbus, device_address, register_address) {
     payload[INDEX_FUNC] = FUNC_READ_HOLDING_REGISTER;
     uint16_t pl_crc = crc(payload, 6); // this is already in little endian format
     payload[INDEX_READ_CRC_LSB] = (uint8_t)(pl_crc >> 8);
@@ -66,6 +62,12 @@ MODBUSRegister(uart_pointer, device_address, register_address) {
 
 
 void ReadRegister::start_read(void) {
+    modbus->start();
     rxbuf.start_listening(READ_EXPECTED_CHARACTERS);
     txbuf.set_transfer_in_flight(payload_len);
+}
+
+void ReadRegister::done() {
+    modbus->end();
+    // do something with data received
 }
