@@ -36,21 +36,21 @@ const char *rebootStatusMessages[] = {
 
 // TODO: Delete this.
 void LogHandler::printPrivates() {
-    std::cout << "Log Address: " << this->unusedLogIndex << std::endl;
-    std::cout << "Reboot Status Address: " << this->unusedRebootStatusIndex << std::endl;
+    std::cout << "Log Address: " << this->unusedLogAddr << std::endl;
+    std::cout << "Reboot Status Address: " << this->unusedRebootStatusAddr << std::endl;
 }
 
 void LogHandler::incrementUnusedLogIndex() {
-    this->unusedLogIndex += 1;
-    if (this->unusedLogIndex >= (LOG_END_ADDR / LOG_SIZE)){
-        this->zeroAllLogs(LOGTYPE_MSG_LOG);
+    this->unusedLogAddr += LOG_SIZE;
+    if (this->unusedLogAddr >= LOG_END_ADDR){
+        this->clearAllLogs(LOGTYPE_MSG_LOG);
     }
 }
 
 void LogHandler::incrementUnusedRebootIndex() {
-    this->unusedRebootStatusIndex += 1;
-    if (this->unusedRebootStatusIndex >= (REBOOT_STATUS_END_ADDR / LOG_SIZE)){
-        this->zeroAllLogs(LOGTYPE_REBOOT_STATUS);
+    this->unusedRebootStatusAddr += LOG_SIZE;
+    if (this->unusedRebootStatusAddr >= REBOOT_STATUS_END_ADDR){
+        this->clearAllLogs(LOGTYPE_REBOOT_STATUS);
     }
 }
 
@@ -59,7 +59,7 @@ void LogHandler::pushLog(LogMessage messageCode){
     int logLen = LOG_LEN;
     uint32_t timestamp = getTimestampSinceBoot(this->bootTimestamp);
     createLogArray(logArray, messageCode, timestamp);
-    LogHandler::enterLogToEeprom(logArray, &logLen, (this->unusedLogIndex * LOG_SIZE));
+    LogHandler::enterLogToEeprom(logArray, &logLen, this->unusedLogAddr);
     LogHandler::incrementUnusedLogIndex();
 
     // TODO: add mqtt message.
@@ -70,13 +70,13 @@ void LogHandler::pushRebootLog(RebootStatusCodes statusCode){
     int logLen = LOG_LEN;
     uint32_t timestamp = getTimestampSinceBoot(this->bootTimestamp);
     createLogArray(logArray, statusCode, timestamp);
-    LogHandler::enterLogToEeprom(logArray, &logLen, (this->unusedRebootStatusIndex * LOG_SIZE));
+    LogHandler::enterLogToEeprom(logArray, &logLen, this->unusedLogAddr);
     LogHandler::incrementUnusedRebootIndex();
     
     // TODO: add mqtt message.
 }
 
-void LogHandler::zeroAllLogs(const LogType logType){
+void LogHandler::clearAllLogs(const LogType logType){
     uint16_t logAddr = 0;
 
     if (logType == LOGTYPE_MSG_LOG){
@@ -85,7 +85,7 @@ void LogHandler::zeroAllLogs(const LogType logType){
             eeprom_write_byte(logAddr, 0);
             logAddr += LOG_SIZE;
         }
-        this->unusedLogIndex = LOG_START_ADDR / LOG_SIZE;
+        this->unusedLogAddr = LOG_START_ADDR;
     }
     else if (logType == LOGTYPE_REBOOT_STATUS){
         logAddr = REBOOT_STATUS_START_ADDR;
@@ -93,12 +93,11 @@ void LogHandler::zeroAllLogs(const LogType logType){
             eeprom_write_byte(logAddr, 0);
             logAddr += LOG_SIZE;
         }
-        this->unusedRebootStatusIndex = REBOOT_STATUS_START_ADDR / LOG_SIZE;
+        this->unusedRebootStatusAddr = REBOOT_STATUS_START_ADDR;
     }
     return;
 }
 
-// TODO: Replace switch with dynamic index placement, once other stuff is done.
 void LogHandler::findFirstAvailableLog(const LogType logType){
     uint16_t logAddr = 0;
 
@@ -107,28 +106,28 @@ void LogHandler::findFirstAvailableLog(const LogType logType){
         logAddr = LOG_START_ADDR;
         for (int i = 0; i < MAX_LOGS; i++){
             if ((int)eeprom_read_byte(logAddr) == 0){
-                this->unusedLogIndex = logAddr / LOG_SIZE;
+                this->unusedLogAddr = logAddr;
                 return;
             }
             logAddr += LOG_SIZE;
         }
 
-        LogHandler::zeroAllLogs(LOGTYPE_MSG_LOG);
-        this->unusedLogIndex = LOG_START_ADDR / LOG_SIZE;
+        LogHandler::clearAllLogs(LOGTYPE_MSG_LOG);
+        this->unusedLogAddr = LOG_START_ADDR;
 
         break;
     case LOGTYPE_REBOOT_STATUS:
         logAddr = REBOOT_STATUS_START_ADDR;
         for (int i = 0; i < MAX_LOGS; i++){
             if ((int)eeprom_read_byte(logAddr) == 0){
-                this->unusedRebootStatusIndex = logAddr / LOG_SIZE;
+                this->unusedRebootStatusAddr = logAddr;
                 return;
             }
             logAddr += LOG_SIZE;
         }
 
-        LogHandler::zeroAllLogs(LOGTYPE_REBOOT_STATUS);
-        this->unusedRebootStatusIndex = REBOOT_STATUS_START_ADDR / LOG_SIZE;
+        LogHandler::clearAllLogs(LOGTYPE_REBOOT_STATUS);
+        this->unusedRebootStatusAddr = REBOOT_STATUS_START_ADDR;
 
         break;
     }
@@ -138,9 +137,10 @@ void LogHandler::findFirstAvailableLog(const LogType logType){
 
 void LogHandler::enterLogToEeprom(uint8_t *base8Array, int *arrayLen, const int logAddr) {
     uint8_t crcAppendedArray[*arrayLen + CRC_LEN];
-    memcpy(crcAppendedArray, base8Array, *arrayLen); // copy original array to extended array
+    memcpy(crcAppendedArray, base8Array, *arrayLen);
     appendCrcToBase8Array(crcAppendedArray, arrayLen);
 
+    // TODO: remove before showcase
     std::cout << "I: " << logAddr/8 << " addr: " << logAddr << " len: " << *arrayLen << " Array: ";
     for (int i = 0; i < *arrayLen; i++){
         std::cout << (int)crcAppendedArray[i] << " ";
@@ -211,13 +211,14 @@ void printValidLogs(LogType logType){
         if (logData[LOG_USE_STATUS] == 1 && verifyDataIntegrity(logData, tmp_log_array_length) == true){
             uint8_t messageCode = logData[MESSAGE_CODE];
             uint32_t timestamp = (logData[TIMESTAMP_MSB] << 24) | (logData[TIMESTAMP_MSB1] << 16) | (logData[TIMESTAMP_MSB2] << 8) | logData[TIMESTAMP_LSB];
-            uint16_t timestamp_s = timestamp / 1000;
 
+            // TODO: Remove before showcase
             std::cout << logAddr << ": " << logMessages[messageCode] << " " << timestamp << " seconds after last boot." << std::endl;
             for (int j = 0; j < LOG_ARR_LEN; j++){
                 std::cout << (int)logData[j] << " ";
             }
             std::cout << std::endl;
+
         }
         logAddr += LOG_SIZE;
         }   
@@ -229,13 +230,14 @@ void printValidLogs(LogType logType){
         if (logData[LOG_USE_STATUS] == 1 && verifyDataIntegrity(logData, tmp_log_array_length) == true){
             uint8_t messageCode = logData[MESSAGE_CODE];
             uint32_t timestamp = (logData[TIMESTAMP_MSB] << 24) | (logData[TIMESTAMP_MSB1] << 16) | (logData[TIMESTAMP_MSB2] << 8) | logData[TIMESTAMP_LSB];
-            uint16_t timestamp_s = timestamp / 1000;
 
+            // TODO: Remove before showcase
             std::cout << logAddr << ": " << rebootStatusMessages[messageCode] << " " << timestamp << " seconds after last boot." << std::endl;
             for (int j = 0; j < LOG_ARR_LEN; j++){
                 std::cout << (int)logData[j] << " ";
             }
             std::cout << std::endl;
+            
         }
         logAddr += LOG_SIZE;
         }   

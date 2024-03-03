@@ -18,25 +18,25 @@ int main() {
 
     LogHandler logHandler;
 
-    logHandler.zeroAllLogs(LOGTYPE_MSG_LOG);
-    logHandler.zeroAllLogs(LOGTYPE_REBOOT_STATUS);
+    logHandler.clearAllLogs(LOGTYPE_MSG_LOG); // clears all logs from addrs 0-2048
+    logHandler.clearAllLogs(LOGTYPE_REBOOT_STATUS); // clears all logs from addrs 2056-4096
 
     
-    logHandler.pushLog(TEST);
-    /*logHandler.pushLog(TEST2);
-    logHandler.pushLog(TEST2);
-    logHandler.pushLog(TEST2);
-    logHandler.pushLog(TEST);
+    logHandler.pushLog(TEST); // pushes log to addr 0 (and 4096 ????)
+    /*logHandler.pushLog(TEST2); // pushes log to addr 8 (and 2056 ????)
+    logHandler.pushLog(TEST2); // pushes log to addr 16 (and 2064 ????)
+    logHandler.pushLog(TEST2); // pushes log to addr 24 (and 2072 ????)
+    logHandler.pushLog(TEST); // pushes log to addr 32 (and 2080 ????)
     */
 
     /*
-    logHandler.pushRebootLog(OK);
-    logHandler.pushRebootLog(CRASH);
-    logHandler.pushRebootLog(FORCED_REBOOT);
-    logHandler.pushRebootLog(OK);
+    logHandler.pushRebootLog(OK); // pushes log to addr 2056 (and 8 ????)
+    logHandler.pushRebootLog(CRASH); // pushes log to addr 2064 (and 16 ????)
+    logHandler.pushRebootLog(FORCED_REBOOT); // pushes log to addr 2072 (and 24 ????)
+    logHandler.pushRebootLog(OK); // pushes log to addr 2080 (and 32 ????)
     */
 
-    printValidLogs(LOGTYPE_MSG_LOG);
-    printValidLogs(LOGTYPE_REBOOT_STATUS);
+    printValidLogs(LOGTYPE_MSG_LOG); // prints logs from addrs 0-2048
+    printValidLogs(LOGTYPE_REBOOT_STATUS); // prints logs from addrs 2048-4096
     return 0;
 }

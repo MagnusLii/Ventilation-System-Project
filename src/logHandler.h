@@ -53,14 +53,14 @@ class LogHandler {
         void incrementUnusedRebootIndex();
         void pushLog(LogMessage messageCode);
         void pushRebootLog(RebootStatusCodes statusCode);
-        void zeroAllLogs(const LogType logType);
+        void clearAllLogs(const LogType logType);
         void findFirstAvailableLog(const LogType logType);
         void enterLogToEeprom(uint8_t *base8Array, int *arrayLen, const int logAddr);
         void createLogArray(uint8_t *array, int messageCode, uint32_t timestamp);
 
     private:
-        int unusedLogIndex;
-        int unusedRebootStatusIndex;
+        int unusedLogAddr;
+        int unusedRebootStatusAddr;
         uint32_t bootTimestamp;
 };
 
