@@ -70,7 +70,7 @@ void LogHandler::pushRebootLog(RebootStatusCodes statusCode){
     int logLen = LOG_LEN;
     uint32_t timestamp = getTimestampSinceBoot(this->bootTimestamp);
     createLogArray(logArray, statusCode, timestamp);
-    LogHandler::enterLogToEeprom(logArray, &logLen, this->unusedLogAddr);
+    LogHandler::enterLogToEeprom(logArray, &logLen, this->unusedRebootStatusAddr);
     LogHandler::incrementUnusedRebootIndex();
     
     // TODO: add mqtt message.
