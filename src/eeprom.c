@@ -62,7 +62,7 @@ void eeprom_init_i2c(i2c_inst_t *i2c, uint baud, uint32_t write_cycle_max_ms) {
 void eeprom_write_address(uint16_t address) {
     eeprom_write_cycle_block();
 
-    uint8_t out[2] = {address >> 4, address};
+    uint8_t out[2] = {address >> 8, address}; // shift by 8 not 4...
     i2c_write_blocking(i2c0, EEPROM_ADDRESS, out, 2, true);
 }
 
