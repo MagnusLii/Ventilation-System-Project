@@ -22,12 +22,12 @@ int main() {
     shared_modbus mbctrl{std::make_shared<ModbusCtrl>(u)};
     MODBUSRegister rh(mbctrl, 241, 256, true);
     MODBUSRegister mio1(mbctrl, 1, 0, false);
-    MODBUSRegister mio2(mbctrl, 1, 1, false);
 
 
-    mio1.start_transfer(1000);
+    mio1.start_transfer(129);
     //mio2.start_transfer(500);
 
+while(1) tight_loop_contents();
     rh.start_transfer();
 
     while(1) rh.start_transfer();
