@@ -6,6 +6,7 @@
 #include "eeprom.h"
 #include "logHandler.h"
 #include "commhandler.h"
+#include <memory.h>
 
 #define CRC_LEN 2
 #define LOG_LEN 6                     // Does not include CRC
@@ -64,7 +65,9 @@ void LogHandler::pushLog(LogMessage messageCode){
     LogHandler::incrementUnusedLogIndex();
 
     // string editing.
-    std::string message = "\"{\"Message\":\"" + LogMessages[messageCode] + "\"}\"";
+    std::string message1 = logMessages[messageCode];
+    std::string message = "\"{\"Message\":\"" + message1 + "\"}\"";
+    
     this->commHandler->publish(TopicType::LOG_SEND, message.c_str());
 }
 
@@ -228,7 +231,7 @@ void printValidLogs(LogType logType){
     return;
 }
 
-void setCommHandler(std::shared_ptr<CommHandler> commHandler){
+void LogHandler::setCommHandler(std::shared_ptr<CommHandler> commHandler){
     this->commHandler = commHandler;
     return;
 }

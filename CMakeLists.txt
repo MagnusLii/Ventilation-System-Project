@@ -19,7 +19,11 @@ include_directories(${CMAKE_CURRENT_LIST_DIR}/src
 
 add_compile_options(-Wall)
 
-add_executable(${PROJECT_NAME} main.cpp)
+file(GLOB MQTT_SOURCES "paho.mqtt.embedded-c/MQTTPacket/src/*.c")
+
+add_executable(${PROJECT_NAME} main.cpp
+        ${MQTT_SOURCES}
+)
 add_library(pin src/pin.cpp)
 add_library(eeprom src/eeprom.c)
 add_library(logHandler src/logHandler.cpp)
@@ -36,7 +40,7 @@ target_link_libraries(Countdown   pico_stdlib)
 target_link_libraries(IPStack     pico_stdlib pico_cyw43_arch_lwip_poll)
 target_link_libraries(eeprom      pico_stdlib hardware_i2c)
 target_link_libraries(logHandler  pico_stdlib eeprom commhandler)
-file(GLOB MQTT_SOURCES "paho.mqtt.embedded-c/MQTTPacket/src/*.c")
+
 
 pico_enable_stdio_usb(${PROJECT_NAME} 0)
 pico_enable_stdio_uart(${PROJECT_NAME} 1)

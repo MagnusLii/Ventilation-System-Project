@@ -3,6 +3,9 @@
 
 #include <stdint.h>
 #include "pico/time.h"
+#include <memory>
+#include <stdlib.h>
+#include "commhandler.h"
 
 extern const char *logMessages[];
 extern const char *rebootStatusMessages[];
@@ -60,7 +63,7 @@ class LogHandler {
         void setCommHandler(std::shared_ptr<CommHandler> commHandler);
 
     private:
-        std::weak_ptr<CommHandler> commHandler;
+        std::shared_ptr<CommHandler> commHandler;
         int unusedLogAddr;
         int unusedRebootStatusAddr;
         uint32_t bootTimestamp;
