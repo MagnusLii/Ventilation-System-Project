@@ -20,9 +20,9 @@ int main() {
     stdio_init_all();
     eeprom_init_i2c(i2c0, EEPROM_BAUD_RATE, EEPROM_WRITE_CYCLE_MAX_MS);
     DPRINT("Boot");
-    const char *ssid = "CGA2121_BwQMKGs";
-    const char *pw = "asd";
-    const char *hostname = "192.168.0.15";
+    const char *ssid = "SSID";
+    const char *pw = "PW";
+    const char *hostname = "0.0.0.0";
     int port = 1883;
 
     IPStack ipstack(ssid, pw);
@@ -37,6 +37,7 @@ int main() {
     LogHandler loghandler;
     loghandler.setCommHandler(commhandler_ptr);
     loghandler.pushLog(TEST);
+    printValidLogs(LOGTYPE_MSG_LOG);
 
     return 0;
 }

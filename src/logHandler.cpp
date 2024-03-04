@@ -6,6 +6,7 @@
 #include "eeprom.h"
 #include "logHandler.h"
 #include "commhandler.h"
+#include "debugprint.h"
 #include <memory.h>
 
 #define CRC_LEN 2
@@ -67,6 +68,7 @@ void LogHandler::pushLog(LogMessage messageCode){
     // string editing.
     std::string message1 = logMessages[messageCode];
     std::string message = "\"{\"Message\":\"" + message1 + "\"}\"";
+    DPRINT(message);
     
     this->commHandler->publish(TopicType::LOG_SEND, message.c_str());
 }
