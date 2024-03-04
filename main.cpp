@@ -6,8 +6,8 @@
 #include "pico/stdlib.h"
 
 #include "uart_instance.h"
-#include "modbus_register.h"
 #include "modbus_controller.h"
+#include "modbus_register.h"
 
 #define DEBUG_ENABLE
 #include "debugprint.h"
@@ -20,17 +20,22 @@ int main() {
     stdio_init_all();
     shared_uart u{std::make_shared<Uart_instance>(1, 9600, UART_TX_PIN, UART_RX_PIN)};
     shared_modbus mbctrl{std::make_shared<ModbusCtrl>(u)};
-    MODBUSRegister rh(mbctrl, 241, 256, true);
-    MODBUSRegister mio1(mbctrl, 1, 0, false);
+    ReadRegister rh(mbctrl, 241, 256);
+    ReadRegister co(mbctrl, 240, 0, 2);
+    WriteRegister mio(mbctrl, 1, 0, 1);
+
+ 
 
 
-    mio1.start_transfer(129);
+    // mio.start_transfer((uint16_t)129);
     //mio2.start_transfer(500);
 
-while(1) tight_loop_contents();
-    rh.start_transfer();
+// while(1) tight_loop_contents();
+    co.start_transfer();
+    while (mbctrl->isbusy()) tight_loop_contents();
+    DPRINT(co.is_ok());
 
-    while(1) rh.start_transfer();
+    while(1) tight_loop_contents();
 
     return 0;
 }
