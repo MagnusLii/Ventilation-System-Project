@@ -21,9 +21,12 @@ int main() {
     shared_uart u{std::make_shared<Uart_instance>(1, 9600, UART_TX_PIN, UART_RX_PIN)};
     shared_modbus mbctrl{std::make_shared<ModbusCtrl>(u)};
     MODBUSRegister rh(mbctrl, 241, 256, true);
-    MODBUSRegister mio(mbctrl, 1, 40000, false);
+    MODBUSRegister mio1(mbctrl, 1, 0, false);
+    MODBUSRegister mio2(mbctrl, 1, 1, false);
 
-    mio.start_transfer(500);
+
+    mio1.start_transfer(1000);
+    //mio2.start_transfer(500);
 
     rh.start_transfer();
 
