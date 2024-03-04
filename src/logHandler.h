@@ -57,8 +57,10 @@ class LogHandler {
         void findFirstAvailableLog(const LogType logType);
         void enterLogToEeprom(uint8_t *base8Array, int *arrayLen, const int logAddr);
         void createLogArray(uint8_t *array, int messageCode, uint32_t timestamp);
+        void setCommHandler(std::shared_ptr<CommHandler> commHandler);
 
     private:
+        std::weak_ptr<CommHandler> commHandler;
         int unusedLogAddr;
         int unusedRebootStatusAddr;
         uint32_t bootTimestamp;

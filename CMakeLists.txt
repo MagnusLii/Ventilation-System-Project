@@ -35,7 +35,7 @@ target_link_libraries(commhandler pico_stdlib pico_cyw43_arch_lwip_poll Countdow
 target_link_libraries(Countdown   pico_stdlib)
 target_link_libraries(IPStack     pico_stdlib pico_cyw43_arch_lwip_poll)
 target_link_libraries(eeprom      pico_stdlib hardware_i2c)
-target_link_libraries(logHandler  pico_stdlib eeprom)
+target_link_libraries(logHandler  pico_stdlib eeprom commhandler)
 file(GLOB MQTT_SOURCES "paho.mqtt.embedded-c/MQTTPacket/src/*.c")
 
 pico_enable_stdio_usb(${PROJECT_NAME} 0)

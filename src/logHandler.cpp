@@ -5,6 +5,7 @@
 #include <cstring>
 #include "eeprom.h"
 #include "logHandler.h"
+#include "commhandler.h"
 
 #define CRC_LEN 2
 #define LOG_LEN 6                     // Does not include CRC
@@ -62,7 +63,9 @@ void LogHandler::pushLog(LogMessage messageCode){
     LogHandler::enterLogToEeprom(logArray, &logLen, this->unusedLogAddr);
     LogHandler::incrementUnusedLogIndex();
 
-    // TODO: add mqtt message.
+    // string editing.
+    std::string message = "\"{\"Message\":\"" + LogMessages[messageCode] + "\"}\"";
+    this->commHandler->publish(TopicType::LOG_SEND, message.c_str());
 }
 
 void LogHandler::pushRebootLog(RebootStatusCodes statusCode){
@@ -222,5 +225,10 @@ void printValidLogs(LogType logType){
         logAddr += LOG_SIZE;
         }   
     }
+    return;
+}
+
+void setCommHandler(std::shared_ptr<CommHandler> commHandler){
+    this->commHandler = commHandler;
     return;
 }
