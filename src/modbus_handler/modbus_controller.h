@@ -18,5 +18,5 @@ class ModbusCtrl {
         shared_uart uart_ptr;
         uint uart_baud;
         bool busy;
-        uint32_t ctrl_time;
+        uint64_t ctrl_time;
 };

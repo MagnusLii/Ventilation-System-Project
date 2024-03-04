@@ -19,7 +19,7 @@ static inline uint64_t get_char_delay(uint baud) {
     // bit time * 8 = time it takes to send one character (8 bits)
     // byte time * 1000000 = byte time in microseconds
     // byte time us * 4 = time it takes to send 4 characters in microseconds
-    return ((1/baud)*8*1000000*4);
+    return (8*1000000*4)/baud;
 }
 
 void ModbusCtrl::start(void) {
