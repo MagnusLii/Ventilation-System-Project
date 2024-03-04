@@ -21,6 +21,7 @@
 #define INDEX_WRITE_CRC_MSB 10
 
 #define READ_EXPECTED_CHARACTERS 7
+#define WRITE_EXPECTED_CHARACTERS 8
 
 /*
 This function is shamelessly copied from nanomodbus library
@@ -41,33 +42,32 @@ static uint16_t crc(const uint8_t* data, uint32_t length) {
     return (uint16_t) (crc << 8) | (uint16_t) (crc >> 8);
 }
 
-MODBUSRegister::MODBUSRegister(shared_modbus modbus, uint8_t device_address, uint16_t register_address) :
-    modbus(modbus), txbuf(modbus->uart_ptr, payload, this), rxbuf(modbus->uart_ptr, this) {
+MODBUSRegister::MODBUSRegister(shared_modbus modbus, uint8_t device_address, uint16_t register_address, bool read) :
+    modbus(modbus), read(read) {
     payload[INDEX_DEVADDR] = device_address;
     payload[INDEX_REGADDR_MSB] = (uint8_t)(register_address >> 8);
     payload[INDEX_REGADDR_LSB] = (uint8_t)register_address;
     payload[INDEX_REG_COUNT_MSB] = 0; // not doing that many registers at once
     payload[INDEX_REG_COUNT_LSB] = 1; // just doing one (for now)
+    payload_len = 6;
+    if (read) {
+        payload[INDEX_FUNC] = FUNC_READ_HOLDING_REGISTER;
+        uint16_t pl_crc = crc(payload, payload_len); // this is already in little endian format
+        payload[INDEX_READ_CRC_LSB] = (uint8_t)(pl_crc >> 8);
+        payload[INDEX_READ_CRC_MSB] = (uint8_t)pl_crc;
+        payload_len = 8;
+    }
 }
 
-
-ReadRegister::ReadRegister(shared_modbus modbus, uint8_t device_address, uint16_t register_address) :
-MODBUSRegister(modbus, device_address, register_address) {
-    payload[INDEX_FUNC] = FUNC_READ_HOLDING_REGISTER;
-    uint16_t pl_crc = crc(payload, 6); // this is already in little endian format
-    payload[INDEX_READ_CRC_LSB] = (uint8_t)(pl_crc >> 8);
-    payload[INDEX_READ_CRC_MSB] = (uint8_t)pl_crc;
-    payload_len = 8;
-}
-
-
-void ReadRegister::start_read(void) {
-    modbus->start();
-    rxbuf.start_listening(READ_EXPECTED_CHARACTERS);
-    txbuf.set_transfer_in_flight(payload_len);
-}
-
-void ReadRegister::done() {
-    modbus->end();
-    // do something with data received
+void MODBUSRegister::start_transfer(uint16_t data) {
+    if (!read) {
+        payload[INDEX_DATA_LSB] = (uint8_t)data;
+        payload[INDEX_DATA_MSB] = (uint8_t)(data >> 8);
+        payload_len = 8;
+        uint pl_crc = crc(payload, payload_len);
+        payload[INDEX_READ_CRC_LSB] = (uint8_t)(pl_crc >> 8);
+        payload[INDEX_READ_CRC_MSB] = (uint8_t)pl_crc;
+        payload_len = 10;
+    }
+    modbus->start(payload, payload_len, rxbuf, (read) ? READ_EXPECTED_CHARACTERS : WRITE_EXPECTED_CHARACTERS);
 }

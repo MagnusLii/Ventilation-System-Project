@@ -10,7 +10,7 @@
 class ModbusCtrl {
     public:
         ModbusCtrl(shared_uart uart_pointer);
-        void start(void);
+        void start(uint8_t *payload, uint8_t paylen, uint8_t *rxbuf, uint8_t rxlen);
         void end(void);
     private:
         DMAChannel tx_channel;

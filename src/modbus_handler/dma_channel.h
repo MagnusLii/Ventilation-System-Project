@@ -1,7 +1,7 @@
 #pragma once
 
-#include "hardware/dma.h"
 #include "uart_instance.h"
+#include "hardware/dma.h"
 
 class DMAChannel {
     public:
@@ -12,4 +12,4 @@ class DMAChannel {
     private:
         bool tx;
         int channel;
-}
+};

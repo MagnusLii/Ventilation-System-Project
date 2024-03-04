@@ -20,11 +20,11 @@ int main() {
     stdio_init_all();
     shared_uart u{std::make_shared<Uart_instance>(1, 9600, UART_TX_PIN, UART_RX_PIN)};
     shared_modbus mbctrl{std::make_shared<ModbusCtrl>(u)};
-    ReadRegister rh(mbctrl, 241, 256);
+    MODBUSRegister rh(mbctrl, 241, 256, true);
 
-    rh.start_read();
+    rh.start_transfer();
 
-    while(1) rh.start_read();
+    while(1) rh.start_transfer();
 
     return 0;
 }

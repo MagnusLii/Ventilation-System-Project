@@ -1,5 +1,6 @@
 
 #include "uart_instance.h"
+#include "hardware/dma.h"
 #include "dma_channel.h"
 
 DMAChannel::DMAChannel(shared_uart uartptr, bool tx) : tx(tx) {
@@ -11,10 +12,10 @@ DMAChannel::DMAChannel(shared_uart uartptr, bool tx) : tx(tx) {
         channel_config_set_write_increment(&c, false);
         channel_config_set_dreq(&c, (uartptr->get_index()) ? DREQ_UART1_TX : DREQ_UART0_TX);
         dma_channel_configure(
-            dma_channel,
+            channel,
             &c,
             uartptr->get_dr_address(),
-            buffer,
+            nullptr,
             0,
             false
         );
@@ -23,24 +24,24 @@ DMAChannel::DMAChannel(shared_uart uartptr, bool tx) : tx(tx) {
         channel_config_set_write_increment(&c, true);
         channel_config_set_dreq(&c, (uartptr->get_index()) ? DREQ_UART1_RX : DREQ_UART0_RX);
         dma_channel_configure(
-            dma_channel,
+            channel,
             &c,
-            buffer,
+            nullptr,
             uartptr->get_dr_address(),
             0,
             false
         );
     }
-    dma_channel_set_irq0_enabled(dma_channel, true);
+    dma_channel_set_irq0_enabled(channel, true);
 }
 
 DMAChannel::~DMAChannel() {
-    dma_channel_cleanup(channel);
+    //dma_channel_cleanup(channel);
     dma_channel_unclaim(channel);
 }
 
 
-DMAChannel::start(uint8_t *buf, uint8_t len) {
+void DMAChannel::start(uint8_t *buf, uint8_t len) {
     if (tx) {
         dma_channel_set_read_addr(channel, buf, false);
     } else {
