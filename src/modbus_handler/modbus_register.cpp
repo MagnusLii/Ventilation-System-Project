@@ -45,13 +45,13 @@ static uint16_t crc(const uint8_t* data, uint32_t length) {
 MODBUSRegister::MODBUSRegister(shared_modbus modbus, uint8_t device_address, uint16_t register_address, bool read) :
     modbus(modbus), read(read) {
     payload[INDEX_DEVADDR] = device_address;
+    payload[INDEX_FUNC] = read ? FUNC_READ_HOLDING_REGISTER : FUNC_WRITE_MULTIPLE_REGISTERS;
     payload[INDEX_REGADDR_MSB] = (uint8_t)(register_address >> 8);
     payload[INDEX_REGADDR_LSB] = (uint8_t)register_address;
     payload[INDEX_REG_COUNT_MSB] = 0; // not doing that many registers at once
     payload[INDEX_REG_COUNT_LSB] = 1; // just doing one (for now)
     payload_len = 6;
     if (read) {
-        payload[INDEX_FUNC] = FUNC_READ_HOLDING_REGISTER;
         uint16_t pl_crc = crc(payload, payload_len); // this is already in little endian format
         payload[INDEX_READ_CRC_LSB] = (uint8_t)(pl_crc >> 8);
         payload[INDEX_READ_CRC_MSB] = (uint8_t)pl_crc;
@@ -61,13 +61,14 @@ MODBUSRegister::MODBUSRegister(shared_modbus modbus, uint8_t device_address, uin
 
 void MODBUSRegister::start_transfer(uint16_t data) {
     if (!read) {
+        payload[INDEX_DATA_BYTE_COUNT] = 2;
         payload[INDEX_DATA_LSB] = (uint8_t)data;
         payload[INDEX_DATA_MSB] = (uint8_t)(data >> 8);
-        payload_len = 8;
+        payload_len = 9;
         uint pl_crc = crc(payload, payload_len);
-        payload[INDEX_READ_CRC_LSB] = (uint8_t)(pl_crc >> 8);
-        payload[INDEX_READ_CRC_MSB] = (uint8_t)pl_crc;
-        payload_len = 10;
+        payload[INDEX_WRITE_CRC_LSB] = (uint8_t)(pl_crc >> 8);
+        payload[INDEX_WRITE_CRC_MSB] = (uint8_t)pl_crc;
+        payload_len = 11;
     }
     modbus->start(payload, payload_len, rxbuf, (read) ? READ_EXPECTED_CHARACTERS : WRITE_EXPECTED_CHARACTERS);
 }

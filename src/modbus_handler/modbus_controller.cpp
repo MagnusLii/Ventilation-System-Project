@@ -4,8 +4,12 @@
 
 
 static ModbusCtrl *point;
+static int rx_chan;
 void dma_irq_handler(void) {
-    point->end();
+    if (dma_channel_get_irq0_status(rx_chan)) {
+        dma_channel_acknowledge_irq0(rx_chan);
+        point->end();
+    }
 }
 
 ModbusCtrl::ModbusCtrl(shared_uart uart_pointer) :
@@ -18,6 +22,7 @@ ModbusCtrl::ModbusCtrl(shared_uart uart_pointer) :
         irq_set_exclusive_handler(DMA_IRQ_0, dma_irq_handler);
         irq_set_enabled(DMA_IRQ_0, true);
         point = this;
+        rx_chan = rx_channel.get_channel();
     }
 
 
@@ -31,7 +36,9 @@ static inline uint64_t get_char_delay(uint baud) {
 
 void ModbusCtrl::start(uint8_t *payload, uint8_t paylen, uint8_t *rxbuf, uint8_t rxlen) {
     // if busy and not enough delay for next transfer wait
-    while(busy && ((time_us_64() - ctrl_time) < get_char_delay(uart_baud))) tight_loop_contents();
+    uint64_t delay = get_char_delay(uart_baud);
+    uint64_t current_time = time_us_64();
+    while(busy || ((time_us_64() - ctrl_time) < delay)) tight_loop_contents();
     rx_channel.start(rxbuf, rxlen);
     tx_channel.start(payload, paylen);
     busy = true;

@@ -9,6 +9,7 @@ class DMAChannel {
         ~DMAChannel();
         void start(uint8_t *buf, uint8_t len);
         void abort(void);
+        int get_channel(void);
     private:
         bool tx;
         int channel;

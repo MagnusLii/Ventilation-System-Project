@@ -17,6 +17,6 @@ class ModbusCtrl {
         DMAChannel rx_channel;
         shared_uart uart_ptr;
         uint uart_baud;
-        bool busy;
+        volatile bool busy;
         uint64_t ctrl_time;
 };

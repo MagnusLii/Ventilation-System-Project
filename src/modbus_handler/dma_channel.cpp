@@ -31,8 +31,8 @@ DMAChannel::DMAChannel(shared_uart uartptr, bool tx) : tx(tx) {
             0,
             false
         );
+        dma_channel_set_irq0_enabled(channel, true);
     }
-    dma_channel_set_irq0_enabled(channel, true);
 }
 
 DMAChannel::~DMAChannel() {
@@ -52,4 +52,8 @@ void DMAChannel::start(uint8_t *buf, uint8_t len) {
 
 void DMAChannel::abort() {
     dma_channel_abort(channel);
+}
+
+int DMAChannel::get_channel(void) {
+    return channel;
 }
