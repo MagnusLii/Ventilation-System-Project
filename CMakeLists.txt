@@ -23,30 +23,20 @@ add_executable(${PROJECT_NAME} main.cpp)
 add_library(pin src/pin.cpp)
 add_library(eeprom src/eeprom.c)
 add_library(logHandler src/logHandler.cpp)
-
-pico_add_extra_outputs(${PROJECT_NAME})
-
-target_link_libraries(${PROJECT_NAME} pico_stdlib pin hardware_i2c logHandler eeprom)
-target_link_libraries(pin         pico_stdlib)
-target_link_libraries(eeprom      pico_stdlib hardware_i2c)
-target_link_libraries(logHandler  pico_stdlib eeprom)
-file(GLOB MQTT_SOURCES "paho.mqtt.embedded-c/MQTTPacket/src/*.c")
-
-add_executable(${PROJECT_NAME} main.cpp
-        ${MQTT_SOURCES}
-)
-add_library(pin src/pin.cpp)
 add_library(commhandler src/commhandler.cpp)
 add_library(Countdown src/Countdown.cpp)
 add_library(IPStack src/IPStack.cpp)
 
 pico_add_extra_outputs(${PROJECT_NAME})
 
-target_link_libraries(${PROJECT_NAME} pico_stdlib pin commhandler Countdown IPStack)
+target_link_libraries(${PROJECT_NAME} pico_stdlib pin hardware_i2c logHandler eeprom commhandler Countdown IPStack)
 target_link_libraries(pin         pico_stdlib)
 target_link_libraries(commhandler pico_stdlib pico_cyw43_arch_lwip_poll Countdown IPStack)
 target_link_libraries(Countdown   pico_stdlib)
 target_link_libraries(IPStack     pico_stdlib pico_cyw43_arch_lwip_poll)
+target_link_libraries(eeprom      pico_stdlib hardware_i2c)
+target_link_libraries(logHandler  pico_stdlib eeprom)
+file(GLOB MQTT_SOURCES "paho.mqtt.embedded-c/MQTTPacket/src/*.c")
 
 pico_enable_stdio_usb(${PROJECT_NAME} 0)
 pico_enable_stdio_uart(${PROJECT_NAME} 1)
