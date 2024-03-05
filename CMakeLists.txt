@@ -29,7 +29,7 @@ target_link_libraries(pin         pico_stdlib)
 target_link_libraries(uart_instance pico_stdlib hardware_uart)
 target_link_libraries(dma_channel uart_instance pico_stdlib hardware_uart hardware_dma)
 target_link_libraries(modbusreg modbusctrl pico_stdlib hardware_uart hardware_dma)
-target_link_libraries(modbusctrl pico_stdlib dma_channel)
+target_link_libraries(modbusctrl pico_stdlib dma_channel hardware_timer)
 
 pico_enable_stdio_usb(${PROJECT_NAME} 0)
 pico_enable_stdio_uart(${PROJECT_NAME} 1)

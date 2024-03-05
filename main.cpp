@@ -23,17 +23,18 @@ int main() {
     ReadRegister rh(mbctrl, 241, 256);
     ReadRegister co(mbctrl, 240, 0, 2);
     WriteRegister mio(mbctrl, 1, 0, 1);
+    ReadRegister dummy(mbctrl, 240, 12345);
 
  
 
-
-    // mio.start_transfer((uint16_t)129);
+    // uint16_t sped = 1000;
+    // mio.start_transfer(sped);
     //mio2.start_transfer(500);
 
 // while(1) tight_loop_contents();
-    co.start_transfer();
+    dummy.start_transfer();
     while (mbctrl->isbusy()) tight_loop_contents();
-    DPRINT(co.is_ok());
+    DPRINT(dummy.is_ok());
 
     while(1) tight_loop_contents();
 

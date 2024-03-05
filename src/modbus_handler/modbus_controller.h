@@ -13,8 +13,8 @@ class MODBUSRegister; // forward declaration need to prevent circular dependenci
 class ModbusCtrl {
     public:
         ModbusCtrl(shared_uart uart_pointer);
-        void start(uint8_t *payload, uint8_t paylen, uint8_t *rxbuf, uint8_t rxlen, MODBUSRegister *who);
-        void end(void);
+        void start(MODBUSRegister *who, uint8_t rxlen, uint32_t timeout_ms=500);
+        void end(bool timeout=false);
         bool isbusy(void);
     private:
         DMAChannel tx_channel;
@@ -24,4 +24,5 @@ class ModbusCtrl {
         uint uart_baud;
         volatile bool busy;
         uint64_t ctrl_time;
+        int alarm;
 };

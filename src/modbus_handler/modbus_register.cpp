@@ -27,6 +27,7 @@
 
 #define READ_EXPECTED_CHARACTERS 5
 #define WRITE_EXPECTED_CHARACTERS 8
+#define ERROR_PACKET_LEN 5
 
 
 /*
@@ -59,6 +60,16 @@ MODBUSRegister::MODBUSRegister(shared_modbus modbus, uint8_t device_address, uin
     payload_len = PAYLOAD_HEADER_LEN;   
 }
 
+uint8_t *MODBUSRegister::payload_address(void) {
+    return payload;
+}
+uint8_t *MODBUSRegister::rxbuf_address(void) {
+    return rxbuf;
+}
+uint8_t MODBUSRegister::payload_length(void) {
+    return payload_len;
+}
+
 
 ReadRegister::ReadRegister(shared_modbus modbus, uint8_t device_address, uint16_t register_address, uint8_t number_of_registers, bool holding) :
 MODBUSRegister(modbus, device_address, register_address, number_of_registers) {
@@ -70,12 +81,12 @@ MODBUSRegister(modbus, device_address, register_address, number_of_registers) {
 }
 
 void ReadRegister::start_transfer() {
-    modbus->start(payload, payload_len, rxbuf, READ_EXPECTED_CHARACTERS + 2*number_of_registers, this);
+    modbus->start(this, READ_EXPECTED_CHARACTERS + 2*number_of_registers);
 }
 
 bool ReadRegister::is_ok() {
     if (crc(rxbuf, rx_len) != 0) return false;
-    if (rx_len < READ_EXPECTED_CHARACTERS) return false; // error packet is 5 bytes
+    if (rx_len == ERROR_PACKET_LEN) return false; // error packet is 5 bytes
     return true;
 }
 
@@ -101,7 +112,7 @@ void WriteRegister::start_transfer(uint16_t data) {
     payload[INDEX_WRITE_CRC_MSB] = (uint8_t)pl_crc;
     payload_len += 2;
 
-    modbus->start(payload, payload_len, rxbuf, WRITE_EXPECTED_CHARACTERS, this);
+    modbus->start(this, WRITE_EXPECTED_CHARACTERS);
 }
 
 void WriteRegister::start_transfer(uint32_t data) {
@@ -119,7 +130,7 @@ void WriteRegister::start_transfer(uint32_t data) {
     payload[payload_len++] = (uint8_t)(pl_crc >> 8);
     payload[payload_len++] = (uint8_t)pl_crc;
 
-    modbus->start(payload, payload_len, rxbuf, WRITE_EXPECTED_CHARACTERS, this);
+    modbus->start(this, WRITE_EXPECTED_CHARACTERS);
 }
 
 

@@ -9,6 +9,9 @@
 class MODBUSRegister {
     public:
         MODBUSRegister(shared_modbus modbus, uint8_t device_address, uint16_t register_address, uint8_t number_of_registers);
+        uint8_t *payload_address(void);
+        uint8_t *rxbuf_address(void);
+        uint8_t payload_length(void);
         uint8_t rxbuf[PAYLOAD_MAX_LEN]; // this needs to be public for reasons
         uint8_t rx_len; // this needs to be public for reasons
     protected:
