@@ -66,8 +66,7 @@ void LogHandler::pushLog(LogMessage messageCode){
     LogHandler::incrementUnusedLogIndex();
 
     // string editing.
-    std::string message1 = logMessages[messageCode];
-    std::string message = "\"{\"Message\":\"" + message1 + "\"}\"";
+    std::string message = "\"{\"log\":\"" + messageCode + "\"}\"";
     DPRINT(message);
     
     this->commHandler->publish(TopicType::LOG_SEND, message.c_str());
@@ -81,7 +80,12 @@ void LogHandler::pushRebootLog(RebootStatusCodes statusCode){
     LogHandler::enterLogToEeprom(logArray, &logLen, this->unusedRebootStatusAddr);
     LogHandler::incrementUnusedRebootIndex();
     
-    // TODO: add mqtt message.
+    // string editing.
+    std::string message = "\"{\"devStatus\":\"" + statusCode + "\"}\"";
+    DPRINT(message);
+    
+    this->commHandler->publish(TopicType::STATUS_SEND, message.c_str());
+
 }
 
 void LogHandler::clearAllLogs(const LogType logType){
