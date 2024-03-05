@@ -1,7 +1,6 @@
 # Topics
 
 - ##  **Ventilation controller messages topics**
-    
     -   **Topic:** `controller/settings`
     -   **Description:** Keijos controller (and the website) send commands here to inform the Pi on how to proceed.
     -   **Payload:** 
@@ -18,7 +17,6 @@
 }
 ```
 - ##  **Ventilation system readings topics**
-    
     -   **Topic:** `controller/status`
     -   **Description:** The Pi (or maybe arduino??? Needs to be verified) sends readings here for something to read them??? IDK this is unclear and needs verification. The Flask server will read status updates from here.
     -   **Payload:** 
@@ -36,7 +34,6 @@
 }
 ```
 - ##  **Pi Loghandler log messages**
-    
     -   **Topic:** `loghandler/logMessages`
     -   **Description:** The Pi sends log messages to this topic, the status is repsresnted by a predefined integer.
     -   **Payload:** 
@@ -46,7 +43,6 @@
 }
 ```
 - ##  **Pi Loghandler device status messages**
-    
     -   **Topic:** `loghandler/piStatusMessages`
     -   **Description:** The Pi sends it's status to this topic, the status is represented by predefined int
     -   **Payload:** 
