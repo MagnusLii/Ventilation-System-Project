@@ -8,7 +8,7 @@
 #include "IPStack.h"
 #include "MQTTClient.h"
 
-typedef enum { DATA_TOPIC, CONTROL_TOPIC, OTHER_TOPIC, LOG_SEND, LOG_RECEIVE } TopicType;
+typedef enum { DATA_TOPIC, CONTROL_TOPIC, OTHER_TOPIC, LOG_SEND, STATUS_SEND } TopicType;
 
 class CommHandler {
   public:

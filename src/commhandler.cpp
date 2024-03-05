@@ -10,8 +10,8 @@ CommHandler::CommHandler(IPStack &ipstack, MQTT::Client<IPStack, Countdown> &cli
     topics = {{TopicType::DATA_TOPIC, std::make_pair("data", 0)},
               {TopicType::CONTROL_TOPIC, std::make_pair("control", 0)},
               {TopicType::OTHER_TOPIC, std::make_pair("other", 0)},
-              {TopicType::LOG_SEND, std::make_pair("loghandler/server", 0)},
-              {TopicType::LOG_RECEIVE, std::make_pair("loghandler/pi", 0)}};
+              {TopicType::LOG_SEND, std::make_pair("loghandler/logMessages", 0)},
+              {TopicType::STATUS_SEND, std::make_pair("loghandler/piStatusMessages", 0)}};
 }
 
 int CommHandler::connect_to_server(const char *hostname, int port) {
