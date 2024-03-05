@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fan Control</title>
+    <title>Ventilation Control</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -40,14 +40,12 @@
         .tab-content {
             border: 1px solid #ccc;
             padding: 10px;
-        }
-
-        #historyTab {
             display: none;
         }
 
         #statusSection,
-        #historyTable {
+        #historyTable,
+        #logTable {
             margin-top: 20px;
             border: 1px solid #ccc;
             padding: 10px;
@@ -55,18 +53,21 @@
         }
 
         #statusSection h2,
-        #historyTable h2 {
+        #historyTable h2,
+        #logTable h2 {
             margin-bottom: 10px;
         }
 
         #statusValues,
-        #historyData {
+        #historyData,
+        #logData {
             list-style: none;
             padding: 0;
         }
 
         #statusValues li,
-        #historyData li {
+        #historyData li,
+        #logData li {
             margin-bottom: 5px;
         }
 
@@ -89,6 +90,7 @@
     <!-- Tabs -->
     <div class="tabs">
         <div class="tab-btn" onclick="openTab('controlTab')">Control</div>
+        <div class="tab-btn" onclick="openTab('logTab')">Log</div>
         <div class="tab-btn" onclick="openTab('historyTab')">History</div>
     </div>
 
@@ -131,6 +133,7 @@
         <table id="historyTable">
             <thead>
                 <tr>
+                    <th>Index</th>
                     <th>Date</th>
                     <th>Fan Speed</th>
                     <th>Set Point</th>
@@ -138,6 +141,26 @@
                     <th>CO2</th>
                     <th>Relative Humidity</th>
                     <th>Temperature</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Table rows will be dynamically populated here -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Log Tab -->
+    <div id="logTab" class="tab-content">
+        <h2>Log</h2>
+        <ul id="logData">
+            <!-- Log messages will be dynamically populated here -->
+        </ul>
+        <table id="logTable">
+            <thead>
+                <tr>
+                    <th>Index</th>
+                    <th>Log Message</th>
+                    <th>Timestamp</th>
                 </tr>
             </thead>
             <tbody>
@@ -170,6 +193,55 @@
             }
             document.getElementById(tabName).style.display = "block";
         }
+
+        function populateHistoryTable() {
+            var historyTableBody = document.querySelector('#historyTable tbody');
+            
+            // Replace this with actual data retrieval from the server-side
+            var data = [
+                { index: 1, date: '2024-03-05', fanSpeed: 60, setPoint: 25, pressure: 1015, co2: 400, humidity: 50, temperature: 22 },
+                { index: 2, date: '2024-03-04', fanSpeed: 70, setPoint: 26, pressure: 1013, co2: 410, humidity: 48, temperature: 23 },
+                // Add more rows as needed
+            ];
+
+            data.forEach(function (data) {
+                var row = document.createElement('tr');
+                row.innerHTML = '<td>' + data.index + '</td>' +
+                                '<td>' + data.date + '</td>' +
+                                '<td>' + data.fanSpeed + '</td>' +
+                                '<td>' + data.setPoint + '</td>' +
+                                '<td>' + data.pressure + '</td>' +
+                                '<td>' + data.co2 + '</td>' +
+                                '<td>' + data.humidity + '</td>' +
+                                '<td>' + data.temperature + '</td>';
+                historyTableBody.appendChild(row);
+            });
+        }
+
+        function populateLogTable() {
+            var logTableBody = document.querySelector('#logTable tbody');
+
+            // Replace this with actual data retrieval from the server-side
+            var data = [
+                { index: 1, message: 'Fan speed set to 60%', timestamp: '2024-03-05 12:00:00' },
+                { index: 2, message: 'Fan speed set to 70%', timestamp: '2024-03-04 13:00:00' },
+                // Add more rows as needed
+            ];
+
+            data.forEach(function (data) {
+                var row = document.createElement('tr');
+                row.innerHTML = '<td>' + data.index + '</td>' +
+                                '<td>' + data.message + '</td>' +
+                                '<td>' + data.timestamp + '</td>';
+                logTableBody.appendChild(row);
+            });
+        }
+
+        populateHistoryTable();
+        populateLogTable();
+
+        // Show control tab by default
+        openTab("controlTab");
     </script>
 </body>
 </html>
