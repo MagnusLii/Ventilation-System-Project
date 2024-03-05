@@ -6,7 +6,7 @@
 
 class PressureRegister {
     public:
-        PressureRegister(uint i2c_index);
+        PressureRegister(uint i2c_index, uint8_t device_address);
         int get(uint32_t timeout_ms=500);
     private:
         i2c_inst_t *inst;

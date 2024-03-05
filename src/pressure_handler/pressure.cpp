@@ -7,12 +7,12 @@
 
 
 PressureRegister::PressureRegister(uint i2c_index, uint8_t device_address) {
-    inst = index ? i2c1: i2c0;
+    inst = i2c_index ? i2c1: i2c0;
     payload = READ_DIFF_CODE;
     devaddr = device_address;
 }
 
-PressureRegister::get(uint32_t timeout_ms) {
+int PressureRegister::get(uint32_t timeout_ms) {
     i2c_write_blocking(inst, devaddr, &payload, 1, false);
     uint8_t in[4];
     i2c_read_blocking_until(inst, devaddr, in, 4, false, delayed_by_ms(get_absolute_time(), timeout_ms));

@@ -28,7 +28,7 @@ add_library(pressure ${pressure_src}/pressure.cpp)
 
 pico_add_extra_outputs(${PROJECT_NAME})
 
-target_link_libraries(${PROJECT_NAME} pico_stdlib pin modbusreg)
+target_link_libraries(${PROJECT_NAME} pico_stdlib pin modbusreg pressure hardware_i2c)
 target_link_libraries(pin         pico_stdlib)
 target_link_libraries(uart_instance pico_stdlib hardware_uart)
 target_link_libraries(dma_channel uart_instance pico_stdlib hardware_uart hardware_dma)
