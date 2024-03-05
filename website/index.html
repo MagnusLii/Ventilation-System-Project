@@ -22,6 +22,26 @@
         #pressureTargetInput {
             width: 150px;
         }
+
+        #statusSection {
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            width: 300px;
+        }
+
+        #statusSection h2 {
+            margin-bottom: 10px;
+        }
+
+        #statusValues {
+            list-style: none;
+            padding: 0;
+        }
+
+        #statusValues li {
+            margin-bottom: 5px;
+        }
     </style>
 </head>
 <body>
@@ -40,6 +60,18 @@
 
     <label for="pressureTargetInput">Pressure Target:</label>
     <input type="number" id="pressureTargetInput" min="0" step="1" disabled>
+
+    <div id="statusSection">
+        <h2>Status</h2>
+        <ul id="statusValues">
+            <li><strong>Fan Speed:</strong> <span id="fanSpeedStatus">N/A</span></li>
+            <li><strong>Set Point:</strong> <span id="setPointStatus">N/A</span></li>
+            <li><strong>Pressure:</strong> <span id="pressureStatus">N/A</span></li>
+            <li><strong>CO2:</strong> <span id="co2Status">N/A</span></li>
+            <li><strong>Relative Humidity:</strong> <span id="humidityStatus">N/A</span></li>
+            <li><strong>Temperature:</strong> <span id="temperatureStatus">N/A</span></li>
+        </ul>
+    </div>
 
     <script>
         function toggleControls(isAutoMode) {
