@@ -8,7 +8,7 @@
 
 class Uart_instance {
     public:
-        Uart_instance(uint uart_number, uint baudrate, uint TX_pin, uint RX_pin);
+        Uart_instance(uint uart_number, uint baudrate, uint TX_pin, uint RX_pin, uint stop_bits=1);
         io_rw_32 *get_dr_address(void);
         uint get_index(void);
         uint get_baud(void);

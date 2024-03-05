@@ -25,6 +25,9 @@
 #define INDEX_WRITE_CRC_LSB 9
 #define INDEX_WRITE_CRC_MSB 10
 
+#define INDEX_GET_DATA_BYTES 2
+#define INDEX_GET_DATA_START 3
+
 #define READ_EXPECTED_CHARACTERS 5
 #define WRITE_EXPECTED_CHARACTERS 8
 #define ERROR_PACKET_LEN 5
@@ -68,6 +71,26 @@ uint8_t *MODBUSRegister::rxbuf_address(void) {
 }
 uint8_t MODBUSRegister::payload_length(void) {
     return payload_len;
+}
+
+uint16_t MODBUSRegister::get16(void) {
+    uint16_t value = rxbuf[INDEX_GET_DATA_START] << 8; // msb
+    value |= rxbuf[INDEX_GET_DATA_START+1]; // lsb
+    return value;
+}
+uint32_t MODBUSRegister::get32(void) {
+    if (rxbuf[INDEX_GET_DATA_BYTES] == 2) return get16(); // not enough data
+    uint32_t value = rxbuf[INDEX_GET_DATA_START+2] << 24; // most significant word msb
+    value |= rxbuf[INDEX_GET_DATA_START+3] << 16; // most significant word lsb
+    value |= rxbuf[INDEX_GET_DATA_START] << 8; //least significant word msb
+    value |= rxbuf[INDEX_GET_DATA_START+1]; //least significant word lsb
+    return value;
+}
+float MODBUSRegister::get_float(void) {
+    uint32_t value = get32();
+    union { uint32_t i; float f; } d;
+    d.i = value;
+    return d.f;
 }
 
 

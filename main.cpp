@@ -32,9 +32,10 @@ int main() {
     //mio2.start_transfer(500);
 
 // while(1) tight_loop_contents();
-    dummy.start_transfer();
+    co.start_transfer();
     while (mbctrl->isbusy()) tight_loop_contents();
     DPRINT(dummy.is_ok());
+    DPRINT(co.get_float());
 
     while(1) tight_loop_contents();
 

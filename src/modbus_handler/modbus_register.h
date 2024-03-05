@@ -12,6 +12,9 @@ class MODBUSRegister {
         uint8_t *payload_address(void);
         uint8_t *rxbuf_address(void);
         uint8_t payload_length(void);
+        uint16_t get16(void);
+        uint32_t get32(void);
+        float get_float(void);
         uint8_t rxbuf[PAYLOAD_MAX_LEN]; // this needs to be public for reasons
         uint8_t rx_len; // this needs to be public for reasons
     protected:
