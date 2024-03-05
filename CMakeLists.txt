@@ -8,9 +8,12 @@ set(CMAKE_CXX_STANDARD 17)
 pico_sdk_init()
 
 set(modbus_src ${CMAKE_CURRENT_LIST_DIR}/src/modbus_handler)
+set(pressure_src ${CMAKE_CURRENT_LIST_DIR}/src/pressure_handler)
 
 include_directories(${CMAKE_CURRENT_LIST_DIR}/src)
 include_directories(${CMAKE_CURRENT_LIST_DIR}/src/modbus_handler)
+include_directories(${CMAKE_CURRENT_LIST_DIR}/src/pressure_handler)
+
 
 add_compile_options(-Wall)
 
@@ -20,6 +23,7 @@ add_library(uart_instance ${modbus_src}/uart_instance.cpp)
 add_library(dma_channel ${modbus_src}/dma_channel.cpp)
 add_library(modbusreg ${modbus_src}/modbus_register.cpp)
 add_library(modbusctrl ${modbus_src}/modbus_controller.cpp)
+add_library(pressure ${pressure_src}/pressure.cpp)
 
 
 pico_add_extra_outputs(${PROJECT_NAME})
@@ -30,6 +34,7 @@ target_link_libraries(uart_instance pico_stdlib hardware_uart)
 target_link_libraries(dma_channel uart_instance pico_stdlib hardware_uart hardware_dma)
 target_link_libraries(modbusreg modbusctrl pico_stdlib hardware_uart hardware_dma)
 target_link_libraries(modbusctrl pico_stdlib dma_channel hardware_timer)
+target_link_libraries(pressure pico_stdlib hardware_i2c)
 
 pico_enable_stdio_usb(${PROJECT_NAME} 0)
 pico_enable_stdio_uart(${PROJECT_NAME} 1)
