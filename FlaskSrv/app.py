@@ -55,12 +55,28 @@ def handle_message(client, userdata, message):
         return
 
     # Handle received message based on topic.
-    if receivedTopic.startswith("controller/settings") == True:
+    if receivedTopic.startswith("controller/status") == True:
+        """Expected JSON format:
+        {
+        "nr": 96,
+        "speed": 18,
+        "setpoint": 18,
+        "pressure": 5,
+        "auto": false,
+        "error": false,
+        "co2": 300,
+        "rh": 37,
+        "temp": 20
+        }
+        """
         # TODO: do something...
-        return
-
-    elif receivedTopic.startswith("controller/status") == True:
-        # TODO: do something...
+    
+    elif receivedTopic.startswith("loghandler/logMessages") == True:
+        """Expected JSON format:
+        {
+        "log": "text"
+        }
+        """
         return
     
     return # End of function.
