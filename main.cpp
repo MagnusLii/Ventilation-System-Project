@@ -42,27 +42,30 @@ int main() {
 
     PressureRegister pre(1, 64);
 
-    volatile int val = pre.get();
-    DPRINT(val);
+    // volatile int val = pre.get();
+    // DPRINT(val);
 
  
 
-    uint16_t sped = 1000;
-    mio.start_transfer(sped);
+    // uint16_t sped = 1000;
+    // mio.start_transfer(sped);
     //mio2.start_transfer(500);
 
-    while(true) {
-        val = pre.get();
-        DPRINT(val);
-        
-        sleep_ms(1000);
-    }
 
-// while(1) tight_loop_contents();
-    // co.start_transfer();
-    // while (mbctrl->isbusy()) tight_loop_contents();
-    // DPRINT(dummy.is_ok());
-    // DPRINT(co.get_float());
+
+    // while(true) {
+    //     val = pre.get();
+    //     DPRINT(val);
+        
+    //     sleep_ms(1000);
+    // }
+
+
+    co.start_transfer();
+    mio.start_transfer((uint16_t)0);
+    while (mbctrl->isbusy()) tight_loop_contents();
+    DPRINT(dummy.is_ok());
+    DPRINT(co.get_float());
 
     while(1) tight_loop_contents();
 

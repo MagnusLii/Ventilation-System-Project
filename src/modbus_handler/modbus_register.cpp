@@ -14,16 +14,16 @@
 #define INDEX_REGADDR_LSB 3
 #define INDEX_REG_COUNT_MSB 4
 #define INDEX_REG_COUNT_LSB 5
-#define INDEX_READ_CRC_LSB 6
-#define INDEX_READ_CRC_MSB 7
+#define INDEX_READ_CRC_MSB 6
+#define INDEX_READ_CRC_LSB 7
 
 #define INDEX_ERROR_CODE 2
 
 #define INDEX_DATA_BYTE_COUNT 6
 #define INDEX_DATA_LSB 8
 #define INDEX_DATA_MSB 7
-#define INDEX_WRITE_CRC_LSB 9
-#define INDEX_WRITE_CRC_MSB 10
+#define INDEX_WRITE_CRC_MSB 9
+#define INDEX_WRITE_CRC_LSB 10
 
 #define INDEX_GET_DATA_BYTES 2
 #define INDEX_GET_DATA_START 3
@@ -32,25 +32,7 @@
 #define WRITE_EXPECTED_CHARACTERS 8
 #define ERROR_PACKET_LEN 5
 
-
-/*
-This function is shamelessly copied from nanomodbus library
-*/
-static uint16_t crc(const uint8_t* data, uint32_t length) {
-    uint16_t crc = 0xFFFF;
-    for (uint32_t i = 0; i < length; i++) {
-        crc ^= (uint16_t) data[i];
-        for (int j = 8; j != 0; j--) {
-            if ((crc & 0x0001) != 0) {
-                crc >>= 1;
-                crc ^= 0xA001;
-            }
-            else
-                crc >>= 1;
-        }
-    }
-    return (uint16_t) (crc << 8) | (uint16_t) (crc >> 8);
-}
+#include "modbus_crc.h"
 
 MODBUSRegister::MODBUSRegister(shared_modbus modbus, uint8_t device_address, uint16_t register_address, uint8_t number_of_registers) :
     modbus(modbus), number_of_registers(number_of_registers) {
@@ -97,9 +79,9 @@ float MODBUSRegister::get_float(void) {
 ReadRegister::ReadRegister(shared_modbus modbus, uint8_t device_address, uint16_t register_address, uint8_t number_of_registers, bool holding) :
 MODBUSRegister(modbus, device_address, register_address, number_of_registers) {
     payload[INDEX_FUNC] = holding ? FUNC_READ_HOLDING_REGISTER : FUNC_READ_INPUT_REGISTERS;
-    uint16_t pl_crc = crc(payload, payload_len); // this is already in little endian format
+    uint16_t pl_crc = crc(payload, payload_len);
+        payload[INDEX_READ_CRC_MSB] = pl_crc; // the byte ordering of this is wild
         payload[INDEX_READ_CRC_LSB] = (uint8_t)(pl_crc >> 8);
-        payload[INDEX_READ_CRC_MSB] = (uint8_t)pl_crc;
         payload_len = PAYLOAD_HEADER_LEN + 2;
 }
 
@@ -131,8 +113,8 @@ void WriteRegister::start_transfer(uint16_t data) {
     payload[INDEX_DATA_LSB] = (uint8_t)data;
     payload_len = PAYLOAD_HEADER_LEN + 3;
     uint pl_crc = crc(payload, payload_len);
-    payload[INDEX_WRITE_CRC_LSB] = (uint8_t)(pl_crc >> 8);
-    payload[INDEX_WRITE_CRC_MSB] = (uint8_t)pl_crc;
+    payload[INDEX_WRITE_CRC_MSB] = pl_crc;
+    payload[INDEX_WRITE_CRC_LSB] = (pl_crc >> 8);
     payload_len += 2;
 
     modbus->start(this, WRITE_EXPECTED_CHARACTERS);
@@ -150,8 +132,8 @@ void WriteRegister::start_transfer(uint32_t data) {
     payload[payload_len++] = (uint8_t)(data >> 24); // big endian
     payload[payload_len++] = (uint8_t)(data >> 16); // most significant word
     uint pl_crc = crc(payload, payload_len);
+    payload[payload_len++] = pl_crc;
     payload[payload_len++] = (uint8_t)(pl_crc >> 8);
-    payload[payload_len++] = (uint8_t)pl_crc;
 
     modbus->start(this, WRITE_EXPECTED_CHARACTERS);
 }
