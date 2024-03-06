@@ -24,10 +24,15 @@
 #define REBOOT_STATUS_START_ADDR (LOG_END_ADDR + LOG_SIZE)
 #define REBOOT_STATUS_END_ADDR (REBOOT_STATUS_START_ADDR + (MAX_LOGS * LOG_SIZE))
 
+#define CREDENTIALS_START_ADDR (REBOOT_STATUS_END_ADDR + 64) // 64 to align with 64 byte address boundary
+#define CREDENTIALS_SIZE 256
+#define CREDENTIALS_NUM 4
+#define CREDENTIALS_END_ADDR (CREDENTIALS_START_ADDR + (CREDENTIALS_SIZE * CREDENTIALS_NUM))
+
 // TODO: Create better messages
 const char *logMessages[] = {
     "Test",
-    "Test2"
+    "Test2",
 };
 
 // TODO: Create better messages
@@ -107,6 +112,14 @@ void LogHandler::clearAllLogs(const LogType logType){
         }
         this->unusedRebootStatusAddr = REBOOT_STATUS_START_ADDR;
     }
+    else if (logType == LOGTYPE_COMM_CONFIG){
+        logAddr = CREDENTIALS_START_ADDR;
+        for (int i = 0; i < CREDENTIALS_NUM; i++){
+            eeprom_write_byte(logAddr, 0);
+            logAddr += CREDENTIALS_SIZE;
+        }
+        this->unusedCommConfigAddr = CREDENTIALS_START_ADDR;
+    }
     return;
 }
 
@@ -143,6 +156,20 @@ void LogHandler::findFirstAvailableLog(const LogType logType){
 
         break;
     }
+    case LOGTYPE_COMM_CONFIG:
+        logAddr = CREDENTIALS_START_ADDR;
+        for (int i = 0; i < CREDENTIALS_NUM; i++){
+            if ((int)eeprom_read_byte(logAddr) == 0){
+                this->unusedCommConfigAddr = logAddr;
+                return;
+            }
+            logAddr += CREDENTIALS_SIZE;
+        }
+
+        LogHandler::clearAllLogs(LOGTYPE_COMM_CONFIG);
+        this->unusedCommConfigAddr = CREDENTIALS_START_ADDR;
+
+        break;
 
     return;
 }
@@ -240,4 +267,36 @@ void printValidLogs(LogType logType){
 void LogHandler::setCommHandler(std::shared_ptr<CommHandler> commHandler){
     this->commHandler = commHandler;
     return;
+}
+
+void convertStringTouint8(std::string str, uint8_t *arr){
+    arr[0] =  1; // Set the first byte to 1 to indicate that the log is in use.
+    memcpy(arr + 1, str.c_str(), str.length() + 1);
+    arr[str.length() + 2] = 0; // Null terminate the string.
+}
+
+void LogHandler::storeCredentials(std::string ssid, std::string password, std::string hostname, std::string port){
+    if (ssid.length() > 61 || password.length() > 61 || hostname.length() > 61 || port.length() > 61){
+        DPRINT("Credentials too long.");
+        // To something else to handle this.
+        return;
+    }
+
+    uint8_t ssidArr[ssid.length()];
+    uint8_t passwordArr[password.length()];
+    uint8_t hostnameArr[hostname.length()];
+    uint8_t portArr[port.length()];
+
+    convertStringToUint8(ssid, ssidArr);
+    convertStringToUint8(password, passwordArr);
+    convertStringToUint8(hostname, hostnameArr);
+    convertStringToUint8(port, portArr);
+
+    appendCrcToBase8Array(ssidArr, ssid.length());
+    appendCrcToBase8Array(passwordArr, password.length());
+    appendCrcToBase8Array(hostnameArr, hostname.length());
+    appendCrcToBase8Array(portArr, port.length());
+
+
+
 }

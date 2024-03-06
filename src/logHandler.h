@@ -33,13 +33,21 @@ typedef enum {
 
 typedef enum {
     LOGTYPE_MSG_LOG,
-    LOGTYPE_REBOOT_STATUS
+    LOGTYPE_REBOOT_STATUS,
+    LOGTYPE_COMM_CONFIG
 } LogType;
 
 typedef enum {
     LOG_NOT_IN_USE,
     LOG_IN_USE
 } LogUseStatus;
+
+typedef enum {
+    SSID,
+    PASSWORD,
+    HOSTNAME,
+    PORT
+} CommConfig;
 
 class LogHandler {
     public:
@@ -48,6 +56,7 @@ class LogHandler {
             // TODO: Calling member functions in constructor like this is kinda sketchy, rework maybe.
             LogHandler::findFirstAvailableLog(LOGTYPE_MSG_LOG);
             LogHandler::findFirstAvailableLog(LOGTYPE_REBOOT_STATUS);
+            LogHandler::findFirstAvailableLog(LOGTYPE_COMM_CONFIG);
             bootTimestamp = (to_ms_since_boot(get_absolute_time()) / 1000);
         };
         
@@ -67,6 +76,7 @@ class LogHandler {
         int unusedLogAddr;
         int unusedRebootStatusAddr;
         uint32_t bootTimestamp;
+        int unusedCommConfigAddr;
 };
 
 uint16_t crc16(const uint8_t *data, size_t length);
