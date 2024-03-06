@@ -1,5 +1,6 @@
 
 #include "uart_instance.h"
+#include "pico/stdlib.h"
 
 Uart_instance::Uart_instance(uint uart_number, uint baudrate, uint TX_pin, uint RX_pin, uint stop_bits) :
 baudrate(baudrate) {

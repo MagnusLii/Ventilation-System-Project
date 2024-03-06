@@ -75,6 +75,10 @@ float MODBUSRegister::get_float(void) {
     return d.f;
 }
 
+void MODBUSRegister::wait(void) {
+    while (modbus->isbusy()) tight_loop_contents();
+}
+
 
 ReadRegister::ReadRegister(shared_modbus modbus, uint8_t device_address, uint16_t register_address, uint8_t number_of_registers, bool holding) :
 MODBUSRegister(modbus, device_address, register_address, number_of_registers) {

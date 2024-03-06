@@ -1,7 +1,7 @@
 #pragma once
 
 #include <memory>
-#include "pico/stdlib.h"
+// #include "pico/stdlib.h"
 #include "hardware/uart.h"
 
 #define shared_uart std::shared_ptr<Uart_instance>

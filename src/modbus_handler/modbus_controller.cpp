@@ -1,6 +1,7 @@
 #include "pico/stdlib.h"
 #include "pico/time.h"
 #include "hardware/timer.h"
+#include "hardware/dma.h"
 #include "modbus_controller.h"
 #include "modbus_register.h"
 
