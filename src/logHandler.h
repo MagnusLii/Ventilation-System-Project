@@ -76,7 +76,7 @@ class LogHandler {
         void createLogArray(uint8_t *array, int messageCode, uint32_t timestamp);
         void setCommHandler(std::shared_ptr<CommHandler> commHandler);
         void storeCredentials(std::string ssid, std::string password, std::string hostname, std::string port);
-        void fetchCredentials(std::string *ssid, std::string *password, std::string *hostname, std::string *port)
+        void fetchCredentials(std::string *ssid, std::string *password, std::string *hostname, std::string *port);
 
     private:
         std::shared_ptr<CommHandler> commHandler;
@@ -92,6 +92,6 @@ int getChecksum(uint8_t *base8Array, int base8ArrayLen);
 bool verifyDataIntegrity(uint8_t *base8Array, int base8ArrayLen);
 uint32_t getTimestampSinceBoot(const uint64_t bootTimestamp);
 void printValidLogs(LogType logType);
-int createCredentialArray(std::string str, uint8_t *arr)
+int createCredentialArray(std::string str, uint8_t *arr);
 
 #endif
