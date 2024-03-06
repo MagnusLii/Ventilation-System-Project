@@ -310,10 +310,10 @@ void LogHandler::storeCredentials(std::string ssid, std::string password, std::s
     int hostnameLen = createCredentialArray(hostname, hostnameArr);
     int portLen = createCredentialArray(port, portArr);
 
-    ssidLen = appendCrcToBase8Array(ssidArr, ssidLen);
-    pwLen = appendCrcToBase8Array(passwordArr, pwLen);
-    hostnameLen = appendCrcToBase8Array(hostnameArr, hostnameLen);
-    portLen = appendCrcToBase8Array(portArr, portLen);
+    ssidLen = appendCrcToBase8Array(ssidArr, &ssidLen);
+    pwLen = appendCrcToBase8Array(passwordArr, &pwLen);
+    hostnameLen = appendCrcToBase8Array(hostnameArr, &hostnameLen);
+    portLen = appendCrcToBase8Array(portArr, &portLen);
 
     eeprom_write_page(this->unusedCommConfigAddr + (CREDENTIALS_ARR_SIZE * SSID), ssidArr, ssidLen);
     eeprom_write_page(this->unusedCommConfigAddr + (CREDENTIALS_ARR_SIZE * PASSWORD), passwordArr, pwLen);
