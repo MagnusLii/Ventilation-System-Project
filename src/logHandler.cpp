@@ -165,7 +165,7 @@ void LogHandler::findFirstAvailableLog(const LogType logType){
         this->unusedRebootStatusAddr = REBOOT_STATUS_START_ADDR;
 
         break;
-        
+
     //TODO: verify this
     case LOGTYPE_COMM_CONFIG:
         logAddr = CREDENTIALS_START_ADDR;
@@ -294,7 +294,7 @@ int createCredentialArray(std::string str, uint8_t *arr){
 }
 
 void LogHandler::storeCredentials(std::string ssid, std::string password, std::string hostname, std::string port){
-    if (int ssidLen = ssid.length() > 60 || password.length() > 60 || hostname.length() > 60 || port.length() > 60){
+    if (ssid.length() > 60 || password.length() > 60 || hostname.length() > 60 || port.length() > 60){
         DPRINT("Credentials too long.");
         // TODO: do something else to indicate that the credentials are too long.
         return;
