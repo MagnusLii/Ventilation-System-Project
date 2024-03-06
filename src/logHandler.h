@@ -66,8 +66,7 @@ class LogHandler {
         };
         
         void printPrivates();
-        void incrementUnusedLogIndex();
-        void incrementUnusedRebootIndex();
+        void incrementUnusedLogIndex(const LogType logType);
         void pushLog(LogMessage messageCode);
         void pushRebootLog(RebootStatusCodes statusCode);
         void clearAllLogs(const LogType logType);
