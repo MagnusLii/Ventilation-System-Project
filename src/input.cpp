@@ -12,13 +12,13 @@ void handler(uint gpio, uint32_t event) {
             if (gpio_get(11) != state)
             {
                 //Clockwise rotation increments in 10
-                data.data += 12;
+                data.data += 8;
                 if (data.data > 100) data.data = 100;
             }
             else
             {
                 //Counter-clockwise rotation decrements in 10
-                data.data -= 1;
+                data.data -= 8;
                 if (data.data < 0) data.data = 0;
             }
         }

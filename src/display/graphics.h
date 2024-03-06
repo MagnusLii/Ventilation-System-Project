@@ -4,7 +4,7 @@
 
 #pragma once
 
-void mainMenuNon();
-void mainMenuFirst();
-void mainMenuSecond();
-void mainMenuThird();
+void mainMenu(ssd1306 &display);
+void mainMenuFirst(ssd1306 &display);
+void mainMenuSecond(ssd1306 &display);
+void mainMenuThird(ssd1306 &display);
