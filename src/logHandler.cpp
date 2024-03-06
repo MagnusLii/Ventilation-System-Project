@@ -335,6 +335,7 @@ void LogHandler::fetchCredentials(std::string *ssid, std::string *password, std:
     eeprom_read_page(this->unusedCommConfigAddr + (CREDENTIALS_ARR_SIZE * PORT), portArr, CREDENTIALS_ARR_SIZE);
 
     // TODO: figure out what to proceed if the data is not valid.
+    // TODO: Verify that the CRC is not included in the string.
     if (verifyDataIntegrity(ssidArr, CREDENTIALS_ARR_SIZE) == true){
         *ssid = std::string((char *)ssidArr + 2);
     }
