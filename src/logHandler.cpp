@@ -25,6 +25,7 @@
 #define REBOOT_STATUS_END_ADDR (REBOOT_STATUS_START_ADDR + (MAX_LOGS * LOG_SIZE))
 
 #define CREDENTIALS_ARR_SIZE 64
+#define CREDENTIALS_STORAGE_BLOCK 256 
 #define CREDENTIALS_START_ADDR (REBOOT_STATUS_END_ADDR + (CREDENTIALS_ARR_SIZE - (REBOOT_STATUS_END_ADDR % CREDENTIALS_ARR_SIZE))) // Aligns the address to the next 64 byte boundary.
 #define CREDENTIALS_NUM 4
 #define CREDENTIALS_END_ADDR (CREDENTIALS_START_ADDR + (CREDENTIALS_ARR_SIZE * CREDENTIALS_NUM))
@@ -331,10 +332,10 @@ void LogHandler::fetchCredentials(std::string *ssid, std::string *password, std:
     uint8_t hostnameArr[CREDENTIALS_ARR_SIZE];
     uint8_t portArr[CREDENTIALS_ARR_SIZE];
 
-    eeprom_read_page(this->unusedCommConfigAddr + (CREDENTIALS_ARR_SIZE * SSID), ssidArr, CREDENTIALS_ARR_SIZE);
-    eeprom_read_page(this->unusedCommConfigAddr + (CREDENTIALS_ARR_SIZE * PASSWORD), passwordArr, CREDENTIALS_ARR_SIZE);
-    eeprom_read_page(this->unusedCommConfigAddr + (CREDENTIALS_ARR_SIZE * HOSTNAME), hostnameArr, CREDENTIALS_ARR_SIZE);
-    eeprom_read_page(this->unusedCommConfigAddr + (CREDENTIALS_ARR_SIZE * PORT), portArr, CREDENTIALS_ARR_SIZE);
+    eeprom_read_page(this->unusedCommConfigAddr + (CREDENTIALS_ARR_SIZE * SSID) - CREDENTIALS_STORAGE_BLOCK, ssidArr, CREDENTIALS_ARR_SIZE);
+    eeprom_read_page(this->unusedCommConfigAddr + (CREDENTIALS_ARR_SIZE * PASSWORD) - CREDENTIALS_STORAGE_BLOCK, passwordArr, CREDENTIALS_ARR_SIZE);
+    eeprom_read_page(this->unusedCommConfigAddr + (CREDENTIALS_ARR_SIZE * HOSTNAME) - CREDENTIALS_STORAGE_BLOCK, hostnameArr, CREDENTIALS_ARR_SIZE);
+    eeprom_read_page(this->unusedCommConfigAddr + (CREDENTIALS_ARR_SIZE * PORT) - CREDENTIALS_STORAGE_BLOCK, portArr, CREDENTIALS_ARR_SIZE);
 
     // TODO: figure out what to proceed if the data is not valid.
     // TODO: Verify that the CRC is not included in the string.
