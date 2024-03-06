@@ -338,6 +338,9 @@ void LogHandler::fetchCredentials(std::string *ssid, std::string *password, std:
     // TODO: Verify that the CRC is not included in the string.
     if (verifyDataIntegrity(ssidArr, CREDENTIALS_ARR_SIZE) == true){
         *ssid = std::string((char *)ssidArr + 2);
+        for (int i = 0; i < 64; i++){
+            std::cout << (int)ssidArr[i] << " ";
+        }
     }
     if (verifyDataIntegrity(passwordArr, CREDENTIALS_ARR_SIZE) == true){
         *password = std::string((char *)passwordArr + 2);
