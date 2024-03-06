@@ -8,16 +8,26 @@
 #define DEBUG_ENABLE
 #include "debugprint.h"
 #include "pin.h"
+#include "input.h"
+#include "display/ssd1306.h"
+#include "display/graphics.h"
 
 int main() {
     stdio_init_all();
     int a = 42;
     DPRINT("AA", "bbb", a);
-    RotaryEncoder A; //Create an object for rotary encoder.
-
+    RotaryEncoder A;
+    mainMenuNon();
     while(true) {
-        std::cout << A.returnVal() << std::endl; //shows that the data is changed and can be accessed
-        sleep_ms(5000);
+        a = A.returnVal();
+        if (a > 0 && a < 33) {
+            mainMenuFirst();
+        }else if(a > 33 && a < 66 ) {
+            mainMenuSecond();
+        } else if(a > 66 && a <= 100) {
+            mainMenuThird();
+        }
+
     }
     return 0;
 }
