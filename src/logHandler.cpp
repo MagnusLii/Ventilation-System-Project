@@ -345,19 +345,19 @@ void LogHandler::fetchCredentials(std::string *ssid, std::string *password, std:
 
     // TODO: figure out what to proceed if the data is not valid.
     // TODO: Verify that the CRC is not included in the string.
-    if (verifyDataIntegrity(ssidArr, CREDENTIALS_ARR_SIZE) == true){
+    if (verifyDataIntegrity(ssidArr, (int)ssidArr[1]) == true){
         *ssid = std::string((char *)ssidArr + 2);
         for (int i = 0; i < 64; i++){
             std::cout << (int)ssidArr[i] << " ";
         }
     }
-    if (verifyDataIntegrity(passwordArr, CREDENTIALS_ARR_SIZE) == true){
+    if (verifyDataIntegrity(passwordArr, (int)passwordArr[1]) == true){
         *password = std::string((char *)passwordArr + 2);
     }
-    if (verifyDataIntegrity(hostnameArr, CREDENTIALS_ARR_SIZE) == true){
+    if (verifyDataIntegrity(hostnameArr, (int)hostnameArr[1]) == true){
         *hostname = std::string((char *)hostnameArr + 2);
     }
-    if (verifyDataIntegrity(portArr, CREDENTIALS_ARR_SIZE) == true){
+    if (verifyDataIntegrity(portArr, (int)portArr[1]) == true){
         *port = std::string((char *)portArr + 2);
     }
     return;
