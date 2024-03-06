@@ -232,6 +232,12 @@ int getChecksum(uint8_t *base8Array, int base8ArrayLen) {
 }
 
 bool verifyDataIntegrity(uint8_t *base8Array, int base8ArrayLen) {
+    // TODO: REMOVE TROUBLESHOOT CODE
+    for (int i = 0; i < base8ArrayLen; i++){
+        std::cout << (int)base8Array[i] << " ";
+    }
+    std::cout << std::endl;
+
     if (getChecksum(base8Array, base8ArrayLen) == 0) {return true;}
     return false;
 }
