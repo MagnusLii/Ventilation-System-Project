@@ -165,7 +165,7 @@ void LogHandler::findFirstAvailableLog(const LogType logType){
         this->unusedRebootStatusAddr = REBOOT_STATUS_START_ADDR;
 
         break;
-    }
+        
     //TODO: verify this
     case LOGTYPE_COMM_CONFIG:
         logAddr = CREDENTIALS_START_ADDR;
@@ -181,7 +181,7 @@ void LogHandler::findFirstAvailableLog(const LogType logType){
         this->unusedCommConfigAddr = CREDENTIALS_START_ADDR;
 
         break;
-
+    }
     return;
 }
 
