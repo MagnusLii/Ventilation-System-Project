@@ -26,6 +26,11 @@ typedef enum {
 } LogArray;
 
 typedef enum {
+    COMMCONFIG_LOG_USE_STATUS,
+    COMMCONFIG_LEN
+} CommConfigArray;
+
+typedef enum {
     OK,
     CRASH,
     FORCED_REBOOT
