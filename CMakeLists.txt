@@ -54,7 +54,8 @@ add_library(IPStack src/IPStack.cpp)
 
 pico_add_extra_outputs(${PROJECT_NAME})
 
-target_link_libraries(${PROJECT_NAME} pico_stdlib modbusreg pressure fan hardware_i2c)
+target_link_libraries(${PROJECT_NAME} pico_stdlib modbusreg pressure fan hardware_i2c logHandler eeprom commhandler Countdown IPStack)
+
 
 # HARDWARE class links
 target_link_libraries(uart_instance     pico_stdlib hardware_uart)
@@ -70,8 +71,6 @@ target_link_libraries(pressure pico_stdlib i2c_instance)
 
 #FAN
 target_link_libraries(fan      pico_stdlib pressure modbusreg)
-target_link_libraries(${PROJECT_NAME} pico_stdlib pin hardware_i2c logHandler eeprom commhandler Countdown IPStack)
-target_link_libraries(pin         pico_stdlib)
 target_link_libraries(commhandler pico_stdlib pico_cyw43_arch_lwip_poll Countdown IPStack)
 target_link_libraries(Countdown   pico_stdlib)
 target_link_libraries(IPStack     pico_stdlib pico_cyw43_arch_lwip_poll)

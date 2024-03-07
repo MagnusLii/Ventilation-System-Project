@@ -30,12 +30,6 @@
 #define I2C1_BAUD 100000
 
 
-#include <cmath>
-int adjust_fan(int pressure, int target) {
-    if (abs(pressure - target) < 5) return 0;
-    return (target - pressure) / 2;
-}
-
 bool user_input(char *dst, int size) {
     if (uart_is_readable(uart0)) {
         char c = 0;

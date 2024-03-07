@@ -66,10 +66,10 @@ void LogHandler::pushLog(LogMessage messageCode){
     LogHandler::incrementUnusedLogIndex();
 
     // string editing.
-    std::string message = "\"{\"log\":\"" + messageCode + "\"}\"";
-    DPRINT(message);
+    //std::string message = "\"{\"log\":\"" + messageCode + "\"}\"";
+    // DPRINT(message);
     
-    this->commHandler->publish(TopicType::LOG_SEND, message.c_str());
+    //this->commHandler->publish(TopicType::LOG_SEND, message.c_str());
 }
 
 void LogHandler::pushRebootLog(RebootStatusCodes statusCode){
@@ -81,10 +81,10 @@ void LogHandler::pushRebootLog(RebootStatusCodes statusCode){
     LogHandler::incrementUnusedRebootIndex();
     
     // string editing.
-    std::string message = "\"{\"devStatus\":\"" + statusCode + "\"}\"";
-    DPRINT(message);
+    //std::string message = "\"{\"devStatus\":\"" + statusCode + "\"}\"";
+    // DPRINT(message);
     
-    this->commHandler->publish(TopicType::STATUS_SEND, message.c_str());
+    //this->commHandler->publish(TopicType::STATUS_SEND, message.c_str());
 
 }
 
