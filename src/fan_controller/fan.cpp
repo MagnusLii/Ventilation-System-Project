@@ -1,4 +1,5 @@
 
+#include <cmath>
 #include "fan.h"
 
 #define PRESSURE_TARGET_TOLERANCE 5
@@ -40,8 +41,9 @@ void FAN::set_speed(uint16_t speed) {
 
 void FAN::adjust_speed(int target_pressure) {
     int distance = pressure_distance(target_pressure);
-    float distance_percent = (distance + PRESSURE_MIN) / PRESSURE_MAX;
-    speed *= distance_percent;
+    if (abs(distance) < PRESSURE_TARGET_TOLERANCE) return;
+    float adjust = distance * SPEED_MAX / PRESSURE_MAX;
+    speed += adjust / 2;
     if (speed > SPEED_MAX) speed = SPEED_MAX;
     if (speed < SPEED_MIN) speed = SPEED_MIN;
     fan_speed_register->start_transfer((uint16_t)speed);
