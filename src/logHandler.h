@@ -83,6 +83,7 @@ class LogHandler {
         int unusedRebootStatusAddr;
         uint32_t bootTimestamp;
         int unusedCommConfigAddr;
+        int currentCommConfigAddr;
 };
 
 uint16_t crc16(const uint8_t *data, size_t length);

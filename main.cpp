@@ -20,7 +20,13 @@ int main() {
     stdio_init_all();
     eeprom_init_i2c(i2c0, EEPROM_BAUD_RATE, EEPROM_WRITE_CYCLE_MAX_MS);
 
+
     LogHandler logHandler;
+
+    for (int i = 0; i < 10; i++) {
+
+
+    logHandler.printPrivates();
 
     std::string ssid = "ssid";
     std::string password = "password";
@@ -35,6 +41,8 @@ int main() {
     std::string port2;
 
     logHandler.fetchCredentials(&ssid2, &password2, &hostname2, &port2);
+
+    }
 
     return 0;
 }

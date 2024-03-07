@@ -28,7 +28,7 @@
 #define CREDENTIALS_STORAGE_BLOCK 256 
 #define CREDENTIALS_START_ADDR (REBOOT_STATUS_END_ADDR + (CREDENTIALS_ARR_SIZE - (REBOOT_STATUS_END_ADDR % CREDENTIALS_ARR_SIZE))) // Aligns the address to the next 64 byte boundary.
 #define CREDENTIALS_NUM 4
-#define CREDENTIALS_END_ADDR (CREDENTIALS_START_ADDR + (CREDENTIALS_ARR_SIZE * CREDENTIALS_NUM))
+#define CREDENTIALS_END_ADDR (CREDENTIALS_START_ADDR + (CREDENTIALS_STORAGE_BLOCK * CREDENTIALS_NUM))
 
 // TODO: Create better messages
 const char *logMessages[] = {
@@ -47,6 +47,8 @@ const char *rebootStatusMessages[] = {
 void LogHandler::printPrivates() {
     std::cout << "Log Address: " << this->unusedLogAddr << std::endl;
     std::cout << "Reboot Status Address: " << this->unusedRebootStatusAddr << std::endl;
+    std::cout << "Unused Comm Config Address: " << this->unusedCommConfigAddr << std::endl;
+    std::cout << "Current Comm Config Address: " << this->currentCommConfigAddr << std::endl;
 }
 
 void LogHandler::incrementUnusedLogIndex(const LogType logType) {
@@ -63,9 +65,11 @@ void LogHandler::incrementUnusedLogIndex(const LogType logType) {
         }
     }
     else if (logType == LOGTYPE_COMM_CONFIG){
-        this->unusedCommConfigAddr += CREDENTIALS_ARR_SIZE;
+        eeprom_write_byte(this->currentCommConfigAddr, 0);
+        this->currentCommConfigAddr = unusedCommConfigAddr;
+        this->unusedCommConfigAddr += CREDENTIALS_STORAGE_BLOCK;
         if (this->unusedCommConfigAddr >= CREDENTIALS_END_ADDR){
-            this->clearAllLogs(LOGTYPE_COMM_CONFIG);
+            this->unusedCommConfigAddr = CREDENTIALS_START_ADDR;
         }
     }
 }
@@ -122,15 +126,6 @@ void LogHandler::clearAllLogs(const LogType logType){
         }
         this->unusedRebootStatusAddr = REBOOT_STATUS_START_ADDR;
     }
-    // TODO: verify this
-    else if (logType == LOGTYPE_COMM_CONFIG){
-        logAddr = CREDENTIALS_START_ADDR;
-        for (int i = 0; i < CREDENTIALS_NUM; i++){
-            eeprom_write_byte(logAddr, 0);
-            logAddr += CREDENTIALS_ARR_SIZE;
-        }
-        this->unusedCommConfigAddr = CREDENTIALS_START_ADDR;
-    }
     return;
 }
 
@@ -173,14 +168,17 @@ void LogHandler::findFirstAvailableLog(const LogType logType){
         for (int i = 0; i < CREDENTIALS_NUM; i++){
             if ((int)eeprom_read_byte(logAddr) == 0){
                 this->unusedCommConfigAddr = logAddr;
+                this->currentCommConfigAddr = logAddr - CREDENTIALS_STORAGE_BLOCK;
+
+                if (logAddr == CREDENTIALS_START_ADDR){ // if unusedCommConfigAddr == CREDENTIALS_START_ADDR, then the currentCommConfigAddr is CREDENTIALS_END_ADDR.
+                this->currentCommConfigAddr = CREDENTIALS_END_ADDR;
+                }
                 return;
             }
             logAddr += CREDENTIALS_ARR_SIZE;
         }
-
-        LogHandler::clearAllLogs(LOGTYPE_COMM_CONFIG);
         this->unusedCommConfigAddr = CREDENTIALS_START_ADDR;
-
+        this->currentCommConfigAddr = CREDENTIALS_END_ADDR;
         break;
     }
     return;
@@ -228,6 +226,8 @@ void appendCrcToBase8Array(uint8_t *base8Array, int *arrayLen){
 
 int getChecksum(uint8_t *base8Array, int base8ArrayLen) {
     uint16_t crc = crc16(base8Array, base8ArrayLen);
+    // TODO: REMOVE TROUBLESHOOT CODE
+    std::cout << "CRC: " << crc << std::endl;
     return crc;
 }
 
@@ -295,7 +295,7 @@ int createCredentialArray(std::string str, uint8_t *arr){
         return -1;
     }
     arr[0] =  LOG_IN_USE;
-    arr[1] = length;
+    arr[1] = length + 5; // Length of the string + 2 bytes for the CRC + 2 bytes for the length.
     memcpy(arr + 2, str.c_str(), length + 1);
     return length + 3;
 }
@@ -317,7 +317,13 @@ void LogHandler::storeCredentials(std::string ssid, std::string password, std::s
     int hostnameLen = createCredentialArray(hostname, hostnameArr);
     int portLen = createCredentialArray(port, portArr);
 
+    // TODO: REMOVE TROUBLESHOOT CODE
+    std::cout << "SSID CRC: " << std::endl;
     appendCrcToBase8Array(ssidArr, &ssidLen);
+    for (int i = 0; i < ssidLen; i++){
+        std::cout << (int)ssidArr[i] << " ";
+    }
+    std::cout << std::endl;
     appendCrcToBase8Array(passwordArr, &pwLen);
     appendCrcToBase8Array(hostnameArr, &hostnameLen);
     appendCrcToBase8Array(portArr, &portLen);
@@ -338,27 +344,24 @@ void LogHandler::fetchCredentials(std::string *ssid, std::string *password, std:
     uint8_t hostnameArr[CREDENTIALS_ARR_SIZE];
     uint8_t portArr[CREDENTIALS_ARR_SIZE];
 
-    eeprom_read_page(this->unusedCommConfigAddr + (CREDENTIALS_ARR_SIZE * SSID) - CREDENTIALS_STORAGE_BLOCK, ssidArr, CREDENTIALS_ARR_SIZE);
-    eeprom_read_page(this->unusedCommConfigAddr + (CREDENTIALS_ARR_SIZE * PASSWORD) - CREDENTIALS_STORAGE_BLOCK, passwordArr, CREDENTIALS_ARR_SIZE);
-    eeprom_read_page(this->unusedCommConfigAddr + (CREDENTIALS_ARR_SIZE * HOSTNAME) - CREDENTIALS_STORAGE_BLOCK, hostnameArr, CREDENTIALS_ARR_SIZE);
-    eeprom_read_page(this->unusedCommConfigAddr + (CREDENTIALS_ARR_SIZE * PORT) - CREDENTIALS_STORAGE_BLOCK, portArr, CREDENTIALS_ARR_SIZE);
+    eeprom_read_page(this->currentCommConfigAddr, ssidArr, CREDENTIALS_ARR_SIZE);
+    eeprom_read_page(this->currentCommConfigAddr, passwordArr, CREDENTIALS_ARR_SIZE);
+    eeprom_read_page(this->currentCommConfigAddr, hostnameArr, CREDENTIALS_ARR_SIZE);
+    eeprom_read_page(this->currentCommConfigAddr, portArr, CREDENTIALS_ARR_SIZE);
 
     // TODO: figure out what to proceed if the data is not valid.
     // TODO: Verify that the CRC is not included in the string.
     if (verifyDataIntegrity(ssidArr, (int)ssidArr[1]) == true){
-        *ssid = std::string((char *)ssidArr + 2);
-        for (int i = 0; i < 64; i++){
-            std::cout << (int)ssidArr[i] << " ";
-        }
+        *ssid = std::string((char *)ssidArr);
     }
     if (verifyDataIntegrity(passwordArr, (int)passwordArr[1]) == true){
-        *password = std::string((char *)passwordArr + 2);
+        *password = std::string((char *)passwordArr);
     }
     if (verifyDataIntegrity(hostnameArr, (int)hostnameArr[1]) == true){
-        *hostname = std::string((char *)hostnameArr + 2);
+        *hostname = std::string((char *)hostnameArr);
     }
     if (verifyDataIntegrity(portArr, (int)portArr[1]) == true){
-        *port = std::string((char *)portArr + 2);
+        *port = std::string((char *)portArr);
     }
     return;
 }
