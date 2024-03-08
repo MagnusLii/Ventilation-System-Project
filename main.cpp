@@ -29,6 +29,9 @@
 #define I2C1_SCL 15
 #define I2C1_BAUD 100000
 
+#define EEPROM_BAUD_RATE 1000000
+#define EEPROM_WRITE_CYCLE_MAX_MS 5
+
 
 bool user_input(char *dst, int size) {
     if (uart_is_readable(uart0)) {
@@ -44,18 +47,18 @@ bool user_input(char *dst, int size) {
     }
     return false;
 }
-#define EEPROM_BAUD_RATE 1000000
-#define EEPROM_WRITE_CYCLE_MAX_MS 5
     
 int main() {
     stdio_init_all();
 
     shared_uart u{std::make_shared<Uart_instance>(1, 9600, UART_TX_PIN, UART_RX_PIN)};
     shared_i2c i2c{std::make_shared<I2C_instance>(i2c1, I2C1_BAUD, I2C1_SDA, I2C1_SCL)};
+
     shared_modbus mbctrl{std::make_shared<ModbusCtrl>(u)};
 
-    ReadRegister rh(mbctrl, 241, 256);
-    ReadRegister co(mbctrl, 240, 0, 2);
+    ReadRegister rh(mbctrl, 241, 0, 2);
+    ReadRegister temp(mbctrl, 241, 2, 2);
+    ReadRegister co2(mbctrl, 240, 0, 2);
 
     WriteRegister fan_speed(mbctrl, 1, 0, 1);
     ReadRegister fan_counter(mbctrl, 1, 4, 1, false);
