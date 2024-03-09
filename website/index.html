@@ -23,6 +23,11 @@
             width: 150px;
         }
 
+        #applyButton {
+            display: block;
+            margin-top: 20px;
+        }
+
         .tabs {
             margin-top: 20px;
         }
@@ -113,7 +118,7 @@
             <label for="pressureTargetInput">Pressure Target:</label>
             <input type="number" id="pressureTargetInput" min="0" step="1" disabled>
 
-            <button onclick="applySettings()">Apply</button>
+            <button id="applyButton" onclick="applySettings()">Apply</button>
         </div>
 
         <!-- Status Section -->
@@ -203,7 +208,7 @@
         function populateHistoryTable() {
             var historyTableBody = document.querySelector('#historyTable tbody');
             
-            // Fetch data from the /data/history endpoint
+            // Fetch data from the /data/history endpoint - TODO: Change to actual endpoint
             fetch('/data/history')
                 .then(response => response.json())
                 .then(data => {
@@ -231,7 +236,7 @@
         function populateLogTable() {
             var logTableBody = document.querySelector('#logTable tbody');
 
-            // Fetch data from the /data/logs endpoint
+            // Fetch data from the /data/logs endpoint - TODO: Change to actual endpoint
             fetch('/data/logs')
                 .then(response => response.json())
                 .then(data => {
@@ -252,7 +257,7 @@
         }
 
         function populateStatusSection() {
-            // Fetch data from the /data/status endpoint
+            // Fetch data from the /data/status - TODO: Change to actual endpoint
             fetch('/data/status')
                 .then(response => {
                     if (!response.ok) {
