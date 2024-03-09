@@ -11,6 +11,7 @@
 #include "input.h"
 #include "display/ssd1306.h"
 #include "display/graphics.h"
+#include "display/font_petme128_8x8.h"
 
 int main() {
     stdio_init_all();
@@ -19,26 +20,26 @@ int main() {
     gpio_set_function(14, GPIO_FUNC_I2C); // the display has external pull-ups
     gpio_set_function(15, GPIO_FUNC_I2C); // the display has external pull-ups
 
-    int a = 42;
+    int a = 1;
     ssd1306 display(i2c1);
     DPRINT("AA", "bbb", a);
 
+    Button button(7);
+    Button button1(8);
+    Button button2(9);
     RotaryEncoder A;
-    mainMenu(display);
-    display.show();
     while(true) {
-        a = A.returnVal();
-        if (a > 0 && a < 33) {
-            mainMenuFirst(display);
-            display.show();
-        }else if(a > 33 && a < 66 ) {
-            mainMenuSecond(display);
-            display.show();
-        } else if(a > 66 && a <= 100) {
-            mainMenuThird(display);
-            display.show();
+        /*
+        a = A.returnVal() % 6;
+        startMenu(display, a);
+        display.show();
+        */
+        textInput(display, button, A.returnVal());
+        display.show();
+        if (button.returnState() && button.returnPin() == 12) {
+            button.setState();
+            DPRINT(returnInput());
         }
-
     }
     return 0;
 }

@@ -4,7 +4,10 @@
 
 #pragma once
 
-void mainMenu(ssd1306 &display);
-void mainMenuFirst(ssd1306 &display);
-void mainMenuSecond(ssd1306 &display);
-void mainMenuThird(ssd1306 &display);
+#include "input.h"
+
+void startMenu(ssd1306 &display, int pos);
+void mqttMenu(ssd1306 &display, int pos);
+
+char* returnInput();
+void textInput(ssd1306 &display, Button &button, int current_position);
