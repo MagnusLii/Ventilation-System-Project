@@ -85,7 +85,7 @@
     </style>
 </head>
 <body>
-    <h1>Fan Control</h1>
+    <h1>Ventilation Control</h1>
 
     <!-- Tabs -->
     <div class="tabs">
@@ -114,12 +114,12 @@
         <div id="statusSection">
             <h2>Status</h2>
             <ul id="statusValues">
-                <li><strong>Fan Speed:</strong> <span id="fanSpeedStatus">N/A</span></li>
-                <li><strong>Set Point:</strong> <span id="setPointStatus">N/A</span></li>
-                <li><strong>Pressure:</strong> <span id="pressureStatus">N/A</span></li>
-                <li><strong>CO2:</strong> <span id="co2Status">N/A</span></li>
-                <li><strong>Relative Humidity:</strong> <span id="humidityStatus">N/A</span></li>
-                <li><strong>Temperature:</strong> <span id="temperatureStatus">N/A</span></li>
+                <li><strong>Fan Speed:</strong> <span id="fanSpeedStatus"></span></li>
+                <li><strong>Set Point:</strong> <span id="setPointStatus"></span></li>
+                <li><strong>Pressure:</strong> <span id="pressureStatus"></span></li>
+                <li><strong>CO2:</strong> <span id="co2Status"></span></li>
+                <li><strong>Relative Humidity:</strong> <span id="humidityStatus"></span></li>
+                <li><strong>Temperature:</strong> <span id="temperatureStatus"></span></li>
             </ul>
         </div>
     </div>
@@ -198,12 +198,13 @@
             var historyTableBody = document.querySelector('#historyTable tbody');
             
             // Replace this with actual data retrieval from the server-side
+            /*  
             var data = [
                 { index: 1, date: '2024-03-05', fanSpeed: 60, setPoint: 25, pressure: 1015, co2: 400, humidity: 50, temperature: 22 },
                 { index: 2, date: '2024-03-04', fanSpeed: 70, setPoint: 26, pressure: 1013, co2: 410, humidity: 48, temperature: 23 },
                 // Add more rows as needed
             ];
-
+            
             data.forEach(function (data) {
                 var row = document.createElement('tr');
                 row.innerHTML = '<td>' + data.index + '</td>' +
@@ -216,12 +217,38 @@
                                 '<td>' + data.temperature + '</td>';
                 historyTableBody.appendChild(row);
             });
+            */
+
+            // Fetch data from the /data/history endpoint
+            fetch('/data/history')
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(function (entry) {
+                        var row = document.createElement('tr');
+                        row.innerHTML = '<td>' + entry.index + '</td>' +
+                                        '<td>' + entry.date + '</td>' +
+                                        '<td>' + entry.fanSpeed + '</td>' +
+                                        '<td>' + entry.setPoint + '</td>' +
+                                        '<td>' + entry.pressure + '</td>' +
+                                        '<td>' + entry.co2 + '</td>' +
+                                        '<td>' + entry.humidity + '</td>' +
+                                        '<td>' + entry.temperature + '</td>';
+                        historyTableBody.appendChild(row);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching history data: ', error);
+                    var row = document.createElement('tr');
+                    row.innerHTML = '<td colspan="8">Error fetching history data</td>';
+                    historyTableBody.appendChild(row);
+                });
         }
 
         function populateLogTable() {
             var logTableBody = document.querySelector('#logTable tbody');
 
             // Replace this with actual data retrieval from the server-side
+            /*
             var data = [
                 { index: 1, message: 'Fan speed set to 60%', timestamp: '2024-03-05 12:00:00' },
                 { index: 2, message: 'Fan speed set to 70%', timestamp: '2024-03-04 13:00:00' },
@@ -235,10 +262,59 @@
                                 '<td>' + data.timestamp + '</td>';
                 logTableBody.appendChild(row);
             });
+            */
+
+            // Fetch data from the /data/logs endpoint
+            fetch('/data/logs')
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(function (entry) {
+                        var row = document.createElement('tr');
+                        row.innerHTML = '<td>' + entry.index + '</td>' +
+                                        '<td>' + entry.message + '</td>' +
+                                        '<td>' + entry.timestamp + '</td>';
+                        logTableBody.appendChild(row);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching log data: ', error);
+                    var row = document.createElement('tr');
+                    row.innerHTML = '<td colspan="3">Error fetching log data</td>';
+                    logTableBody.appendChild(row);
+                });
+        }
+
+        function populateStatusSection() {
+            // Fetch data from the /data/status endpoint
+            fetch('/data/status')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    document.getElementById('fanSpeedStatus').textContent = data.fanSpeed;
+                    document.getElementById('setPointStatus').textContent = data.setPoint;
+                    document.getElementById('pressureStatus').textContent = data.pressure;
+                    document.getElementById('co2Status').textContent = data.co2;
+                    document.getElementById('humidityStatus').textContent = data.humidity;
+                    document.getElementById('temperatureStatus').textContent = data.temperature;
+                })
+                .catch(error => {
+                    console.error('Error fetching status data: ', error);
+                    document.getElementById('fanSpeedStatus').textContent = 'N/A';
+                    document.getElementById('setPointStatus').textContent = 'N/A';
+                    document.getElementById('pressureStatus').textContent = 'N/A';
+                    document.getElementById('co2Status').textContent = 'N/A';
+                    document.getElementById('humidityStatus').textContent = 'N/A';
+                    document.getElementById('temperatureStatus').textContent = 'N/A';
+                });
         }
 
         populateHistoryTable();
         populateLogTable();
+        populateStatusSection();
 
         // Show control tab by default
         openTab("controlTab");
