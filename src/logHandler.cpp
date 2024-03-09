@@ -338,11 +338,16 @@ void LogHandler::storeCredentials(std::string ssid, std::string password, std::s
     return;
 }
 
-void LogHandler::fetchCredentials(std::string *ssid, std::string *password, std::string *hostname, std::string *port){
+void LogHandler::fetchCredentials(std::string *ssid, std::string *password, std::string *hostname, std::string *port, int (&arr)[4]){
     uint8_t ssidArr[CREDENTIALS_ARR_SIZE];
     uint8_t passwordArr[CREDENTIALS_ARR_SIZE];
     uint8_t hostnameArr[CREDENTIALS_ARR_SIZE];
     uint8_t portArr[CREDENTIALS_ARR_SIZE];
+    
+    // Default all values to 0.
+    for (int i = 0; i < 4; i++){
+        arr[i] = 0;
+    }
 
     eeprom_read_page(this->currentCommConfigAddr, ssidArr, CREDENTIALS_ARR_SIZE);
     eeprom_read_page(this->currentCommConfigAddr, passwordArr, CREDENTIALS_ARR_SIZE);
@@ -353,15 +358,19 @@ void LogHandler::fetchCredentials(std::string *ssid, std::string *password, std:
     // TODO: Verify that the CRC is not included in the string.
     if (verifyDataIntegrity(ssidArr, (int)ssidArr[1]) == true){
         *ssid = std::string((char *)ssidArr);
+        arr[0] = 1;
     }
     if (verifyDataIntegrity(passwordArr, (int)passwordArr[1]) == true){
         *password = std::string((char *)passwordArr);
+        arr[1] = 1;
     }
     if (verifyDataIntegrity(hostnameArr, (int)hostnameArr[1]) == true){
         *hostname = std::string((char *)hostnameArr);
+        arr[2] = 1;
     }
     if (verifyDataIntegrity(portArr, (int)portArr[1]) == true){
         *port = std::string((char *)portArr);
+        arr[3] = 1;
     }
     return;
 }
