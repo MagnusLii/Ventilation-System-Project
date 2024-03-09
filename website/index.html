@@ -197,28 +197,6 @@
         function populateHistoryTable() {
             var historyTableBody = document.querySelector('#historyTable tbody');
             
-            // Replace this with actual data retrieval from the server-side
-            /*  
-            var data = [
-                { index: 1, date: '2024-03-05', fanSpeed: 60, setPoint: 25, pressure: 1015, co2: 400, humidity: 50, temperature: 22 },
-                { index: 2, date: '2024-03-04', fanSpeed: 70, setPoint: 26, pressure: 1013, co2: 410, humidity: 48, temperature: 23 },
-                // Add more rows as needed
-            ];
-            
-            data.forEach(function (data) {
-                var row = document.createElement('tr');
-                row.innerHTML = '<td>' + data.index + '</td>' +
-                                '<td>' + data.date + '</td>' +
-                                '<td>' + data.fanSpeed + '</td>' +
-                                '<td>' + data.setPoint + '</td>' +
-                                '<td>' + data.pressure + '</td>' +
-                                '<td>' + data.co2 + '</td>' +
-                                '<td>' + data.humidity + '</td>' +
-                                '<td>' + data.temperature + '</td>';
-                historyTableBody.appendChild(row);
-            });
-            */
-
             // Fetch data from the /data/history endpoint
             fetch('/data/history')
                 .then(response => response.json())
@@ -246,23 +224,6 @@
 
         function populateLogTable() {
             var logTableBody = document.querySelector('#logTable tbody');
-
-            // Replace this with actual data retrieval from the server-side
-            /*
-            var data = [
-                { index: 1, message: 'Fan speed set to 60%', timestamp: '2024-03-05 12:00:00' },
-                { index: 2, message: 'Fan speed set to 70%', timestamp: '2024-03-04 13:00:00' },
-                // Add more rows as needed
-            ];
-
-            data.forEach(function (data) {
-                var row = document.createElement('tr');
-                row.innerHTML = '<td>' + data.index + '</td>' +
-                                '<td>' + data.message + '</td>' +
-                                '<td>' + data.timestamp + '</td>';
-                logTableBody.appendChild(row);
-            });
-            */
 
             // Fetch data from the /data/logs endpoint
             fetch('/data/logs')
