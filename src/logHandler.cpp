@@ -87,7 +87,7 @@ void LogHandler::pushLog(LogMessage messageCode){
     std::string message = "\"{\"log\":\"" + log + "\"}\"";
     DPRINT(message);
     
-    //this->commHandler->publish(TopicType::LOG_SEND, message.c_str());
+    this->commHandler->publish(TopicType::LOG_SEND, message.c_str());
 }
 
 void LogHandler::pushRebootLog(RebootStatusCodes statusCode){
@@ -103,8 +103,7 @@ void LogHandler::pushRebootLog(RebootStatusCodes statusCode){
     std::string message = "\"{\"devStatus\":\"" + log + "\"}\"";
     DPRINT(message);
     
-    //this->commHandler->publish(TopicType::STATUS_SEND, message.c_str());
-
+    this->commHandler->publish(TopicType::STATUS_SEND, message.c_str());
 }
 
 void LogHandler::clearAllLogs(const LogType logType){
