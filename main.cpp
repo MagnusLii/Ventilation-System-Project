@@ -79,9 +79,9 @@ int main() {
     
     eeprom_init_i2c(i2c0, EEPROM_BAUD_RATE, EEPROM_WRITE_CYCLE_MAX_MS);
     DPRINT("Boot");
-    const char *ssid = "SSID";
-    const char *pw = "PW";
-    const char *hostname = "0.0.0.0";
+    const char *ssid = "SmartIotMQTT";
+    const char *pw = "SmartIot";
+    const char *hostname = "192.168.1.10";
     int port = 1883;
 
     IPStack ipstack(ssid, pw);
