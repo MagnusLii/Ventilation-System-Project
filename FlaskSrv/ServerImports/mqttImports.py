@@ -30,7 +30,7 @@ def decodeStringToJSON(json_string):
         decodedMessage = json.loads(json_string)
         return decodedMessage
     except json.decoder.JSONDecodeError as error:
-        logHandler.log(f'JSON decode error: {error}')
+        logHandler.log(f'decodeStringToJSON(): JSON decode error: {error}')
         return -1
 
 
