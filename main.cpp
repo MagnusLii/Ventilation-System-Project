@@ -78,25 +78,30 @@ int main() {
 
     
     eeprom_init_i2c(i2c0, EEPROM_BAUD_RATE, EEPROM_WRITE_CYCLE_MAX_MS);
-    DPRINT("Boot");
-    const char *ssid = "SSID";
-    const char *pw = "PW";
-    const char *hostname = "0.0.0.0";
-    int port = 1883;
 
-    IPStack ipstack(ssid, pw);
-    auto client = MQTT::Client<IPStack, Countdown>(ipstack);
-    CommHandler comm_handler(ipstack, client);
 
-    comm_handler.connect_to_server(hostname, port);
-    comm_handler.connect_to_broker();
+    LogHandler logHandler;
 
-    std::shared_ptr<CommHandler>commhandler_ptr = std::make_shared<CommHandler>(comm_handler);
+    for (int i = 0; i < 10; i++) {
 
-    LogHandler loghandler;
-    loghandler.setCommHandler(commhandler_ptr);
-    loghandler.pushLog(TEST);
-    printValidLogs(LOGTYPE_MSG_LOG);
+
+    logHandler.printPrivates();
+
+    std::string ssid = "ssid";
+    std::string password = "password";
+    std::string hostname = "127.0.0.1";
+    std::string port = "1883";
+
+    logHandler.storeCredentials(ssid, password, hostname, port);
+
+    std::string ssid2;
+    std::string password2;
+    std::string hostname2;
+    std::string port2;
+
+    logHandler.fetchCredentials(&ssid2, &password2, &hostname2, &port2);
+
+    }
 
     return 0;
 }
