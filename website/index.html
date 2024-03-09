@@ -96,19 +96,25 @@
 
     <!-- Control Tab -->
     <div id="controlTab" class="tab-content">
-        <label>
-            <input type="radio" name="mode" id="autoMode" onchange="toggleControls(true)"> Auto
-        </label>
+        <!-- Control Section -->
+        <div id="controlSection">
+            <h2>Control</h2>
+            <label>
+                <input type="radio" name="mode" id="autoMode" onchange="toggleControls(true)"> Auto
+            </label>
 
-        <label>
-            <input type="radio" name="mode" id="manualMode" onchange="toggleControls(false)"> Manual
-        </label>
+            <label>
+                <input type="radio" name="mode" id="manualMode" onchange="toggleControls(false)"> Manual
+            </label>
 
-        <label for="fanSpeedSlider">Fan Speed:</label>
-        <input type="range" id="fanSpeedSlider" min="0" max="100" step="1" disabled>
+            <label for="fanSpeedSlider">Fan Speed:</label>
+            <input type="range" id="fanSpeedSlider" min="0" max="100" step="1" disabled>
 
-        <label for="pressureTargetInput">Pressure Target:</label>
-        <input type="number" id="pressureTargetInput" min="0" step="1" disabled>
+            <label for="pressureTargetInput">Pressure Target:</label>
+            <input type="number" id="pressureTargetInput" min="0" step="1" disabled>
+
+            <button onclick="applySettings()">Apply</button>
+        </div>
 
         <!-- Status Section -->
         <div id="statusSection">
@@ -271,6 +277,44 @@
                     document.getElementById('humidityStatus').textContent = 'N/A';
                     document.getElementById('temperatureStatus').textContent = 'N/A';
                 });
+        }
+
+        function applySettings() {
+            var mode;
+            var value;
+
+            if (document.getElementById('autoMode').checked) {
+                mode = 'automatic';
+            } else if (document.getElementById('manualMode').checked) {
+                mode = 'manual';
+            } else {
+                alert('Please select a mode');
+                return;
+            }
+
+            if (mode === 'automatic') {
+                value = document.getElementById('pressureTargetInput').value;
+                console.log(value);
+            } else if (mode === 'manual') {
+                value = document.getElementById('fanSpeedSlider').value;
+                console.log(value);
+            }
+
+            fetch('/' + mode + '/' + value)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log(data);
+                })
+                .catch(error => {
+                    alert('Error applying settings');
+                    console.error('Error applying settings: ', error);
+                });
+
         }
 
         populateHistoryTable();
