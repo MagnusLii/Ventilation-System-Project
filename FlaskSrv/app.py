@@ -69,7 +69,14 @@ def handle_message(client, userdata, message):
         "temp": 20
         }
         """
-        # TODO: do something...
+        logHandler.log(f'handle_message(): controller/status path.')
+        logHandler.log(f'handle_message(): verifying keywords in JSON.')
+        if mqttImports.validateKeywordsInJSON(decodedMessage, ['nr', 'speed', 'setpoint', 'pressure', 'auto', 'error', 'co2', 'rh', 'temp'], 2) == False:
+            return
+        
+        logHandler.log(f'handle_message(): Publishing to database. -> dbImports.push_reading()')
+        dbImports.push_reading(app, decodedMessage)
+        return
     
     elif receivedTopic.startswith("loghandler/logMessages") == True:
         """Expected JSON format:
@@ -77,15 +84,73 @@ def handle_message(client, userdata, message):
         "log": "text"
         }
         """
+        logHandler.log(f'handle_message(): loghandler/logMessages path.')
+        logHandler.log(f'handle_message(): verifying keywords in JSON.')
+        if mqttImports.validateKeywordsInJSON(decodedMessage, ['log'], 2) == False:
+            return
+        
+        logHandler.log(f'handle_message(): Publishing to database. -> dbImports.push_log()')
+        dbImports.push_log(app, decodedMessage)
         return
     
+    logHandler.log(f'handle_message(): No path found for topic: {receivedTopic}')
     return # End of function.
 
-def startup_procedures():
-    time.sleep(3) # Wait for app to be fully initialized, this is threaded so it won't block the main thread.
-    with app.app_context():
-        # Anything needed to be done at startup goes here.
-        return
+
+# API endpoints
+@app.route('/api/v0.1/readings/all', methods=['GET'])
+def get_all_readings():
+    logHandler.log(f'get_all_readings(): "/api/v0.1/readings/all" Request received.')
+    return dbImports.get_all_readings(app)
+
+@app.route('/api/v0.1/readings/since', methods=['POST'])
+def get_reading_since_timestamp():
+    """Expected JSON format:
+    {
+        "timestamp": "2021-09-14 12:00:00"
+    }
+    """
+    if request.is_json:
+        payload = request.json
+        value = payload['timestamp']
+        logHandler.log(f'get_reading_since_timestamp(): "/api/v0.1/readings/since" Request received. Timestamp: {value}')
+        return dbImports.get_readings_since_timestamp(app, value)
+
+    else:
+        logHandler.log(f'get_reading_since_timestamp(): "/api/v0.1/readings/since" Request received. Invalid rquest format.')
+        return jsonify({"error": "Invalid JSON format."}), 400
+
+
+@app.route('/api/v0.1/logs/all', methods=['GET'])
+def get_all_logs():
+    logHandler.log(f'get_all_logs(): "/api/v0.1/logs/all" Request received.')
+    return dbImports.get_all_logs(app)
+
+
+@app.route('/api/v0.1/logs/since', methods=['POST'])
+def get_logs_since_timestamp():
+    """Expected JSON format:
+    {
+        "timestamp": "2021-09-14 12:00:00"
+    }
+    """
+    if request.is_json:
+        payload = request.json
+        value = payload['timestamp']
+        logHandler.log(f'get_logs_since_timestamp(): "/api/v0.1/logs/since" Request received. Timestamp: {value}')
+        return dbImports.get_logs_since_timestamp(app, value)
+
+    else:
+        logHandler.log(f'get_logs_since_timestamp(): "/api/v0.1/logs/since" Request received. Invalid rquest format.')
+        return jsonify({"error": "Invalid JSON format."}), 400
+
+
+#def startup_procedures():
+#    time.sleep(1) # Wait for app to be fully initialized, this is threaded so it won't block the main thread.
+#    with app.app_context():
+#        # Anything needed to be done at startup goes here.
+#        return
+
 
 if __name__ == '__main__':
     # Initialize imported app extensions.
