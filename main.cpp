@@ -75,10 +75,7 @@ int main() {
         sleep_ms(500);
     }
     
-
-    
     eeprom_init_i2c(i2c0, EEPROM_BAUD_RATE, EEPROM_WRITE_CYCLE_MAX_MS);
-
 
     LogHandler logHandler;
 
