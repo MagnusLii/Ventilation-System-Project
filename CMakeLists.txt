@@ -42,7 +42,6 @@ add_executable(${PROJECT_NAME} main.cpp
         src/display/graphics.cpp
         src/display/graphics.h
         src/input.cpp)
-)
 
 add_library(pin src/pin.cpp)
 # HARDWARE classes
