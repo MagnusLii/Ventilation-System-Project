@@ -1,6 +1,7 @@
 #ifndef DEBUGPRINT_H
 #define DEBUGPRINT_H
 
+#define DEBUG_ENABLE
 
 #ifndef DEBUG_ENABLE
 #define DPRINT(...)  ((void)0)
