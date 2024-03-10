@@ -29,8 +29,9 @@
 "auto": false,
 "error": false,
 "co2": 300,
+"ah": 200,
 "rh": 37,
-"temp": 20
+"temp": 20 
 }
 ```
 - ##  **Pi Loghandler log messages**
