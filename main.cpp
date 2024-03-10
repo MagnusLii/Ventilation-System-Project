@@ -96,7 +96,7 @@ int main() {
     std::string hostname2;
     std::string port2;
 
-    logHandler.fetchCredentials(&ssid2, &password2, &hostname2, &port2);
+
 
     }
 

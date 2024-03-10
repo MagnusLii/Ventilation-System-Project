@@ -337,7 +337,7 @@ void LogHandler::storeCredentials(std::string ssid, std::string password, std::s
     return;
 }
 
-void LogHandler::fetchCredentials(std::string *ssid, std::string *password, std::string *hostname, std::string *port, std::array<int, 4> *arr){
+void LogHandler::fetchCredentials(std::string *ssid, std::string *password, std::string *hostname, std::string *port, int *arr){
     uint8_t ssidArr[CREDENTIALS_ARR_SIZE];
     uint8_t passwordArr[CREDENTIALS_ARR_SIZE];
     uint8_t hostnameArr[CREDENTIALS_ARR_SIZE];

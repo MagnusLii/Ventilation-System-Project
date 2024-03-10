@@ -75,7 +75,7 @@ class LogHandler {
         void createLogArray(uint8_t *array, int messageCode, uint32_t timestamp);
         void setCommHandler(std::shared_ptr<CommHandler> commHandler);
         void storeCredentials(std::string ssid, std::string password, std::string hostname, std::string port);
-        void fetchCredentials(std::string *ssid, std::string *password, std::string *hostname, std::string *port);
+        void fetchCredentials(std::string *ssid, std::string *password, std::string *hostname, std::string *port, int *arr);
 
     private:
         std::shared_ptr<CommHandler> commHandler;
