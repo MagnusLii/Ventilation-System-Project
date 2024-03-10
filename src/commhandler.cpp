@@ -2,6 +2,9 @@
 
 #include "debugprint.h"
 
+#include "rapidjson.h"
+#include "document.h"
+
 CommHandler::CommHandler(IPStack &ipstack, MQTT::Client<IPStack, Countdown> &client,
                          int mqtt_version, const char *client_id)
     : ipstack(ipstack), client(client) {
@@ -134,9 +137,33 @@ void CommHandler::set_topic(TopicType topic_type, const char *new_topic) {
 
 int CommHandler::is_subscribed(TopicType topic_type) { return topics.at(topic_type).second; }
 
+
+
+// {
+// "auto": false,
+// "speed": 18
+// }
+static bool manual = false;
+static int setpoint = 0;
 void message_arrived(MQTT::MessageData &data) {
     MQTT::Message &message = data.message;
     DPRINT("Message arrived: qos ", message.qos, ", retained: ", message.retained,
            ", dup: ", message.dup, ", packetid: ", message.id, "\n",
            "Payload: ", (char *)message.payload);
+
+    rapidjson::Document doc;
+    doc.Parse((char *)message.payload);
+    const rapidjson::Value& aut = doc["auto"];
+    const rapidjson::Value& set = doc["speed"];
+
+    setpoint = set.GetInt();
+    manual = !(aut.GetBool());
+    
+}
+
+bool get_manual() {
+    return manual;
+}
+int get_set_point() {
+    return setpoint;
 }

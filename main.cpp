@@ -19,6 +19,9 @@
 #include <stdlib.h>
 
 #include "rapidjson.h"
+#include "document.h"
+#include "writer.h"
+#include "stringbuffer.h"
 
 #define DEBUG_ENABLE
 #include "debugprint.h"
@@ -64,7 +67,7 @@ int main() {
     eeprom_init_i2c(i2c0, EEPROM_BAUD_RATE, EEPROM_WRITE_CYCLE_MAX_MS);
     LogHandler logHandler;
 
-    logHandler.pushLog(BOOT);
+    // logHandler.pushLog(BOOT);
 
     // TODO MENU
 
@@ -97,30 +100,55 @@ int main() {
     int target = 50;
     bool spinning = false;
     bool manual = false;
-
-    char ctrl_topic_string[] = "control";
-    MQTTString str;
-    str.cstring = ctrl_topic_string;
-    str.lenstring = strlen(ctrl_topic_string);
-    MQTT::Message control_msg;
-    MQTT::MessageData control_data(str, control_msg);
     while (1) {
-        message_arrived(control_data);
-        if (strcmp(data.topicName.cstring, "data") == 0) { // TODO CHANGE TOPIC
-            
-        
-        }
-        if (manual) {
-            fan.set_speed(target * 10); // target = speed in percentage
+        if (get_manual()) {
+            fan.set_speed(get_set_point() * 10); // target = speed in percentage
         } else {
-            fan.adjust_speed(target);
+            fan.adjust_speed(get_set_point());
         }
 
+// {
+// "nr": 96,
+// "speed": 18,
+// "setpoint": 18,
+// "pressure": 5,
+// "auto": false,
+// "error": false,
+// "co2": 300,
+// "ah": 200,
+// "rh": 37,
+// "temp": 20 
+// }
         rh.start_transfer();
         absh.start_transfer();
         temp.start_transfer();
         co.start_transfer();
+        rapidjson::StringBuffer s;
+        rapidjson::Writer<rapidjson::StringBuffer> writer(s);
         while(mbctrl->isbusy()) tight_loop_contents();
+        writer.StartObject();
+        writer.Key("speed");
+        writer.Int(fan.get_speed() / 10);
+        writer.Key("setpoint");
+        writer.Int(get_set_point());
+        writer.Key("pressure");
+        writer.Int(fan.get_pressure());
+        writer.Key("auto");
+        writer.Bool(!get_manual());
+        writer.Key("error");
+        writer.Bool(false);
+        writer.Key("co2");
+        writer.Double(co.get_float());
+        writer.Key("ah");
+        writer.Double(absh.get_float());
+        writer.Key("rh");
+        writer.Double(rh.get_float());
+        writer.Key("temp");
+        writer.Double(temp.get_float());
+        writer.EndObject();
+
+        const char* jsonString = s.GetString();
+        
 
     }
 }
