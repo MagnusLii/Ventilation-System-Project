@@ -26,15 +26,25 @@ include_directories(${CMAKE_CURRENT_LIST_DIR}/src/pressure_handler)
 include_directories(${CMAKE_CURRENT_LIST_DIR}/src/fan_controller)
 include_directories(${CMAKE_CURRENT_LIST_DIR}/src/pico_hw)
 
-
 add_compile_options(-Wall)
 
 file(GLOB MQTT_SOURCES "paho.mqtt.embedded-c/MQTTPacket/src/*.c")
 
 add_executable(${PROJECT_NAME} main.cpp
         ${MQTT_SOURCES}
+        src/display/font_petme128_8x8.h
+        src/display/ssd1306.h
+        src/display/mono_vlsb.h
+        src/display/framebuf.h
+        src/display/mono_vlsb.cpp
+        src/display/framebuf.cpp
+        src/display/ssd1306.cpp
+        src/display/graphics.cpp
+        src/display/graphics.h
+        src/input.cpp)
 )
 
+add_library(pin src/pin.cpp)
 # HARDWARE classes
 add_library(uart_instance ${pico_hw_src}/uart_instance.cpp)
 add_library(i2c_instance ${pico_hw_src}/i2c_instance.cpp)
@@ -54,8 +64,8 @@ add_library(IPStack src/IPStack.cpp)
 
 pico_add_extra_outputs(${PROJECT_NAME})
 
-target_link_libraries(${PROJECT_NAME} pico_stdlib modbusreg pressure fan hardware_i2c logHandler eeprom commhandler Countdown IPStack)
-
+target_link_libraries(${PROJECT_NAME} pico_stdlib pin modbusreg pressure fan hardware_i2c logHandler eeprom commhandler Countdown IPStack)
+target_link_libraries(pin         pico_stdlib)
 
 # HARDWARE class links
 target_link_libraries(uart_instance     pico_stdlib hardware_uart)
@@ -76,7 +86,6 @@ target_link_libraries(Countdown   pico_stdlib)
 target_link_libraries(IPStack     pico_stdlib pico_cyw43_arch_lwip_poll)
 target_link_libraries(eeprom      pico_stdlib hardware_i2c)
 target_link_libraries(logHandler  pico_stdlib eeprom commhandler)
-
 
 pico_enable_stdio_usb(${PROJECT_NAME} 0)
 pico_enable_stdio_uart(${PROJECT_NAME} 1)
