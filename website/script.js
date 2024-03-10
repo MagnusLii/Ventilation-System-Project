@@ -26,7 +26,7 @@ function populateHistoryTable() {
     var historyTableBody = document.querySelector('#historyTable tbody');
     
     // Fetch data from the /data/history endpoint - TODO: Change to actual endpoint
-    fetch('/data/history')
+    fetch('/api/v0.1/readings/all')
         .then(response => response.json())
         .then(data => {
             data.forEach(function (entry) {
@@ -54,7 +54,7 @@ function populateLogTable() {
     var logTableBody = document.querySelector('#logTable tbody');
 
     // Fetch data from the /data/logs endpoint - TODO: Change to actual endpoint
-    fetch('/data/logs')
+    fetch('/api/v0.1/logs/all')
         .then(response => response.json())
         .then(data => {
             data.forEach(function (entry) {
@@ -75,7 +75,7 @@ function populateLogTable() {
 
 function populateStatusSection() {
     // Fetch data from the /data/status - TODO: Change to actual endpoint
-    fetch('/data/status')
+    fetch('/api/v0.1/status')
         .then(response => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
@@ -106,23 +106,23 @@ function applySettings() {
     var value;
 
     if (document.getElementById('autoMode').checked) {
-        mode = 'automatic';
+        mode = 1;
     } else if (document.getElementById('manualMode').checked) {
-        mode = 'manual';
+        mode = 0;
     } else {
         alert('Please select a mode');
         return;
     }
 
-    if (mode === 'automatic') {
+    if (mode === 1) {
         value = document.getElementById('pressureTargetInput').value;
         console.log(value);
-    } else if (mode === 'manual') {
+    } else if (mode === 0) {
         value = document.getElementById('fanSpeedSlider').value;
         console.log(value);
     }
 
-    fetch('/' + mode + '/' + value)
+    fetch('/api/v0.1/' + mode + '/' + value)
         .then(response => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
