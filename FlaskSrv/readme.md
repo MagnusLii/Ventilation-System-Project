@@ -10,7 +10,7 @@ pip  install  Flask-MQTT
 ```
 ### sqlalchemy
 ```bash
-pip  install  SQLAlchemy
+pip install Flask-SQLAlchemy
 ```
 ### flask
 ```bash
