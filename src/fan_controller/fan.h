@@ -2,6 +2,7 @@
 
 #include "pressure.h"
 #include "modbus_register.h"
+#include "pico/time.h"
 
 class FAN {
     public:
@@ -12,6 +13,7 @@ class FAN {
         void adjust_speed(int target_pressure);
         int get_pressure(void);
         int get_speed(void);
+        bool get_error(void);
     private:
         WriteRegister *fan_speed_register;
         ReadRegister *fan_counter_register;
@@ -19,4 +21,6 @@ class FAN {
         int speed;
         int pressure;
         uint16_t counter;
+        uint32_t error_time_ms;
+        bool error;
 };

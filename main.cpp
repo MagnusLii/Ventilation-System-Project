@@ -67,6 +67,7 @@ int main() {
 
     // TODO MENU
 
+    // CHANGE THESE
     const char *ssid = "SSID";
     const char *pw = "PW";
     const char *hostname = "0.0.0.0";
@@ -92,58 +93,24 @@ int main() {
     PressureRegister pre(i2c, 64);
     FAN fan(&fan_speed, &fan_counter, &pre);
 
-    char buf[20];
-    int target = 50;
-    bool spinning = false;
-    bool manual = false;
     while (1) {
         if (get_manual()) {
             fan.set_speed(get_set_point() * 10); // target = speed in percentage
         } else {
             fan.adjust_speed(get_set_point());
+            // TODO LOG ERROR fan.get_error();
         }
-
-// {
-// "nr": 96,
-// "speed": 18,
-// "setpoint": 18,
-// "pressure": 5,
-// "auto": false,
-// "error": false,
-// "co2": 300,
-// "ah": 200,
-// "rh": 37,
-// "temp": 20 
-// }
         rh.start_transfer();
         absh.start_transfer();
-        temp.start_transfer();
         co.start_transfer();
-        rapidjson::StringBuffer s;
-        rapidjson::Writer<rapidjson::StringBuffer> writer(s);
-        while(mbctrl->isbusy()) tight_loop_contents();
-        writer.StartObject();
-        writer.Key("speed");
-        writer.Int(fan.get_speed() / 10);
-        writer.Key("setpoint");
-        writer.Int(get_set_point());
-        writer.Key("pressure");
-        writer.Int(fan.get_pressure());
-        writer.Key("auto");
-        writer.Bool(!get_manual());
-        writer.Key("error");
-        writer.Bool(false);
-        writer.Key("co2");
-        writer.Double(co.get_float());
-        writer.Key("ah");
-        writer.Double(absh.get_float());
-        writer.Key("rh");
-        writer.Double(rh.get_float());
-        writer.Key("temp");
-        writer.Double(temp.get_float());
-        writer.EndObject();
-
-        const char* jsonString = s.GetString();
+        temp.start_transfer();
+        while (mbctrl->isbusy()) tight_loop_contents(); // IMPORTANT if modbus controller is busy it means the transfers are not compeleted yet
+        // this should send mqtt message
+        comm_handler.send(fan.get_speed() / 10, get_set_point(), fan.get_pressure(),
+                            get_manual(), fan.get_error(), co.get_float(), absh.get_float(),
+                            rh.get_float(), temp.get_float());
+        
+        sleep_ms(1000);
         
 
     }
