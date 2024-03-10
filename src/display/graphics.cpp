@@ -74,7 +74,7 @@ char* returnInput() {
 void textInput(ssd1306 &display, Button &button, int current_position) {
     char c[2] = {0, 0};
     int arr_length;
-    switch (current_Array) {
+    switch (current_Array) { //determine which array to use and set the length to a variable
         case 0:
             arr_length = sizeof(alphabetsCap);
             break;
@@ -88,25 +88,21 @@ void textInput(ssd1306 &display, Button &button, int current_position) {
     int pos = current_position % arr_length;
     int input_len = strlen(input_string);
 
-    if (button.returnState()) {
+    if (button.returnState()) { //do stuff when a defined button is pressed
         button.setState();
         switch (button.returnPin()) {
-            case 9:
+            case 9: // switch between the character arrays
                 current_Array++;
                 if (current_Array > 2) current_Array = 0;
                 break;
-            case 8:
+            case 8: // write characters to input string
                 if (input_len < 60) {
                     c[0] = arrays[current_Array][pos];
                     strcat(input_string, c);
                 }
                 break;
-            case 7:
-                if (input_len == 0) {
-
-                } else {
-                    if (input_len > 0) input_string[input_len - 1] = '\0';
-                }
+            case 7: // delete characters from input string
+                if (input_len > 0) input_string[input_len - 1] = '\0';
         }
     }
     display.fill(0);
@@ -123,8 +119,8 @@ void textInput(ssd1306 &display, Button &button, int current_position) {
     display.rect(114, 25, 9, 9, 1, true);
     display.text(c, 114, 26, 0);
 
-    int bruh = pos + 1;
-    if (bruh >= arr_length) {
+    int pos1 = pos + 1;
+    if (pos1 >= arr_length) {
         c[0] = arrays[current_Array][0];
     } else {
         c[0] = arrays[current_Array][pos + 1];
