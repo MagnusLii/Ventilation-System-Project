@@ -1,3 +1,5 @@
+const BASE_URL = 'http://127.0.0.1:5000';
+
 function toggleControls(isAutoMode) {
     var fanSpeedSlider = document.getElementById("fanSpeedSlider");
     var pressureTargetInput = document.getElementById("pressureTargetInput");
@@ -20,13 +22,22 @@ function openTab(tabName) {
         tabContent[i].style.display = "none";
     }
     document.getElementById(tabName).style.display = "block";
+    if (tabName === "controlTab") {
+    } else if (tabName === "historyTab") {
+        populateHistoryTable();
+    } else if (tabName === "logTab") {
+        populateLogTable();
+    }
 }
 
 function populateHistoryTable() {
-    var historyTableBody = document.querySelector('#historyTable tbody');
+    const historyTableBody = document.querySelector('#historyTable tbody');
     
+    // Clear existing rows
+    historyTableBody.innerHTML = '';
+
     // Fetch data from the /data/history endpoint - TODO: Change to actual endpoint
-    fetch('/api/v0.1/readings/all')
+    fetch('${BASE_URL}/api/v0.1/readings/all')
         .then(response => response.json())
         .then(data => {
             data.forEach(function (entry) {
@@ -51,10 +62,13 @@ function populateHistoryTable() {
 }
 
 function populateLogTable() {
-    var logTableBody = document.querySelector('#logTable tbody');
+    const logTableBody = document.querySelector('#logTable tbody');
+
+    // Clear existing rows
+    logTableBody.innerHTML = '';
 
     // Fetch data from the /data/logs endpoint - TODO: Change to actual endpoint
-    fetch('/api/v0.1/logs/all')
+    fetch('${BASE_URL}/api/v0.1/logs/all')
         .then(response => response.json())
         .then(data => {
             data.forEach(function (entry) {
@@ -71,18 +85,15 @@ function populateLogTable() {
             row.innerHTML = '<td colspan="3">Error fetching log data</td>';
             logTableBody.appendChild(row);
         });
+
 }
 
 function populateStatusSection() {
     // Fetch data from the /data/status - TODO: Change to actual endpoint
-    fetch('/api/v0.1/status')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
+    fetch('${BASE_URL}/api/v0.1/status')
+        .then(response => response.json())
         .then(data => {
+            document.getElementById('modeStatus').textContent = data.mode;
             document.getElementById('fanSpeedStatus').textContent = data.fanSpeed;
             document.getElementById('setPointStatus').textContent = data.setPoint;
             document.getElementById('pressureStatus').textContent = data.pressure;
@@ -92,6 +103,7 @@ function populateStatusSection() {
         })
         .catch(error => {
             console.error('Error fetching status data: ', error);
+            document.getElementById('modeStatus').textContent = 'N/A';
             document.getElementById('fanSpeedStatus').textContent = 'N/A';
             document.getElementById('setPointStatus').textContent = 'N/A';
             document.getElementById('pressureStatus').textContent = 'N/A';
@@ -122,7 +134,7 @@ function applySettings() {
         console.log(value);
     }
 
-    fetch('/api/v0.1/' + mode + '/' + value)
+    fetch('${BASE_URL}/api/v0.1/' + mode + '/' + value)
         .then(response => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
@@ -136,13 +148,13 @@ function applySettings() {
             alert('Error applying settings');
             console.error('Error applying settings: ', error);
         });
-
 }
-
-populateHistoryTable();
-populateLogTable();
-populateStatusSection();
 
 // Show control tab by default
 openTab("controlTab");
 
+// If control tab is open refresh status every 5 seconds
+if (document.getElementById('controlTab').style.display === 'block') {
+    console.log("Control tab is open");
+    setInterval(populateStatusSection, 5000);
+}
