@@ -54,13 +54,13 @@ function populateLogTable() {
     var logTableBody = document.querySelector('#logTable tbody');
 
     // Fetch data from the /data/logs endpoint - TODO: Change to actual endpoint
-    fetch('/api/v0.1/logs/all')
+    fetch('http://127.0.0.1:5000/api/v0.1/logs/all')
         .then(response => response.json())
         .then(data => {
             data.forEach(function (entry) {
                 var row = document.createElement('tr');
                 row.innerHTML = '<td>' + entry.index + '</td>' +
-                                '<td>' + entry.message + '</td>' +
+                                '<td>' + entry.logcode + '</td>' +
                                 '<td>' + entry.timestamp + '</td>';
                 logTableBody.appendChild(row);
             });
