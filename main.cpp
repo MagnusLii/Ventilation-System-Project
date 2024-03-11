@@ -69,13 +69,17 @@ int main() {
 
     // logHandler.pushLog(BOOT);
 
-    // TODO MENU
+
 
     // CHANGE THESE
-    const char *ssid = "CGA-2.4";
-    const char *pw = "WSgMZtkyLrPcxuWjTJ";
-    const char *hostname = "192.168.0.15";
+    char *ssid = "CGA-2.4";
+    char *pw = "WSgMZtkyLrPcxuWjTJ";
+    char *hostname = "192.168.0.15";
     int port = 1883;
+
+    // TODO MENU
+    // WIFI MENU
+    // TEXT MENU
 
     IPStack ipstack(ssid, pw);
     auto client = MQTT::Client<IPStack, Countdown>(ipstack);
@@ -100,6 +104,9 @@ int main() {
     fan.set_speed(500);
 
     while (1) {
+        // STATUS MENU
+
+
         if (get_manual()) {
             fan.set_speed(get_set_point() * 10); // target = speed in percentage
         } else {
