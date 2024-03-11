@@ -29,32 +29,6 @@ void startMenu(ssd1306 &display, int pos) {
     }
 }
 
-void mqttMenu(ssd1306 &display, int pos) {
-    display.fill(0);
-    if (pos == 0 || pos == 1) {
-        display.rect(9, 5, 110, 14, 1, true);
-        display.text("SELECT MQTT", 12, 8, 0);
-    } else {
-        display.rect(9, 5, 110, 14, 1);
-        display.text("SELECT MQTT", 12, 8, 1);
-    }
-
-    if (pos == 2 || pos == 3) {
-        display.rect(9, 25, 110, 14, 1, true);
-        display.text("USE PREVIOUS", 12, 28, 0);
-    } else {
-        display.rect(9, 25, 110, 14, 1);
-        display.text("USE PREVIOUS", 12, 28, 1);
-    }
-    if ((pos == 4 || pos == 5)) {
-        display.rect(9, 45, 110, 14, 1, true);
-        display.text("NO MQTT", 12, 48, 0);
-    } else {
-        display.rect(9, 45, 110, 14, 1);
-        display.text("NO MQTT", 12, 48, 1);
-    }
-}
-
 char alphabetsCap[26] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'};
 char alphabets[26] = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'};
 char characters[31] = {'!', '"', '#', '$', '%', '&', '\'', '(', ')', '*', '+', ',', '-', '.', '/', ':', ';', '<', '=', '>', '?', '@',
@@ -126,4 +100,65 @@ void textInput(ssd1306 &display, Button &button, int current_position) {
         c[0] = arrays[current_Array][pos + 1];
     }
     display.text(c, 114, 42, 1);
+}
+
+int current_mode = 0;
+void mainMenu(ssd1306 &display, Button &button, int pos, int fan_speed, int pressure, int target_pressure) {
+    int current_pos = pos % 6;
+    char output_string[30];
+
+    //change between manual and auto mode
+    if (button.returnState() && button.returnPin() == 9 && (current_pos == 0 || current_pos == 1 || current_pos == 2)) {
+        button.setState();
+        current_mode = 0;
+    } else if (button.returnState() && button.returnPin() == 9 && (current_pos == 3 || current_pos == 4 || current_pos == 5))
+    {
+        button.setState();
+        current_mode = 1;
+    }
+
+    if (button.returnPin == 7 && button.returnState == true)
+    {
+        button.setState;
+        if (current_mode == 0)
+        {
+            display.fill(0);
+            display.rect(4, 4, 58, 20, 1, true);
+            display.rect(66, 4, 58, 20, 1);
+            display.text("MANUAL", 10, 10, 0);
+            display.text("AUTO", 80, 10, 1);     
+        } else {
+            display.fill(0);
+            display.rect(4, 4, 58, 20, 1);
+            display.rect(66, 4, 58, 20, 1, true);
+            display.text("MANUAL", 10, 10, 1);
+            display.text("AUTO", 80, 10, 0);
+        }
+    } else {
+        button.setState;
+        if (current_pos == 0 || current_pos == 1 || current_pos == 2) {
+            display.fill(0);
+            display.rect(4, 4, 58, 20, 1, true);
+            display.rect(66, 4, 58, 20, 1);
+            display.text("MANUAL", 10, 10, 0);
+            display.text("AUTO", 80, 10, 1);
+        } else if (current_pos == 3 || current_pos == 4 || current_pos == 5) {
+            display.fill(0);
+            display.rect(4, 4, 58, 20, 1);
+            display.rect(66, 4, 58, 20, 1, true);
+            display.text("MANUAL", 10, 10, 1);
+            display.text("AUTO", 80, 10, 0);
+        }
+    }
+
+    if (current_mode == 0) {
+        sniprintf(output_string, sizeof(output_string), "fanspeed: %d", fan_speed);
+        display.text(output_string, 4, 30, 1);
+    } else {
+        sniprintf(output_string, sizeof(output_string), "pressure: %d", pressure);
+        display.text(output_string, 2, 30, 1);
+        sniprintf(output_string, sizeof(output_string), "%d", target_pressure);
+        display.text("target pressure: ", 2, 40, 1);
+        display.text(output_string, 2, 50, 1);
+    }
 }
