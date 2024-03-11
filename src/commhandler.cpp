@@ -7,11 +7,15 @@
 #include "writer.h"
 #include "stringbuffer.h"
 
+// Initializes the CommHandler with IPStack and MQTT client, sets MQTT version and client ID, and initializes predefined topics.
 CommHandler::CommHandler(IPStack &ipstack, MQTT::Client<IPStack, Countdown> &client,
                          int mqtt_version, const char *client_id)
     : ipstack(ipstack), client(client) {
+    // Set MQTT version and client ID in the connection data structure.
     connect_data.MQTTVersion = mqtt_version;
     connect_data.clientID.cstring = (char *)client_id;
+
+    // Initialize predefined topics with their names and subscription status (0 means unsubscribed).
     topics = {{TopicType::DATA_TOPIC, std::make_pair("data", 0)},
               {TopicType::CONTROL_TOPIC, std::make_pair("control", 0)},
               {TopicType::OTHER_TOPIC, std::make_pair("other", 0)},
@@ -19,12 +23,13 @@ CommHandler::CommHandler(IPStack &ipstack, MQTT::Client<IPStack, Countdown> &cli
               {TopicType::STATUS_SEND, std::make_pair("loghandler/piStatusMessages", 0)}};
 }
 
+// Connects to a server using the provided hostname and port.
 int CommHandler::connect_to_server(const char *hostname, int port) {
     DPRINT("Connecting to ", hostname, " on port ", port, "...");
+    // Attempt to establish a TCP connection.
     int return_code = ipstack.connect(hostname, port);
     if (return_code != 0) {
         DPRINT("Failed TCP connect to ", hostname, ". RC: ", return_code);
-        // goto cry; // or something more productive
         while (true)
             tight_loop_contents();
     } else {
@@ -34,12 +39,12 @@ int CommHandler::connect_to_server(const char *hostname, int port) {
     return return_code;
 }
 
+// Connects to an MQTT broker using the previously set connection data.
 int CommHandler::connect_to_broker() {
     DPRINT("MQTT connecting to broker...");
     int return_code = client.connect(connect_data);
     if (return_code != 0) {
         DPRINT("Failed to connect. RC: ", return_code);
-        // goto cry;
     } else {
         DPRINT("MQTT connected to broker.");
     }
@@ -47,13 +52,17 @@ int CommHandler::connect_to_broker() {
     return return_code;
 }
 
+// Subscribes to a topic using the previously set topic name.
 int CommHandler::subscribe(TopicType topic_type) {
     const char *topic = topics.at(topic_type).first;
     return subscribe(topic_type, topic);
 }
 
+// Subscribes to a topic using the provided topic name.
 int CommHandler::subscribe(TopicType topic_type, const char *topic) {
     int return_code = -2;
+
+    // Check if already subscribed and unsubscribe if already subscribed to the same TopicType.
     if (is_subscribed(topic_type)) {
         DPRINT("Already subscribed to topic type ", topic_type, ".");
         if (unsubscribe(topic_type) != 0) {
@@ -62,13 +71,13 @@ int CommHandler::subscribe(TopicType topic_type, const char *topic) {
         }
     }
 
+    // Update the topic if it's different from the current one.    
     if (topics.at(topic_type).first != topic) set_topic(topic_type, topic);
 
     DPRINT("MQTT subscribing to topic: ", topic, "...");
     return_code = client.subscribe(topic, MQTT::QOS2, message_arrived);
     if (return_code != 0) {
         DPRINT("Failed to subscribe to topic ", topic, ". RC: ", return_code);
-        // goto cry;
     } else {
         DPRINT("MQTT subscribed to topic.");
         topics.at(topic_type).second = 1;
@@ -77,18 +86,21 @@ int CommHandler::subscribe(TopicType topic_type, const char *topic) {
     return return_code;
 }
 
+// Unsubscribes from a topic based on the given TopicType.
 int CommHandler::unsubscribe(TopicType topic_type) {
+    // Check if already unsubscribed and if so, return without performing further actions.
     if (topics.at(topic_type).second == 0) {
         DPRINT("Topic ", topics.at(topic_type).first, " already unsubscribed.");
         return 0;
     }
 
+    // Get the topic name for the specified TopicType.
     const char *topic = topics.at(topic_type).first;
+
     DPRINT("MQTT unsubscribing from topic: ", topic, "...");
     int return_code = client.unsubscribe(topic);
     if (return_code != 0) {
         DPRINT("Failed to unsubscribe from topic ", topic, ". RC: ", return_code);
-        // goto cry;
     } else {
         DPRINT("MQTT unsubscribed from topic.");
         topics.at(topic_type).second = 0;
@@ -97,9 +109,12 @@ int CommHandler::unsubscribe(TopicType topic_type) {
     return return_code;
 }
 
+// Publishes a message to a topic based on the given TopicType.
 int CommHandler::publish(TopicType topic_type, const char *payload) {
+    // Get the topic name for the specified TopicType.
     const char *topic = topics.at(topic_type).first;
     DPRINT("MQTT publishing: ", payload, " to topic ", topic, "...");
+    // Create an MQTT message with the specified payload and QoS level 0.
     MQTT::Message message;
     message.retained = false;
     message.dup = false;
@@ -107,10 +122,10 @@ int CommHandler::publish(TopicType topic_type, const char *payload) {
     message.qos = MQTT::QOS0;
     message.payloadlen = strlen(payload) + 1;
 
+    // Attempt to publish the message to the specified topic.
     int return_code = client.publish(topic, message);
     if (return_code != 0) {
         DPRINT("Failed to publish. RC: ", return_code);
-        // goto cry;
     } else {
         DPRINT("MQTT message published.");
     }
@@ -118,14 +133,15 @@ int CommHandler::publish(TopicType topic_type, const char *payload) {
     return return_code;
 }
 
+// Checks if the MQTT client is currently connected.
 int CommHandler::verify_connection() { return client.isConnected(); }
 
+// Reconnects to the MQTT broker if the client is not currently connected.
 int CommHandler::reconnect() {
     DPRINT("MQTT not connected. Reconnecting...");
     int return_code = client.connect(connect_data);
     if (return_code != 0) {
         DPRINT("Failed to connect. RC: ", return_code);
-        // goto cry;
     } else {
         DPRINT("MQTT reconnected.");
     }
@@ -133,10 +149,12 @@ int CommHandler::reconnect() {
     return return_code;
 }
 
+// Sets a new topic for a given TopicType.
 void CommHandler::set_topic(TopicType topic_type, const char *new_topic) {
     topics.at(topic_type).first = new_topic;
 }
 
+// Checks if a topic is currently subscribed to.
 int CommHandler::is_subscribed(TopicType topic_type) { return topics.at(topic_type).second; }
 
 void CommHandler::send(int speed, int setpoint, int pressure, bool aut, bool error,
