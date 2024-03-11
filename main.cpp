@@ -29,17 +29,20 @@ int main() {
     Button button2(9);
     RotaryEncoder A;
     while(true) {
-        /*
+
         a = A.returnVal() % 6;
-        startMenu(display, a);
+        int b = A.returnVal() + 12;
+        mainMenu(display, button, a, b, b, 100);
         display.show();
-        */
+
+        /*
         textInput(display, button, A.returnVal());
         display.show();
         if (button.returnState() && button.returnPin() == 12) {
             button.setState();
             DPRINT(returnInput());
         }
+        */
     }
     return 0;
 }
