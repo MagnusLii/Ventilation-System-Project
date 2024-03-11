@@ -6,6 +6,7 @@ from ServerImports import credentials
 from ServerImports import mqttImports
 from ServerImports import logHandler
 from ServerImports import dbImports
+from ServerImports import ventrilator
 from flask_cors import CORS
 import threading
 import time
@@ -23,6 +24,8 @@ app.config['MQTT_TLS_ENABLED'] = False
 # Database setup.
 app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{credentials.dbUsername}:{credentials.dbPassword}@{credentials.dbHostname}:{credentials.dbPort}/{credentials.dbName}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+ventrilatorStatus = ventrilator.Ventrilator()
 
 # Only for confirming that server is running.
 @app.route('/')
@@ -74,6 +77,8 @@ def handle_message(client, userdata, message):
         if mqttImports.validateKeywordsInJSON(decodedMessage, ['nr', 'speed', 'setpoint', 'pressure', 'auto', 'error', 'co2', 'rh', 'temp'], 2) == False:
             return
         
+        ventrilatorStatus.setMode(decodedMessage['auto'], decodedMessage['setpoint'])
+
         logHandler.log(f'handle_message(): Publishing to database. -> dbImports.push_reading()')
         dbImports.push_reading(app, decodedMessage)
         return
@@ -145,11 +150,12 @@ def get_logs_since_timestamp():
         return jsonify({"error": "Invalid JSON format."}), 400
 
 
-#def startup_procedures():
-#    time.sleep(1) # Wait for app to be fully initialized, this is threaded so it won't block the main thread.
-#    with app.app_context():
-#        # Anything needed to be done at startup goes here.
-#        return
+def startup_procedures():
+    time.sleep(1) # Wait for app to be fully initialized, this is threaded so it won't block the main thread.
+    
+    dbImports.get_startup_values(app, ventrilatorStatus) 
+
+    return
 
 
 if __name__ == '__main__':
@@ -158,10 +164,10 @@ if __name__ == '__main__':
     mqttImports.mqtt.init_app(app)
 
     # Create a thread for startup procedures.
-    #startup_thread = threading.Thread(target=startup_procedures)
+    startup_thread = threading.Thread(target=startup_procedures)
 
     # Start the thread.
-    #startup_thread.start()
+    startup_thread.start()
 
     # Run the Flask application.
     app.run(host='0.0.0.0', port=5000, use_reloader=False)
