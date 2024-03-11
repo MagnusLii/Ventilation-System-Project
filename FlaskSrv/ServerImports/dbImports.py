@@ -6,6 +6,7 @@ from ServerImports import logHandler
 db = SQLAlchemy()
 
 class Readings(db.Model):
+    __tablename__ = 'readings'
     index = db.Column(db.BIGINT, primary_key=True, nullable=False, unique=True, autoincrement=True)
     speed = db.Column(db.Integer)
     pressure = db.Column(db.Integer)
@@ -16,6 +17,7 @@ class Readings(db.Model):
     timestamp = db.Column(db.DateTime)
 
 class LogMessages(db.Model):
+    __tablename__ = 'logmessages'
     index = db.Column(db.BIGINT, primary_key=True, nullable=False, unique=True, autoincrement=True)
     logcode = db.Column(db.Text)
     timestamp = db.Column(db.DateTime)
@@ -58,7 +60,7 @@ def get_all_readings(app):
             } for reading in readings])
             return json, 200
     except Exception as errorMsg:
-        logHandler.log_error(f'get_all_readings(): {str(errorMsg)}')
+        logHandler.log(f'get_all_readings(): {str(errorMsg)}')
         return jsonify({'error': 'Failed to retrieve readings from the database.'}), 500
 
 
@@ -100,7 +102,7 @@ def get_readings_since_timestamp(app, timestamp):
             } for reading in readings])
             return json, 200
     except Exception as errorMsg:
-        logHandler.log_error(f'get_reading_since_timestamp(): {str(errorMsg)}')
+        logHandler.log(f'get_reading_since_timestamp(): {str(errorMsg)}')
         return jsonify({'error': 'Failed to retrieve readings from the database.'}), 500
 
 
@@ -140,7 +142,7 @@ def push_reading(app, json_data):
             db.session.commit()
             return
     except Exception as errorMsg:
-        logHandler.log_error(f'push_reading(): {str(errorMsg)}')
+        logHandler.log(f'push_reading(): {str(errorMsg)}')
         return jsonify({'error': 'Failed to push the reading into the database.'}), 500
 
 
@@ -170,7 +172,7 @@ def push_log(app, json_data):
             db.session.commit()
             return
     except Exception as errorMsg:
-        logHandler.log_error(f'push_log(): {str(errorMsg)}')
+        logHandler.log(f'push_log(): {str(errorMsg)}')
         return jsonify({'error': 'Failed to push the log message into the database.'}), 500
 
 
@@ -202,7 +204,7 @@ def get_logs_since_timestamp(app, timestamp):
             } for log in logs])
             return json, 200
     except Exception as errorMsg:
-        logHandler.log_error(f'get_logs_since_timestamp(): {str(errorMsg)}')
+        logHandler.log(f'get_logs_since_timestamp(): {str(errorMsg)}')
         return jsonify({'error': 'Failed to retrieve logs from the database.'}), 500
 
 
@@ -233,5 +235,5 @@ def get_all_logs(app):
             } for log in logs])
             return json, 200
     except Exception as errorMsg:
-        logHandler.log_error(f'get_all_logs(): {str(errorMsg)}')
+        logHandler.log(f'get_all_logs(): {str(errorMsg)}')
         return jsonify({'error': 'Failed to retrieve logs from the database.'}), 500
