@@ -23,6 +23,9 @@ class CommHandler {
     int verify_connection();
     int reconnect();
 
+    void send(int speed, int setpoint, int pressure, bool aut, bool error,
+                  float co2, float ah, float rh, float temp);
+
   private:
     IPStack &ipstack;
     MQTT::Client<IPStack, Countdown> &client;
@@ -35,3 +38,6 @@ class CommHandler {
 };
 
 void message_arrived(MQTT::MessageData &data);
+
+bool get_manual();
+int get_set_point();

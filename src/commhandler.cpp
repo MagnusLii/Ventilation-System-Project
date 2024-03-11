@@ -2,6 +2,11 @@
 
 #include "debugprint.h"
 
+#include "rapidjson.h"
+#include "document.h"
+#include "writer.h"
+#include "stringbuffer.h"
+
 CommHandler::CommHandler(IPStack &ipstack, MQTT::Client<IPStack, Countdown> &client,
                          int mqtt_version, const char *client_id)
     : ipstack(ipstack), client(client) {
@@ -134,9 +139,63 @@ void CommHandler::set_topic(TopicType topic_type, const char *new_topic) {
 
 int CommHandler::is_subscribed(TopicType topic_type) { return topics.at(topic_type).second; }
 
+void CommHandler::send(int speed, int setpoint, int pressure, bool aut, bool error,
+                  float co2, float ah, float rh, float temp) {
+    rapidjson::StringBuffer s;
+    rapidjson::Writer<rapidjson::StringBuffer> writer(s);
+    writer.StartObject();
+    writer.Key("speed");
+    writer.Int(speed);
+    writer.Key("setpoint");
+    writer.Int(get_set_point());
+    writer.Key("pressure");
+    writer.Int(pressure);
+    writer.Key("auto");
+    writer.Bool(!get_manual());
+    writer.Key("error");
+    writer.Bool(error);
+    writer.Key("co2");
+    writer.Double(co2);
+    writer.Key("ah");
+    writer.Double(ah);
+    writer.Key("rh");
+    writer.Double(rh);
+    writer.Key("temp");
+    writer.Double(temp);
+    writer.EndObject();
+
+    const char* jsonString = s.GetString();
+    DPRINT(jsonString);
+    publish(DATA_TOPIC, jsonString);
+}
+
+
+
+// {
+// "auto": false,
+// "speed": 18
+// }
+static volatile bool manual = false;
+static volatile int setpoint = 50;
 void message_arrived(MQTT::MessageData &data) {
     MQTT::Message &message = data.message;
     DPRINT("Message arrived: qos ", message.qos, ", retained: ", message.retained,
            ", dup: ", message.dup, ", packetid: ", message.id, "\n",
            "Payload: ", (char *)message.payload);
+
+    rapidjson::Document doc;
+    doc.Parse((char *)message.payload);
+    const rapidjson::Value& aut = doc["auto"];
+    const rapidjson::Value& set = doc["target"];
+
+    setpoint = set.GetInt();
+    manual = !(aut.GetBool());
+    
+}
+
+bool get_manual() {
+    return manual;
+}
+int get_set_point() {
+    return setpoint;
 }
