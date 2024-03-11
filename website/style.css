@@ -1,0 +1,83 @@
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 10px;
+}
+
+#fanSpeedSlider {
+    width: 300px;
+}
+
+#pressureTargetInput {
+    width: 150px;
+}
+
+#applyButton {
+    display: block;
+    margin-top: 20px;
+}
+
+.tabs {
+    margin-top: 20px;
+}
+
+.tab-btn {
+    display: inline-block;
+    padding: 10px;
+    cursor: pointer;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 5px 5px 0 0;
+    margin-right: 5px;
+}
+
+.tab-content {
+    border: 1px solid #ccc;
+    padding: 10px;
+    display: none;
+}
+
+#statusSection,
+#historyTable,
+#logTable {
+    margin-top: 20px;
+    border: 1px solid #ccc;
+    padding: 10px;
+    width: 300px;
+}
+
+#statusSection h2,
+#historyTable h2,
+#logTable h2 {
+    margin-bottom: 10px;
+}
+
+#statusValues,
+#historyData,
+#logData {
+    list-style: none;
+    padding: 0;
+}
+
+#statusValues li,
+#historyData li,
+#logData li {
+    margin-bottom: 5px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ventilation Control</title>
+    <link rel="stylesheet" href="style.css">
+    <script defer src="script.js"></script>
+</head>
+<body>
+    <h1>Ventilation Control</h1>
+
+    <!-- Tabs -->
+    <div class="tabs">
+        <div class="tab-btn" onclick="openTab('controlTab')">Control</div>
+        <div class="tab-btn" onclick="openTab('logTab')">Log</div>
+        <div class="tab-btn" onclick="openTab('historyTab')">History</div>
+    </div>
+
+    <!-- Control Tab -->
+    <div id="controlTab" class="tab-content">
+        <!-- Control Section -->
+        <div id="controlSection">
+            <h2>Control</h2>
+            <label>
+                <input type="radio" name="mode" id="autoMode" onchange="toggleControls(true)"> Auto
+            </label>
+
+            <label>
+                <input type="radio" name="mode" id="manualMode" onchange="toggleControls(false)"> Manual
+            </label>
+
+            <label for="fanSpeedSlider">Fan Speed:</label>
+            <input type="range" id="fanSpeedSlider" min="0" max="100" step="1" disabled>
+
+            <label for="pressureTargetInput">Pressure Target:</label>
+            <input type="number" id="pressureTargetInput" min="0" step="1" disabled>
+
+            <button id="applyButton" onclick="applySettings()">Apply</button>
+        </div>
+
+        <!-- Status Section -->
+        <div id="statusSection">
+            <h2>Status</h2>
+            <ul id="statusValues">
+                <li><strong>Fan Speed:</strong> <span id="fanSpeedStatus"></span></li>
+                <li><strong>Set Point:</strong> <span id="setPointStatus"></span></li>
+                <li><strong>Pressure:</strong> <span id="pressureStatus"></span></li>
+                <li><strong>CO2:</strong> <span id="co2Status"></span></li>
+                <li><strong>Relative Humidity:</strong> <span id="humidityStatus"></span></li>
+                <li><strong>Temperature:</strong> <span id="temperatureStatus"></span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- History Tab -->
+    <div id="historyTab" class="tab-content">
+        <h2>History</h2>
+        <ul id="historyData">
+            <!-- Data will be dynamically populated here -->
+        </ul>
+        <table id="historyTable">
+            <thead>
+                <tr>
+                    <th>Index</th>
+                    <th>Date</th>
+                    <th>Fan Speed</th>
+                    <th>Set Point</th>
+                    <th>Pressure</th>
+                    <th>CO2</th>
+                    <th>Relative Humidity</th>
+                    <th>Temperature</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Table rows will be dynamically populated here -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Log Tab -->
+    <div id="logTab" class="tab-content">
+        <h2>Log</h2>
+        <ul id="logData">
+            <!-- Log messages will be dynamically populated here -->
+        </ul>
+        <table id="logTable">
+            <thead>
+                <tr>
+                    <th>Index</th>
+                    <th>Log Message</th>
+                    <th>Timestamp</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Table rows will be dynamically populated here -->
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

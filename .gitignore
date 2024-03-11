@@ -1,2 +1,7 @@
 build
 .vscode
+test.cpp
+*.exe
+FlaskSrv/ServerImports/credentials.py
+/Logs/*
+FlaskSrv/ServerImports/__pycache__/*
