@@ -36,7 +36,6 @@ function populateHistoryTable() {
     // Clear existing rows
     historyTableBody.innerHTML = '';
 
-    // Fetch data from the /data/history endpoint - TODO: Change to actual endpoint
     fetch(`${BASE_URL}/api/v0.1/readings/all`)
         .then(response => response.json())
         .then(data => {
@@ -67,7 +66,6 @@ function populateLogTable() {
     // Clear existing rows
     logTableBody.innerHTML = '';
 
-    // Fetch data from the /data/logs endpoint - TODO: Change to actual endpoint
     fetch(`${BASE_URL}/api/v0.1/logs/all`)
         .then(response => response.json())
         .then(data => {
@@ -89,11 +87,14 @@ function populateLogTable() {
 }
 
 function populateStatusSection() {
-    // Fetch data from the /data/status - TODO: Change to actual endpoint
     fetch(`${BASE_URL}/api/v0.1/status`)
         .then(response => response.json())
         .then(data => {
-            document.getElementById('modeStatus').textContent = data.auto;
+            if (data.auto === 1) {
+                document.getElementById('modeStatus').textContent = 'Auto';
+            } else {
+                document.getElementById('modeStatus').textContent = 'Manual';
+            }
             document.getElementById('fanSpeedStatus').textContent = data.speed;
             document.getElementById('setPointStatus').textContent = data.setpoint;
             document.getElementById('pressureStatus').textContent = data.pressure;
