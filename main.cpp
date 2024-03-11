@@ -72,9 +72,9 @@ int main() {
     // TODO MENU
 
     // CHANGE THESE
-    const char *ssid = "SSID";
-    const char *pw = "PW";
-    const char *hostname = "0.0.0.0";
+    const char *ssid = "CGA-2.4";
+    const char *pw = "WSgMZtkyLrPcxuWjTJ";
+    const char *hostname = "192.168.0.15";
     int port = 1883;
 
     IPStack ipstack(ssid, pw);
@@ -83,7 +83,7 @@ int main() {
 
     comm_handler.connect_to_server(hostname, port);
     comm_handler.connect_to_broker();
-    comm_handler.subscribe(DATA_TOPIC);
+    comm_handler.subscribe(CONTROL_TOPIC);
     // TODO log successful jotain
 
 
@@ -96,6 +96,8 @@ int main() {
     ReadRegister fan_counter(mbctrl, 1, 4, 1, false);
     PressureRegister pre(i2c, 64);
     FAN fan(&fan_speed, &fan_counter, &pre);
+
+    fan.set_speed(500);
 
     while (1) {
         if (get_manual()) {
@@ -110,12 +112,13 @@ int main() {
         temp.start_transfer();
         while (mbctrl->isbusy()) tight_loop_contents(); // IMPORTANT if modbus controller is busy it means the transfers are not compeleted yet
         // this should send mqtt message
+
         comm_handler.send(fan.get_speed() / 10, get_set_point(), fan.get_pressure(),
                             get_manual(), fan.get_error(), co.get_float(), absh.get_float(),
                             rh.get_float(), temp.get_float());
         
-        sleep_ms(1000);
-        
+        sleep_ms(10000);
 
+        client.yield(100);
     }
 }
