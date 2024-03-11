@@ -151,8 +151,13 @@ function applySettings() {
         });
 }
 
+function updateFanSpeedValue() {
+    document.getElementById('fanSpeedValue').textContent = document.getElementById('fanSpeedSlider').value;
+}
+
 // Show control tab by default
 openTab("controlTab");
+updateFanSpeedValue();
 
 // If control tab is open refresh status every 5 seconds
 if (document.getElementById('controlTab').style.display === 'block') {
