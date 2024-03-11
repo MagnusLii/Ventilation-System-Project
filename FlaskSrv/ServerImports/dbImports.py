@@ -2,23 +2,29 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from flask import jsonify
 from ServerImports import logHandler
+from ServerImports import ventrilator
 
 db = SQLAlchemy()
 
 class Readings(db.Model):
-    index = db.Column(db.BIGINT, primary_key=True, nullable=False, unique=True, autoincrement=True)
-    speed = db.Column(db.Integer)
-    pressure = db.Column(db.Integer)
-    co2 = db.Column(db.Integer)
-    ah = db.Column(db.Integer)
-    rh = db.Column(db.Integer)
-    temp = db.Column(db.Integer)
-    timestamp = db.Column(db.DateTime)
+    __tablename__ = 'readings'
+    index = db.Column(db.BIGINT, primary_key=True, autoincrement=True, unique=True, nullable=False)
+    speed = db.Column(db.INT)
+    setpoint = db.Column(db.INT)
+    auto = db.Column(db.Boolean)
+    pressure = db.Column(db.INT)
+    co2 = db.Column(db.INT)
+    ah = db.Column(db.INT)
+    rh = db.Column(db.INT)
+    temp = db.Column(db.INT)
+    timestamp = db.Column(db.DATETIME)
 
-class LogMessages(db.Model):
-    index = db.Column(db.BIGINT, primary_key=True, nullable=False, unique=True, autoincrement=True)
-    logcode = db.Column(db.Text)
-    timestamp = db.Column(db.DateTime)
+class LogMessage(db.Model):
+    __tablename__ = 'logmessages'
+    index = db.Column(db.BIGINT, primary_key=True, autoincrement=True, unique=True, nullable=False)
+    message = db.Column(db.TEXT)
+    timestamp = db.Column(db.DATETIME)
+
 
 
 def get_all_readings(app):
@@ -49,6 +55,8 @@ def get_all_readings(app):
             json = jsonify([{
                 'index': reading.index,
                 'speed': reading.speed,
+                'auto': reading.auto,
+                'setpoint': reading.setpoint,
                 'pressure': reading.pressure,
                 'co2': reading.co2,
                 'ah': reading.ah,
@@ -58,7 +66,7 @@ def get_all_readings(app):
             } for reading in readings])
             return json, 200
     except Exception as errorMsg:
-        logHandler.log_error(f'get_all_readings(): {str(errorMsg)}')
+        logHandler.log(f'get_all_readings(): {str(errorMsg)}')
         return jsonify({'error': 'Failed to retrieve readings from the database.'}), 500
 
 
@@ -91,6 +99,8 @@ def get_readings_since_timestamp(app, timestamp):
             json = jsonify([{
                 'index': reading.index,
                 'speed': reading.speed,
+                'auto': reading.auto,
+                'setpoint': reading.setpoint,
                 'pressure': reading.pressure,
                 'co2': reading.co2,
                 'ah': reading.ah,
@@ -100,7 +110,7 @@ def get_readings_since_timestamp(app, timestamp):
             } for reading in readings])
             return json, 200
     except Exception as errorMsg:
-        logHandler.log_error(f'get_reading_since_timestamp(): {str(errorMsg)}')
+        logHandler.log(f'get_reading_since_timestamp(): {str(errorMsg)}')
         return jsonify({'error': 'Failed to retrieve readings from the database.'}), 500
 
 
@@ -130,6 +140,8 @@ def push_reading(app, json_data):
             reading = Readings(
                 speed=json_data['speed'],
                 pressure=json_data['pressure'],
+                auto=json_data['auto'],
+                setpoint=json_data['setpoint'],
                 co2=json_data['co2'],
                 ah=json_data['ah'],
                 rh=json_data['rh'],
@@ -140,7 +152,7 @@ def push_reading(app, json_data):
             db.session.commit()
             return
     except Exception as errorMsg:
-        logHandler.log_error(f'push_reading(): {str(errorMsg)}')
+        logHandler.log(f'push_reading(): {str(errorMsg)}')
         return jsonify({'error': 'Failed to push the reading into the database.'}), 500
 
 
@@ -162,7 +174,7 @@ def push_log(app, json_data):
     """
     try:
         with app.app_context():
-            log = LogMessages(
+            log = LogMessage(
                 logcode=json_data['logcode'],
                 timestamp=datetime.now()
             )
@@ -170,7 +182,7 @@ def push_log(app, json_data):
             db.session.commit()
             return
     except Exception as errorMsg:
-        logHandler.log_error(f'push_log(): {str(errorMsg)}')
+        logHandler.log(f'push_log(): {str(errorMsg)}')
         return jsonify({'error': 'Failed to push the log message into the database.'}), 500
 
 
@@ -186,7 +198,7 @@ def get_logs_since_timestamp(app, timestamp):
         - JSON: A JSON object containing all logs from the database that were recorded after the given timestamp.
             Each log is represented as a dictionary with the following keys.
             - index: The index of the log in the database.
-            - logcode: The log message.
+            - message: The log message.
             - timestamp: The timestamp of the log.
     
     Raises:
@@ -194,15 +206,15 @@ def get_logs_since_timestamp(app, timestamp):
     """
     try:
         with app.app_context():
-            logs = LogMessages.query.filter(LogMessages.timestamp >= timestamp).all()
+            logs = LogMessage.query.filter(LogMessage.timestamp >= timestamp).all()
             json = jsonify([{
                 'index': log.index,
-                'logcode': log.logcode,
+                'message': log.message,
                 'timestamp': log.timestamp
             } for log in logs])
             return json, 200
     except Exception as errorMsg:
-        logHandler.log_error(f'get_logs_since_timestamp(): {str(errorMsg)}')
+        logHandler.log(f'get_logs_since_timestamp(): {str(errorMsg)}')
         return jsonify({'error': 'Failed to retrieve logs from the database.'}), 500
 
 
@@ -225,13 +237,39 @@ def get_all_logs(app):
     """
     try:
         with app.app_context():
-            logs = LogMessages.query.all()
+            logs = LogMessage.query.all()
             json = jsonify([{
                 'index': log.index,
-                'logcode': log.logcode,
+                'message': log.message,
                 'timestamp': log.timestamp
             } for log in logs])
             return json, 200
     except Exception as errorMsg:
-        logHandler.log_error(f'get_all_logs(): {str(errorMsg)}')
+        logHandler.log(f'get_all_logs(): {str(errorMsg)}')
         return jsonify({'error': 'Failed to retrieve logs from the database.'}), 500
+
+
+#TODO: finish this shit
+def get_startup_values(app, ventrilator):
+    """
+    Get device mode and target value from last entry in the database.
+
+    Args:
+        - app: The Flask app object.
+        - ventrilator: The ventrilator object.
+        
+    Returns:
+        - Nothing
+    """
+
+    try:
+        with app.app_context():
+            readings = Readings.query.first()
+            logHandler.log(f'get_startup_values(): setting vent obj to auto: {readings.auto}, valueTarget: {readings.setpoint}')
+            ventrilator.setMode(readings.auto, readings.setpoint)
+            logHandler.log(f'get_startup_values(): ventrilator obj auto: {ventrilator.auto}, valueTarget: {ventrilator.valueTarget}')
+            return
+    
+    except Exception as errorMsg:
+        logHandler.log(f'get_startup_values(): {str(errorMsg)}')
+        return jsonify({'error': 'Failed to retrieve startup values from the database.'}), 500

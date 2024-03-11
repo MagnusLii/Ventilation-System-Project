@@ -10,6 +10,8 @@
 #define SPEED_MIN 0
 #define SPEED_MAX 1000
 
+#define ERROR_DELAY 5000
+
 
 FAN::FAN(WriteRegister *fan_speed_reg, ReadRegister *fan_counter_reg, PressureRegister *pressure, int speed) :
 fan_speed_register(fan_speed_reg),
@@ -41,7 +43,16 @@ void FAN::set_speed(uint16_t speed) {
 
 void FAN::adjust_speed(int target_pressure) {
     int distance = pressure_distance(target_pressure);
-    if (abs(distance) < PRESSURE_TARGET_TOLERANCE) return;
+    
+    if (abs(distance) < PRESSURE_TARGET_TOLERANCE) {
+        error_time_ms = to_ms_since_boot(get_absolute_time());
+        error = false;
+        return;
+    }
+    uint32_t current = to_ms_since_boot(get_absolute_time());
+    if ((current - error_time_ms) > ERROR_DELAY) {
+        error = true;
+    }
     float adjust = distance * SPEED_MAX / PRESSURE_MAX;
     speed += adjust / 2;
     if (speed > SPEED_MAX) speed = SPEED_MAX;
@@ -57,4 +68,8 @@ int FAN::get_pressure(void) {
 
 int FAN::get_speed(void) {
     return speed;
+}
+
+bool FAN::get_error(void) {
+    return error;
 }

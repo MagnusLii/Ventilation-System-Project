@@ -18,6 +18,11 @@
 #include "commhandler.h"
 #include <stdlib.h>
 
+#include "rapidjson.h"
+#include "document.h"
+#include "writer.h"
+#include "stringbuffer.h"
+
 #define DEBUG_ENABLE
 #include "debugprint.h"
 #include "pin.h"
@@ -54,18 +59,37 @@ bool user_input(char *dst, int size) {
 int main() {
     stdio_init_all();
 
-    i2c_init(i2c1, 400 * 1000);
-    gpio_set_function(14, GPIO_FUNC_I2C); // the display has external pull-ups
-    gpio_set_function(15, GPIO_FUNC_I2C); // the display has external pull-ups
-
-    int a = 1;
-    ssd1306 display(i2c1);
-    DPRINT("AA", "bbb", a);
+    // BOILERPLATE
     shared_uart u{std::make_shared<Uart_instance>(1, 9600, UART_TX_PIN, UART_RX_PIN)};
     shared_i2c i2c{std::make_shared<I2C_instance>(i2c1, I2C1_BAUD, I2C1_SDA, I2C1_SCL)};
     shared_modbus mbctrl{std::make_shared<ModbusCtrl>(u)};
 
+    eeprom_init_i2c(i2c0, EEPROM_BAUD_RATE, EEPROM_WRITE_CYCLE_MAX_MS);
+    LogHandler logHandler;
+
+    // logHandler.pushLog(BOOT);
+
+    // TODO MENU
+
+    // CHANGE THESE
+    const char *ssid = "SSID";
+    const char *pw = "PW";
+    const char *hostname = "0.0.0.0";
+    int port = 1883;
+
+    IPStack ipstack(ssid, pw);
+    auto client = MQTT::Client<IPStack, Countdown>(ipstack);
+    CommHandler comm_handler(ipstack, client);
+
+    comm_handler.connect_to_server(hostname, port);
+    comm_handler.connect_to_broker();
+    comm_handler.subscribe(DATA_TOPIC);
+    // TODO log successful jotain
+
+
     ReadRegister rh(mbctrl, 241, 256);
+    ReadRegister absh(mbctrl, 241, 0xe, 2);
+    ReadRegister temp(mbctrl, 240, 4, 2);
     ReadRegister co(mbctrl, 240, 0, 2);
 
     WriteRegister fan_speed(mbctrl, 1, 0, 1);
@@ -73,60 +97,25 @@ int main() {
     PressureRegister pre(i2c, 64);
     FAN fan(&fan_speed, &fan_counter, &pre);
 
-    char buf[20];
-    int target = 50;
-    bool spinning = false;
     while (1) {
-        if (user_input(buf, 20)) {
-            sscanf(buf, "%d", &target);
+        if (get_manual()) {
+            fan.set_speed(get_set_point() * 10); // target = speed in percentage
+        } else {
+            fan.adjust_speed(get_set_point());
+            // TODO LOG ERROR fan.get_error();
         }
-        fan.adjust_speed(target);
-        spinning = fan.is_spinning();
-        DPRINT("pressure: ", fan.get_pressure(), " target: ", target, " fanspeed: ", fan.get_speed(), " spinning: ", spinning);
-        sleep_ms(500);
-    }
-    
-    eeprom_init_i2c(i2c0, EEPROM_BAUD_RATE, EEPROM_WRITE_CYCLE_MAX_MS);
-
-    LogHandler logHandler;
-
-    for (int i = 0; i < 10; i++) {
-
-
-    logHandler.printPrivates();
-
-    std::string ssid = "ssid";
-    std::string password = "password";
-    std::string hostname = "127.0.0.1";
-    std::string port = "1883";
-
-    logHandler.storeCredentials(ssid, password, hostname, port);
-
-    std::string ssid2;
-    std::string password2;
-    std::string hostname2;
-    std::string port2;
-
-
+        rh.start_transfer();
+        absh.start_transfer();
+        co.start_transfer();
+        temp.start_transfer();
+        while (mbctrl->isbusy()) tight_loop_contents(); // IMPORTANT if modbus controller is busy it means the transfers are not compeleted yet
+        // this should send mqtt message
+        comm_handler.send(fan.get_speed() / 10, get_set_point(), fan.get_pressure(),
+                            get_manual(), fan.get_error(), co.get_float(), absh.get_float(),
+                            rh.get_float(), temp.get_float());
+        
+        sleep_ms(1000);
+        
 
     }
-
-    Button button(7);
-    Button button1(8);
-    Button button2(9);
-    RotaryEncoder A;
-    while(true) {
-        /*
-        a = A.returnVal() % 6;
-        startMenu(display, a);
-        display.show();
-        */
-        textInput(display, button, A.returnVal());
-        display.show();
-        if (button.returnState() && button.returnPin() == 12) {
-            button.setState();
-            DPRINT(returnInput());
-        }
-    }
-    return 0;
 }

@@ -74,7 +74,7 @@ function populateLogTable() {
             data.forEach(function (entry) {
                 var row = document.createElement('tr');
                 row.innerHTML = '<td>' + entry.index + '</td>' +
-                                '<td>' + entry.message + '</td>' +
+                                '<td>' + entry.logcode + '</td>' +
                                 '<td>' + entry.timestamp + '</td>';
                 logTableBody.appendChild(row);
             });

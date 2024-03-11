@@ -26,6 +26,9 @@ include_directories(${CMAKE_CURRENT_LIST_DIR}/src/pressure_handler)
 include_directories(${CMAKE_CURRENT_LIST_DIR}/src/fan_controller)
 include_directories(${CMAKE_CURRENT_LIST_DIR}/src/pico_hw)
 
+include_directories(${CMAKE_CURRENT_LIST_DIR}/src/rapidjson/include/rapidjson)
+
+
 add_compile_options(-Wall)
 
 file(GLOB MQTT_SOURCES "paho.mqtt.embedded-c/MQTTPacket/src/*.c")
