@@ -37,19 +37,19 @@ function populateHistoryTable() {
     historyTableBody.innerHTML = '';
 
     // Fetch data from the /data/history endpoint - TODO: Change to actual endpoint
-    fetch('${BASE_URL}/api/v0.1/readings/all')
+    fetch(`${BASE_URL}/api/v0.1/readings/all`)
         .then(response => response.json())
         .then(data => {
             data.forEach(function (entry) {
                 var row = document.createElement('tr');
                 row.innerHTML = '<td>' + entry.index + '</td>' +
-                                '<td>' + entry.date + '</td>' +
-                                '<td>' + entry.fanSpeed + '</td>' +
-                                '<td>' + entry.setPoint + '</td>' +
+                                '<td>' + entry.timestamp + '</td>' +
+                                '<td>' + entry.speed + '</td>' +
+                                '<td>' + entry.setpoint + '</td>' +
                                 '<td>' + entry.pressure + '</td>' +
                                 '<td>' + entry.co2 + '</td>' +
-                                '<td>' + entry.humidity + '</td>' +
-                                '<td>' + entry.temperature + '</td>';
+                                '<td>' + entry.rh + '</td>' +
+                                '<td>' + entry.temp + '</td>';
                 historyTableBody.appendChild(row);
             });
         })
@@ -68,13 +68,13 @@ function populateLogTable() {
     logTableBody.innerHTML = '';
 
     // Fetch data from the /data/logs endpoint - TODO: Change to actual endpoint
-    fetch('${BASE_URL}/api/v0.1/logs/all')
+    fetch(`${BASE_URL}/api/v0.1/logs/all`)
         .then(response => response.json())
         .then(data => {
             data.forEach(function (entry) {
                 var row = document.createElement('tr');
                 row.innerHTML = '<td>' + entry.index + '</td>' +
-                                '<td>' + entry.logcode + '</td>' +
+                                '<td>' + entry.message + '</td>' +
                                 '<td>' + entry.timestamp + '</td>';
                 logTableBody.appendChild(row);
             });
@@ -90,16 +90,16 @@ function populateLogTable() {
 
 function populateStatusSection() {
     // Fetch data from the /data/status - TODO: Change to actual endpoint
-    fetch('${BASE_URL}/api/v0.1/status')
+    fetch(`${BASE_URL}/api/v0.1/status`)
         .then(response => response.json())
         .then(data => {
-            document.getElementById('modeStatus').textContent = data.mode;
-            document.getElementById('fanSpeedStatus').textContent = data.fanSpeed;
-            document.getElementById('setPointStatus').textContent = data.setPoint;
+            document.getElementById('modeStatus').textContent = data.auto;
+            document.getElementById('fanSpeedStatus').textContent = data.speed;
+            document.getElementById('setPointStatus').textContent = data.setpoint;
             document.getElementById('pressureStatus').textContent = data.pressure;
             document.getElementById('co2Status').textContent = data.co2;
-            document.getElementById('humidityStatus').textContent = data.humidity;
-            document.getElementById('temperatureStatus').textContent = data.temperature;
+            document.getElementById('humidityStatus').textContent = data.rh;
+            document.getElementById('temperatureStatus').textContent = data.temp;
         })
         .catch(error => {
             console.error('Error fetching status data: ', error);

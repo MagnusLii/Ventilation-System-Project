@@ -150,6 +150,12 @@ def get_logs_since_timestamp():
         return jsonify({"error": "Invalid JSON format."}), 400
 
 
+@app.route('/api/v0.1/status', methods=['GET'])
+def get_status():
+    logHandler.log(f'get_status(): "/api/v0.1/status" Request received.')
+    return dbImports.get_latest_reading(app)
+
+
 def startup_procedures():
     time.sleep(1) # Wait for app to be fully initialized, this is threaded so it won't block the main thread.
     

@@ -273,3 +273,47 @@ def get_startup_values(app, ventrilator):
     except Exception as errorMsg:
         logHandler.log(f'get_startup_values(): {str(errorMsg)}')
         return jsonify({'error': 'Failed to retrieve startup values from the database.'}), 500
+    
+
+def get_latest_reading(app):
+    """
+    Get latest readings from DB.
+
+    Args:
+        - app: The Flask app object.
+
+    Returns:
+        - JSON: A JSON object containing latest readings from the database.
+            Each reading is represented as a dictionary with the following keys.
+            - index: The index of the reading in the database.
+            - speed: The speed reading.
+            - pressure: The pressure reading.
+            - co2: The CO2 reading.
+            - ah: The absolute humidity reading.
+            - rh: The relative humidity reading.
+            - temp: The temperature reading.
+            - timestamp: The timestamp of the reading.
+
+    Raises:
+        - 500: If an error occurs while pushing the reading into the database.
+    """
+
+    try:
+        with app.app_context():
+            readings = Readings.query.first()
+            json = jsonify({
+                'index': readings.index,
+                'speed': readings.speed,
+                'auto': readings.auto,
+                'setpoint': readings.setpoint,
+                'pressure': readings.pressure,
+                'co2': readings.co2,
+                'ah': readings.ah,
+                'rh': readings.rh,
+                'temp': readings.temp,
+                'timestamp': readings.timestamp
+            })
+            return json, 200
+    except Exception as errorMsg:
+        logHandler.log(f'get_all_readings(): {str(errorMsg)}')
+        return jsonify({'error': 'Failed to retrieve readings from the database.'}), 500
