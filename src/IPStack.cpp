@@ -6,25 +6,27 @@
 
 #include "IPStack.h"
 
+#include "debugprint.h"
+
 
 // To remove Pico example debugging functions during refactoring
-//#define DEBUG_printf(x, ...) {}
-#define DEBUG_printf printf
+#define DEBUG_printf(x, ...) {}
+//#define DEBUG_printf printf
 #define DUMP_BYTES(A, B) {}
 
 
 IPStack::IPStack(const char *ssid, const char *pw) : count{0}, wr{0}, rd{0}, connected{false} {
     if (cyw43_arch_init()) {
-        DEBUG_printf("failed to initialise\n");
+        DPRINT("Failed to initialise Wi-Fi driver\n");
         return;
     }
     cyw43_arch_enable_sta_mode();
 
-    DEBUG_printf("Connecting to Wi-Fi...\n");
+    DPRINT("Connecting to Wi-Fi...\n");
     if (cyw43_arch_wifi_connect_timeout_ms(ssid, pw, CYW43_AUTH_WPA2_AES_PSK, 30000)) {
-        DEBUG_printf("Failed to connect.\n");
+        DPRINT("Failed to connect to Wi-Fi.\n");
     } else {
-        DEBUG_printf("Connected.\n");
+        DPRINT("Connected to Wi-Fi.\n");
     }
 
 }
@@ -40,7 +42,6 @@ int IPStack::connect(const char *hostname, int port) {
         return ERR_ARG;
     }
     // open a socket connection
-    DEBUG_printf("Connecting to %s port %u\n", ip4addr_ntoa(&remote_addr), port);
     tcp_pcb = std::unique_ptr<struct tcp_pcb>(tcp_new_ip_type(IP_GET_TYPE(remote_addr)));
     if (!tcp_pcb) {
         DEBUG_printf("failed to create pcb\n");
