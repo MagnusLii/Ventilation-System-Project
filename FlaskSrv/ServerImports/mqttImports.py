@@ -10,8 +10,8 @@ mqttQoSLevel = 1 # TODO: verify what level the rest of the system uses and updat
 mqtt = Mqtt()
 
 # Topics
-settingsTopic = "controller/settings"
-statusTopic = "controller/status"
+settingsTopic = "vent/controller/settings"
+statusTopic = "vent/controller/status"
 
 initialSubscribeTopics = [settingsTopic, statusTopic] 
 

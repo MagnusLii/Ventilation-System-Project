@@ -51,7 +51,7 @@ def get_all_readings(app):
     """
     try:
         with app.app_context():
-            readings = Readings.query.all()
+            readings = Readings.query.order_by(Readings.index.desc()).all()
             json = jsonify([{
                 'index': reading.index,
                 'speed': reading.speed,
@@ -95,7 +95,7 @@ def get_readings_since_timestamp(app, timestamp):
     """
     try:
         with app.app_context():
-            readings = Readings.query.filter(Readings.timestamp >= timestamp).all()
+            readings = Readings.query.filter(Readings.timestamp >= timestamp).order_by(Readings.index.desc()).all()
             json = jsonify([{
                 'index': reading.index,
                 'speed': reading.speed,
@@ -206,7 +206,7 @@ def get_logs_since_timestamp(app, timestamp):
     """
     try:
         with app.app_context():
-            logs = LogMessage.query.filter(LogMessage.timestamp >= timestamp).all()
+            logs = LogMessage.query.filter(LogMessage.timestamp >= timestamp).order_by(LogMessage.index.desc()).all()
             json = jsonify([{
                 'index': log.index,
                 'message': log.message,
@@ -237,7 +237,7 @@ def get_all_logs(app):
     """
     try:
         with app.app_context():
-            logs = LogMessage.query.all()
+            logs = LogMessage.query.order_by(LogMessage.index.desc()).all()
             json = jsonify([{
                 'index': log.index,
                 'message': log.message,
@@ -264,7 +264,7 @@ def get_startup_values(app, ventrilator):
 
     try:
         with app.app_context():
-            readings = Readings.query.first()
+            readings = Readings.query.order_by(Readings.index.desc()).first()
             logHandler.log(f'get_startup_values(): setting vent obj to auto: {readings.auto}, valueTarget: {readings.setpoint}')
             ventrilator.setMode(readings.auto, readings.setpoint)
             logHandler.log(f'get_startup_values(): ventrilator obj auto: {ventrilator.auto}, valueTarget: {ventrilator.valueTarget}')
@@ -300,11 +300,11 @@ def get_latest_reading(app):
 
     try:
         with app.app_context():
-            readings = Readings.query.first()
+            readings = Readings.query.order_by(Readings.index.desc()).first()
             json = jsonify({
                 'index': readings.index,
                 'speed': readings.speed,
-                'auto': readings.auto,
+                'auto': int(readings.auto),
                 'setpoint': readings.setpoint,
                 'pressure': readings.pressure,
                 'co2': readings.co2,

@@ -135,7 +135,7 @@ function applySettings() {
         console.log(value);
     }
 
-    fetch('${BASE_URL}/api/v0.1/' + mode + '/' + value)
+    fetch(`${BASE_URL}/api/v0.1/` + mode + '/' + value)
         .then(response => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');

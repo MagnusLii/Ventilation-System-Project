@@ -156,6 +156,19 @@ def get_status():
     return dbImports.get_latest_reading(app)
 
 
+@app.route('/api/v0.1/<mode>/<value>', methods=['GET'])
+def set_mode(mode, value):
+    try:
+        logHandler.log(f'set_mode(): "/api/v0.1/{mode}/{value}" Request received.')
+        message = f'"{{"mode":"{mode}", "value":"{value}"}}"'
+        mqttImports.publishJSONtoMQTT("vent/controller/settings", message)
+        return jsonify({"status": "OK"}), 200
+    except Exception as errorMsg:
+        logHandler.log(f'set_mode(): "/api/v0.1/{mode}/{value}" Error: {errorMsg}')
+        return jsonify({"status": "Error"}), 500
+    
+
+
 def startup_procedures():
     time.sleep(1) # Wait for app to be fully initialized, this is threaded so it won't block the main thread.
     
