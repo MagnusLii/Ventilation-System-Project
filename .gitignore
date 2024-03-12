@@ -7,3 +7,4 @@ FlaskSrv/ServerImports/credentials.py
 FlaskSrv/ServerImports/__pycache__/*
 venv
 FlaskSrv/Logs
+FlaskSrv/__pycache__
