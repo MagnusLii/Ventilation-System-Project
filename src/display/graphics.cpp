@@ -102,7 +102,7 @@ void textInput(ssd1306 &display, Button &button, int current_position) {
     display.text(c, 114, 42, 1);
 }
 
-int current_mode = 0, display_mode = 1;
+int current_mode = 0, display_mode = 1, set_mode = 0;
 void mainMenu(ssd1306 &display, Button &button, int pos, int fan_speed, int pressure, int target_pressure, float temp, float co2, float rh, float ah) {
     int current_pos = pos % 6;
     char output_string[30];
@@ -137,9 +137,13 @@ void mainMenu(ssd1306 &display, Button &button, int pos, int fan_speed, int pres
             current_mode = 1;
         }
 
-        if (button.returnPin() == 7 && button.returnState() == true)
-        {
+        if (button.returnState() == true && button.returnPin() == 7) {
             button.setState();
+            if (set_mode == 1) set_mode = 0;
+            else set_mode = 1;
+        }
+
+        if (set_mode == 0) {
             if (current_mode == 0)
             {
                 display.fill(0);
@@ -155,7 +159,6 @@ void mainMenu(ssd1306 &display, Button &button, int pos, int fan_speed, int pres
                 display.text("AUTO", 80, 10, 0);
             }
         } else {
-            button.setState();
             if (current_pos == 0 || current_pos == 1 || current_pos == 2) {
                 display.fill(0);
                 display.rect(4, 4, 58, 20, 1, true);
@@ -181,7 +184,6 @@ void mainMenu(ssd1306 &display, Button &button, int pos, int fan_speed, int pres
             display.text("target pressure: ", 2, 40, 1);
             display.text(output_string, 2, 50, 1);
         }
-        //display_mode = 0;
     }
 
 
