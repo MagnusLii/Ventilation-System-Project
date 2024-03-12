@@ -176,6 +176,10 @@ int main() {
     
 
     IPStack ipstack(ssid, pw);
+    if (ipstack.get_success() == 0) {
+        DPRINT("Indeed failed\n");
+        while (true) tight_loop_contents();
+    }
     auto client = MQTT::Client<IPStack, Countdown>(ipstack);
     CommHandler comm_handler(ipstack, client);
 
