@@ -93,7 +93,7 @@ int main() {
     // WIFI MENU
     // TEXT MENU
     bool done = false;
-    int stage = 0, ssid_stage = 0, rotvalue; 
+    int stage = 0, ssid_stage = 0, rotvalue = 0;
     std::string input;
     while (done == false)
     {   
@@ -139,10 +139,7 @@ int main() {
                     }
                     ssid_stage++;
                 } else done = true;
-                
-
             }
-            
         }
         
         if (button.returnPin() == 9 && button.returnState() == true && stage == 0)

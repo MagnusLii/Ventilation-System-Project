@@ -110,75 +110,78 @@ void mainMenu(ssd1306 &display, Button &button, int pos, int fan_speed, int pres
     //temp, c02, rh, ah
     if (button.returnState() && button.returnPin() == 8) {
         button.setState();
-        if (display_mode == 0) {
-            sniprintf(output_string, sizeof(output_string), "temp: %2f", temp);
-            display.text(output_string, 2, 10, 1);
-            sniprintf(output_string, sizeof(output_string), "co2: %2f", co2);
-            display.text(output_string, 2, 20, 1);
-            sniprintf(output_string, sizeof(output_string), "rh: %2f", rh);
-            display.text(output_string, 2, 30, 1);
-            sniprintf(output_string, sizeof(output_string), "ah: %2f", ah);
-            display.text(output_string, 2, 40, 1);
-            display_mode = 1;
-        } else if(display_mode == 1) {
-            //change between manual and auto mode
-            if (button.returnState() && button.returnPin() == 9 && (current_pos == 0 || current_pos == 1 || current_pos == 2)) {
-                button.setState();
-                current_mode = 0;
-            } else if (button.returnState() && button.returnPin() == 9 && (current_pos == 3 || current_pos == 4 || current_pos == 5))
-            {
-                button.setState();
-                current_mode = 1;
-            }
-
-            if (button.returnPin() == 7 && button.returnState() == true)
-            {
-                button.setState();
-                if (current_mode == 0)
-                {
-                    display.fill(0);
-                    display.rect(4, 4, 58, 20, 1, true);
-                    display.rect(66, 4, 58, 20, 1);
-                    display.text("MANUAL", 10, 10, 0);
-                    display.text("AUTO", 80, 10, 1);
-                } else {
-                    display.fill(0);
-                    display.rect(4, 4, 58, 20, 1);
-                    display.rect(66, 4, 58, 20, 1, true);
-                    display.text("MANUAL", 10, 10, 1);
-                    display.text("AUTO", 80, 10, 0);
-                }
-            } else {
-                button.setState();
-                if (current_pos == 0 || current_pos == 1 || current_pos == 2) {
-                    display.fill(0);
-                    display.rect(4, 4, 58, 20, 1, true);
-                    display.rect(66, 4, 58, 20, 1);
-                    display.text("MANUAL", 10, 10, 0);
-                    display.text("AUTO", 80, 10, 1);
-                } else if (current_pos == 3 || current_pos == 4 || current_pos == 5) {
-                    display.fill(0);
-                    display.rect(4, 4, 58, 20, 1);
-                    display.rect(66, 4, 58, 20, 1, true);
-                    display.text("MANUAL", 10, 10, 1);
-                    display.text("AUTO", 80, 10, 0);
-                }
-            }
-
-            if (current_mode == 0) {
-                sniprintf(output_string, sizeof(output_string), "fanspeed: %d", fan_speed);
-                display.text(output_string, 4, 30, 1);
-            } else {
-                sniprintf(output_string, sizeof(output_string), "pressure: %d", pressure);
-                display.text(output_string, 2, 30, 1);
-                sniprintf(output_string, sizeof(output_string), "%d", target_pressure);
-                display.text("target pressure: ", 2, 40, 1);
-                display.text(output_string, 2, 50, 1);
-            }
-        }
-        display_mode = 0;
+        if (display_mode == 0) display_mode = 1;
+        else display_mode = 0;
     }
 
+    if (display_mode == 0) {
+        sniprintf(output_string, sizeof(output_string), "temp: %2f", temp);
+        display.text(output_string, 2, 10, 1);
+        sniprintf(output_string, sizeof(output_string), "co2: %2f", co2);
+        display.text(output_string, 2, 20, 1);
+        sniprintf(output_string, sizeof(output_string), "rh: %2f", rh);
+        display.text(output_string, 2, 30, 1);
+        sniprintf(output_string, sizeof(output_string), "ah: %2f", ah);
+        display.text(output_string, 2, 40, 1);
+        //display_mode = 1;
+    } else if(display_mode == 1) {
+
+        //change between manual and auto mode
+        if (button.returnState() && button.returnPin() == 9 && (current_pos == 0 || current_pos == 1 || current_pos == 2)) {
+            button.setState();
+            current_mode = 0;
+        } else if (button.returnState() && button.returnPin() == 9 && (current_pos == 3 || current_pos == 4 || current_pos == 5))
+        {
+            button.setState();
+            current_mode = 1;
+        }
+
+        if (button.returnPin() == 7 && button.returnState() == true)
+        {
+            button.setState();
+            if (current_mode == 0)
+            {
+                display.fill(0);
+                display.rect(4, 4, 58, 20, 1, true);
+                display.rect(66, 4, 58, 20, 1);
+                display.text("MANUAL", 10, 10, 0);
+                display.text("AUTO", 80, 10, 1);
+            } else {
+                display.fill(0);
+                display.rect(4, 4, 58, 20, 1);
+                display.rect(66, 4, 58, 20, 1, true);
+                display.text("MANUAL", 10, 10, 1);
+                display.text("AUTO", 80, 10, 0);
+            }
+        } else {
+            button.setState();
+            if (current_pos == 0 || current_pos == 1 || current_pos == 2) {
+                display.fill(0);
+                display.rect(4, 4, 58, 20, 1, true);
+                display.rect(66, 4, 58, 20, 1);
+                display.text("MANUAL", 10, 10, 0);
+                display.text("AUTO", 80, 10, 1);
+            } else if (current_pos == 3 || current_pos == 4 || current_pos == 5) {
+                display.fill(0);
+                display.rect(4, 4, 58, 20, 1);
+                display.rect(66, 4, 58, 20, 1, true);
+                display.text("MANUAL", 10, 10, 1);
+                display.text("AUTO", 80, 10, 0);
+            }
+        }
+
+        if (current_mode == 0) {
+            sniprintf(output_string, sizeof(output_string), "fanspeed: %d", fan_speed);
+            display.text(output_string, 4, 30, 1);
+        } else {
+            sniprintf(output_string, sizeof(output_string), "pressure: %d", pressure);
+            display.text(output_string, 2, 30, 1);
+            sniprintf(output_string, sizeof(output_string), "%d", target_pressure);
+            display.text("target pressure: ", 2, 40, 1);
+            display.text(output_string, 2, 50, 1);
+        }
+        //display_mode = 0;
+    }
 
 
 }
