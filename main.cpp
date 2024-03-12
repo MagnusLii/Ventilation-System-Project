@@ -197,10 +197,12 @@ int main() {
     int old_set_point = get_set_point();
     while (1) {
         // STATUS MENU
-        mainMenu(display, button, Rotary.returnVal(), fan.get_speed() / 10, fan.get_pressure(),
+        int mode = (int)get_manual();
+        mainMenu(display, button, &mode, Rotary.returnVal(), fan.get_speed() / 10, fan.get_pressure(),
                 get_set_point(), temp.get_float(),
                 co.get_float(), rh.get_float(), absh.get_float());
         display.show();
+        set_manual(!mode);
 
         if (get_manual()) {
             if (old_set_point != get_set_point()) {

@@ -211,6 +211,9 @@ void message_arrived(MQTT::MessageData &data) {
 bool get_manual() {
     return manual;
 }
+void set_manual(bool man) {
+    manual = man;
+}
 int get_set_point() {
     return setpoint;
 }
