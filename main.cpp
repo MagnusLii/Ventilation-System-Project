@@ -213,11 +213,11 @@ int main() {
         while (mbctrl->isbusy()) tight_loop_contents(); // IMPORTANT if modbus controller is busy it means the transfers are not compeleted yet
         // this should send mqtt message
 
-        comm_handler.send(fan.get_speed() / 10, get_set_point(), fan.get_pressure(),
-                            get_manual(), fan.get_error(), co.get_float(), absh.get_float(),
-                            rh.get_float(), temp.get_float());
+        // comm_handler.send(fan.get_speed() / 10, get_set_point(), fan.get_pressure(),
+        //                     get_manual(), fan.get_error(), co.get_float(), absh.get_float(),
+        //                     rh.get_float(), temp.get_float());
         
-        sleep_ms(10000);
+        // sleep_ms(10000);
 
         client.yield(100);
     }
