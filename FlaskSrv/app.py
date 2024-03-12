@@ -48,6 +48,7 @@ def handle_connect(client, userdata, flags, rc):
 @mqttImports.mqtt.on_message()
 def handle_message(client, userdata, message):
     receivedMessage = message.payload.decode("utf-8")
+    receivedMessage = receivedMessage.replace("\0", '')
     receivedTopic = message.topic
     logHandler.log(f'handle_message(), Received message: {receivedMessage} on topic: {receivedTopic}')
 
@@ -58,7 +59,7 @@ def handle_message(client, userdata, message):
         return
 
     # Handle received message based on topic.
-    if receivedTopic.startswith("controller/status") == True:
+    if receivedTopic.startswith("vent/controller/status") == True:
         """Expected JSON format:
         {
         "nr": 96,
@@ -74,8 +75,9 @@ def handle_message(client, userdata, message):
         """
         logHandler.log(f'handle_message(): controller/status path.')
         logHandler.log(f'handle_message(): verifying keywords in JSON.')
-        if mqttImports.validateKeywordsInJSON(decodedMessage, ['nr', 'speed', 'setpoint', 'pressure', 'auto', 'error', 'co2', 'rh', 'temp'], 2) == False:
-            return
+        # TODO: uncomment
+        #if mqttImports.validateKeywordsInJSON(decodedMessage, ['speed', 'setpoint', 'pressure', 'auto', 'error', 'co2', 'rh', 'temp'], 2) == False:
+        #    return
         
         ventrilatorStatus.setMode(decodedMessage['auto'], decodedMessage['setpoint'])
 
@@ -96,6 +98,10 @@ def handle_message(client, userdata, message):
         
         logHandler.log(f'handle_message(): Publishing to database. -> dbImports.push_log()')
         dbImports.push_log(app, decodedMessage)
+        return
+    
+    elif receivedTopic.startswith("dat") == True:
+        print(receivedMessage)
         return
     
     logHandler.log(f'handle_message(): No path found for topic: {receivedTopic}')
@@ -160,7 +166,7 @@ def get_status():
 def set_mode(mode, value):
     try:
         logHandler.log(f'set_mode(): "/api/v0.1/{mode}/{value}" Request received.')
-        message = f'"{{"mode":"{mode}", "value":"{value}"}}"'
+        message = f'{{"auto":{mode}, "value":{value}}}\0'
         mqttImports.publishJSONtoMQTT("vent/controller/settings", message)
         return jsonify({"status": "OK"}), 200
     except Exception as errorMsg:

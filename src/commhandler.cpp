@@ -16,8 +16,8 @@ CommHandler::CommHandler(IPStack &ipstack, MQTT::Client<IPStack, Countdown> &cli
     connect_data.clientID.cstring = (char *)client_id;
 
     // Initialize predefined topics with their names and subscription status (0 means unsubscribed).
-    topics = {{TopicType::DATA_TOPIC, std::make_pair("data", 0)},
-              {TopicType::CONTROL_TOPIC, std::make_pair("control", 0)},
+    topics = {{TopicType::DATA_TOPIC, std::make_pair("vent/controller/status", 0)},
+              {TopicType::CONTROL_TOPIC, std::make_pair("vent/controller/settings", 0)},
               {TopicType::OTHER_TOPIC, std::make_pair("other", 0)},
               {TopicType::LOG_SEND, std::make_pair("loghandler/logMessages", 0)},
               {TopicType::STATUS_SEND, std::make_pair("loghandler/piStatusMessages", 0)}};
@@ -159,9 +159,12 @@ int CommHandler::is_subscribed(TopicType topic_type) { return topics.at(topic_ty
 
 void CommHandler::send(int speed, int setpoint, int pressure, bool aut, bool error,
                   float co2, float ah, float rh, float temp) {
+    
+
     rapidjson::StringBuffer s;
     rapidjson::Writer<rapidjson::StringBuffer> writer(s);
     writer.StartObject();
+
     writer.Key("speed");
     writer.Int(speed);
     writer.Key("setpoint");
@@ -188,11 +191,6 @@ void CommHandler::send(int speed, int setpoint, int pressure, bool aut, bool err
 }
 
 
-
-// {
-// "auto": false,
-// "speed": 18
-// }
 static volatile bool manual = false;
 static volatile int setpoint = 50;
 void message_arrived(MQTT::MessageData &data) {
@@ -204,11 +202,10 @@ void message_arrived(MQTT::MessageData &data) {
     rapidjson::Document doc;
     doc.Parse((char *)message.payload);
     const rapidjson::Value& aut = doc["auto"];
-    const rapidjson::Value& set = doc["target"];
+    const rapidjson::Value& set = doc["value"];
 
     setpoint = set.GetInt();
-    manual = !(aut.GetBool());
-    
+    manual = !(aut.GetInt());
 }
 
 bool get_manual() {

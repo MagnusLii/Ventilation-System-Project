@@ -10,10 +10,10 @@ mqttQoSLevel = 1 # TODO: verify what level the rest of the system uses and updat
 mqtt = Mqtt()
 
 # Topics
-settingsTopic = "vent/controller/settings"
 statusTopic = "vent/controller/status"
+data = "data"
 
-initialSubscribeTopics = [settingsTopic, statusTopic] 
+initialSubscribeTopics = [statusTopic, data] 
 
 def decodeStringToJSON(json_string):
     """

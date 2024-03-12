@@ -17,7 +17,8 @@ int PressureRegister::get(uint32_t timeout_ms) {
     i2c_write_blocking(i2c->get_instance(), devaddr, &payload, 1, false);
     uint8_t in[3];
     i2c_read_blocking_until(i2c->get_instance(), devaddr, in, 3, false, delayed_by_ms(get_absolute_time(), timeout_ms));
-    int value = in[0] << 8;
+
+    int16_t value = in[0] << 8;
     value |= in[1];
     value = (value * 95) / (240 * 100); // scale factor 240 and height compensation 0.95 (0 meters from sea)
     return value;
