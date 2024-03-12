@@ -16,6 +16,7 @@
 
 
 IPStack::IPStack(const char *ssid, const char *pw) : count{0}, wr{0}, rd{0}, connected{false} {
+    this->success = false;
     if (cyw43_arch_init()) {
         DPRINT("Failed to initialise Wi-Fi driver\n");
         return;
@@ -27,6 +28,7 @@ IPStack::IPStack(const char *ssid, const char *pw) : count{0}, wr{0}, rd{0}, con
         DPRINT("Failed to connect to Wi-Fi.\n");
     } else {
         DPRINT("Connected to Wi-Fi.\n");
+        this->success = true;
     }
 
 }

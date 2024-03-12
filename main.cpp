@@ -74,7 +74,7 @@ int main() {
 
 
     // CHANGE THESE
-    const char *ssid = "SmartIotMQTT";
+    const char *ssid = "SmartIotMQT";
     const char *pw = "SmartIot";
     const char *hostname = "192.168.1.10";
     const int port = 1883;
@@ -84,6 +84,10 @@ int main() {
     // TEXT MENU
 
     IPStack ipstack(ssid, pw);
+    if (ipstack.get_success() == 0) {
+        DPRINT("Indeed failed\n");
+        while (true) tight_loop_contents();
+    }
     auto client = MQTT::Client<IPStack, Countdown>(ipstack);
     CommHandler comm_handler(ipstack, client);
 
