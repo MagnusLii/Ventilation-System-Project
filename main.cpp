@@ -40,6 +40,11 @@
 
 #define SEND_DELAY 5000
 
+#define DEFAULT_HOSTNAME "192.168.1.10"
+#define DEFAULT_PORT 1883
+#define DEFAULT_SSID "SmartIotMQTT"
+#define DEFAULT_PW "SmartIot"
+
 
 bool user_input(char *dst, int size) {
     if (uart_is_readable(uart0)) {
@@ -80,14 +85,30 @@ int main() {
 
     // logHandler.pushLog(BOOT);
 
+    //char ssid[64] = DEFAULT_SSID;
+    char ssid[64] = "";
+    //char pw[64]  = DEFAULT_PW;
+    char pw[64] = "";
+    //char hostname[64] = DEFAULT_HOSTNAME;
+    char hostname[64] = "";
+    //int port = DEFAULT_PORT;
+    int port = 0;
+    int verificationArray[4] = {0, 0, 0, 0};
 
+    //logHandler.storeCredentials(ssid, pw, hostname, port);
 
-    // CHANGE THESE
-    char *ssid = "SmartIotMQTT";
-    char *pw = "SmartIot";
-    char *hostname = "192.168.1.10";
-    int port = 1883;
+    logHandler.fetchCredentials(ssid, pw, hostname, &port, verificationArray);
 
+    std::cout << "VerifyBits: ";
+    for (int i = 0; i < 4; i++) {
+        std::cout << verificationArray[i];
+    }
+    std::cout << std::endl;
+
+    std::cout << "SSID: " << ssid << std::endl;
+    std::cout << "PW: " << pw << std::endl;
+    std::cout << "Hostname: " << hostname << std::endl;
+    std::cout << "Port: " << port << std::endl;
 
     // TODO MENU
     // WIFI MENU
