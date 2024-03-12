@@ -129,9 +129,17 @@ function applySettings() {
 
     if (mode === 1) {
         value = document.getElementById('pressureTargetInput').value;
+        if (value < 0 || value > 120) {
+            alert('Please enter a pressure target value between 0 and 120');
+            return;
+        }
         console.log(value);
     } else if (mode === 0) {
         value = document.getElementById('fanSpeedSlider').value;
+        if (value < 0 || value > 100) {
+            alert('Please enter a fan speed value between 0 and 100');
+            return;
+        }
         console.log(value);
     }
 
