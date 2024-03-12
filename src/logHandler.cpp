@@ -30,6 +30,8 @@
 #define CREDENTIALS_NUM 4
 #define CREDENTIALS_END_ADDR (CREDENTIALS_START_ADDR + (CREDENTIALS_STORAGE_BLOCK * (CREDENTIALS_NUM - 1)))
 
+#define CREDENTIALS_USE_ADDR 4160
+
 // TODO: Create better messages
 const char *logMessages[] = {
     "Test",
@@ -65,12 +67,17 @@ void LogHandler::incrementUnusedLogIndex(const LogType logType) {
         }
     }
     else if (logType == LOGTYPE_COMM_CONFIG){
+        this->unusedCommConfigAddr = CREDENTIALS_USE_ADDR;
+        this->currentCommConfigAddr = CREDENTIALS_START_ADDR;
+        
+        /*
         eeprom_write_byte(this->currentCommConfigAddr, 0);
         this->currentCommConfigAddr = unusedCommConfigAddr;
         this->unusedCommConfigAddr += CREDENTIALS_STORAGE_BLOCK;
         if (this->unusedCommConfigAddr >= CREDENTIALS_END_ADDR){
             this->unusedCommConfigAddr = CREDENTIALS_START_ADDR;
         }
+        */
     }
 }
 
@@ -163,6 +170,10 @@ void LogHandler::findFirstAvailableLog(const LogType logType){
 
     //TODO: verify this
     case LOGTYPE_COMM_CONFIG:
+        this->unusedCommConfigAddr = CREDENTIALS_USE_ADDR;
+        this->currentCommConfigAddr = CREDENTIALS_START_ADDR;
+
+    /*
         logAddr = CREDENTIALS_START_ADDR;
         for (int i = 0; i < CREDENTIALS_NUM; i++){
             std::cout << "logAddr test: " << logAddr << std::endl;
@@ -184,6 +195,7 @@ void LogHandler::findFirstAvailableLog(const LogType logType){
         std::cout << "Unused Comm Config Addr2: " << this->unusedCommConfigAddr << std::endl;
         std::cout << "Current Comm Config Addr2: " << this->currentCommConfigAddr << std::endl;
         break;
+    */
     }
     return;
 }
@@ -372,15 +384,24 @@ void LogHandler::fetchCredentials(char *ssid, char *password, char *hostname, in
     // TODO: figure out what to proceed if the data is not valid.
     // TODO: Verify that the CRC is not included in the string.
     if (verifyDataIntegrity(ssidArr, (int)ssidArr[1]) == true){
-        strcpy(ssid, (char *)ssidArr);
+        for (int i = 0; i < ((int)ssidArr[1]-4); i++)
+        {
+            ssid[i] = ssidArr[i + 2];
+        }
         arr[0] = 1;
     }
     if (verifyDataIntegrity(passwordArr, (int)passwordArr[1]) == true){
-        strcpy(password, (char *)passwordArr);
+        for (int i = 0; i < ((int)passwordArr[1]-4); i++)
+        {
+            password[i] = passwordArr[i + 2];
+        }
         arr[1] = 1;
     }
     if (verifyDataIntegrity(hostnameArr, (int)hostnameArr[1]) == true){
-        strcpy(hostname, (char *)hostnameArr);
+        for (int i = 0; i < ((int)hostnameArr[1]-4); i++)
+        {
+            hostname[i] = hostnameArr[i + 2];
+        }
         arr[2] = 1;
     }
     if (verifyDataIntegrity(portArr, (int)portArr[1]) == true){
