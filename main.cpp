@@ -61,10 +61,22 @@ bool user_input(char *dst, int size) {
 int main() {
     stdio_init_all();
 
+    //init buttons and rotary encoder
+    Button button(7);
+    Button button1(8);
+    Button button2(9);
+    RotaryEncoder Rotary;
+
     // BOILERPLATE
     shared_uart u{std::make_shared<Uart_instance>(1, 9600, UART_TX_PIN, UART_RX_PIN, 1)}; //1 for testbox 2 for fullscale
     shared_i2c i2c{std::make_shared<I2C_instance>(i2c1, I2C1_BAUD, I2C1_SDA, I2C1_SCL)};
     shared_modbus mbctrl{std::make_shared<ModbusCtrl>(u)};
+
+    i2c_init(i2c1, 400 * 1000);
+    gpio_set_function(14, GPIO_FUNC_I2C);
+    gpio_set_function(15, GPIO_FUNC_I2C);
+
+    ssd1306 display(i2c1);
 
     eeprom_init_i2c(i2c0, EEPROM_BAUD_RATE, EEPROM_WRITE_CYCLE_MAX_MS);
     LogHandler logHandler;
@@ -74,14 +86,94 @@ int main() {
 
 
     // CHANGE THESE
-    const char *ssid = "SmartIotMQTT";
-    const char *pw = "SmartIot";
-    const char *hostname = "192.168.1.10";
-    const int port = 1883;
+    char *ssid = "SmartIotMQTT";
+    char *pw = "SmartIot";
+    char *hostname = "192.168.1.10";
+    int port = 1883;
 
     // TODO MENU
     // WIFI MENU
     // TEXT MENU
+    bool done = false;
+    int stage = 0, ssid_stage = 0, rotvalue = 0;
+    std::string input;
+    while (done == false)
+    {   
+        if (stage == 0)
+        {
+            rotvalue = Rotary.returnVal() % 6;
+            startMenu(display, rotvalue);
+            display.show();
+        } else if(stage == 1) 
+        {
+            textInput(display, button, Rotary.returnVal());
+            display.show();
+
+            if (button.returnPin() == 7 && button.returnState() == true)
+            {
+                button.setState();
+                input = returnInput();
+                if (input.empty())
+                {
+                    stage = 0;
+                }
+                
+            } else if(button.returnPin() == 12 && button.returnState() == true) {
+                button.setState();
+                if (ssid_stage < 4)
+                {
+                    switch (ssid_stage)
+                    {
+                    case 0:
+                        ssid = returnInput();
+                        break;
+                    case 1:
+                        pw = returnInput();
+                        break;
+                    case 2:
+                        hostname = returnInput();
+                        break;
+                    case 3:
+                        port = std::stoi(returnInput());
+                        break;
+                    default:
+                        break;
+                    }
+                    ssid_stage++;
+                } else done = true;
+            }
+        }
+        
+        if (button.returnPin() == 9 && button.returnState() == true && stage == 0)
+        {
+            button.setState();
+            switch (rotvalue)
+            {
+            case 0://select ssid, pw, hostname and port
+            case 1:
+                stage = 1;
+                break;
+            case 2:// use previous settings
+            case 3:
+                //use previous settings and proceed
+                done = true;
+                break;
+            case 4:// proceed with no wifi??
+            case 5:
+                //possibly just go straight to mainMenu??
+                //disable wifi or something i dont really know
+                done = true;
+                break;
+            default:
+                rotvalue = 0;
+                break;
+            }
+        }
+        
+
+        
+    }
+    
 
     IPStack ipstack(ssid, pw);
     auto client = MQTT::Client<IPStack, Countdown>(ipstack);
@@ -107,7 +199,8 @@ int main() {
 
     while (1) {
         // STATUS MENU
-
+        mainMenu(display, button, Rotary.returnVal(), 100, 100, 100, 100, 100, 100, 100);
+        display.show();
 
         if (get_manual()) {
             fan.set_speed(get_set_point() * 10); // target = speed in percentage
