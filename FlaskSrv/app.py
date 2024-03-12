@@ -168,6 +168,7 @@ def set_mode(mode, value):
         logHandler.log(f'set_mode(): "/api/v0.1/{mode}/{value}" Request received.')
         message = f'{{"auto":{mode}, "value":{value}}}\0'
         mqttImports.publishJSONtoMQTT("vent/controller/settings", message)
+        logHandler.log(f'set_mode(): Published to topic: vent/controller/settings, message: {message}')
         return jsonify({"status": "OK"}), 200
     except Exception as errorMsg:
         logHandler.log(f'set_mode(): "/api/v0.1/{mode}/{value}" Error: {errorMsg}')
