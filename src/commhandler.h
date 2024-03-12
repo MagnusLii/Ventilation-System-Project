@@ -40,4 +40,5 @@ class CommHandler {
 void message_arrived(MQTT::MessageData &data);
 
 bool get_manual();
+void set_manual(bool man);
 int get_set_point();

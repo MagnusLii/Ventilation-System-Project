@@ -103,7 +103,7 @@ void textInput(ssd1306 &display, Button &button, int current_position) {
 }
 
 int current_mode = 0, display_mode = 1, set_mode = 0;
-void mainMenu(ssd1306 &display, Button &button, int pos, int fan_speed, int pressure, int target_pressure, float temp, float co2, float rh, float ah) {
+void mainMenu(ssd1306 &display, Button &button, int *mode, int pos, int fan_speed, int pressure, int target_pressure, float temp, float co2, float rh, float ah) {
     int current_pos = pos % 6;
     char output_string[30];
 
@@ -130,11 +130,11 @@ void mainMenu(ssd1306 &display, Button &button, int pos, int fan_speed, int pres
         //change between manual and auto mode
         if (button.returnState() && button.returnPin() == 9 && (current_pos == 0 || current_pos == 1 || current_pos == 2)) {
             button.setState();
-            current_mode = 0;
+            *mode = 0;
         } else if (button.returnState() && button.returnPin() == 9 && (current_pos == 3 || current_pos == 4 || current_pos == 5))
         {
             button.setState();
-            current_mode = 1;
+            *mode = 1;
         }
 
         if (button.returnState() == true && button.returnPin() == 7) {
@@ -144,7 +144,7 @@ void mainMenu(ssd1306 &display, Button &button, int pos, int fan_speed, int pres
         }
 
         if (set_mode == 1) {
-            if (current_mode == 0)
+            if (*mode == 0)
             {
                 display.fill(0);
                 display.rect(4, 4, 58, 20, 1, true);
@@ -174,7 +174,7 @@ void mainMenu(ssd1306 &display, Button &button, int pos, int fan_speed, int pres
             }
         }
 
-        if (current_mode == 0) {
+        if (*mode == 0) {
             sniprintf(output_string, sizeof(output_string), "fanspeed: %d", fan_speed);
             display.text(output_string, 4, 30, 1);
         } else {
