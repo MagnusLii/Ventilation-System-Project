@@ -92,6 +92,10 @@ int main()
     char hostname[64] = "192.168.1.10";
     int port = 1883;
     bool use_wifi = true;
+    int verArray[4] = {0, 0, 0, 0};
+
+    logHandler.fetchCredentials(ssid, pw, hostname, &port,  verArray);
+
 
     std::shared_ptr<IPStack> ipstackptr;
     std::shared_ptr<CommHandler> commHandlerptr;
@@ -216,6 +220,8 @@ int main()
             if (!comm_handler.verify_connection())
             {
                 netword_done = false;
+            } else {
+                logHandler.storeCredentials(ssid, pw, hostname, port);
             }
         }
         // TODO log successful jotain
@@ -234,13 +240,14 @@ int main()
     uint32_t send_time = 0;
     int old_set_point = get_set_point();
     int speed_val = 0;
+    int pres_val = 0;
     int prevval = 0;
     while (1)
     {
         // STATUS MENU
         int mode = (int)get_manual();
         mainMenu(display, button, &mode, Rotary.returnVal(), fan.get_speed() / 10, fan.get_pressure(),
-                 get_set_point(), temp.get_float(),
+                 pres_val, temp.get_float(),
                  co.get_float(), rh.get_float(), absh.get_float());
         display.show();
         set_manual(mode);
@@ -265,8 +272,19 @@ int main()
         }
         else
         {
-
-            fan.adjust_speed(get_set_point());
+            if (prevval < Rotary.returnVal()) pres_val++;
+            if (prevval > Rotary.returnVal()) pres_val--;
+            prevval = Rotary.returnVal();
+            if (get_set_point() != old_set_point)
+            {
+                old_set_point = get_set_point();
+                pres_val = get_set_point();
+            }
+            if (pres_val < 0)
+                pres_val = 0;
+            if (pres_val > 120)
+                pres_val = 120;
+            fan.adjust_speed(pres_val);
             // TODO LOG ERROR fan.get_error();
         }
         uint32_t new_time = to_ms_since_boot(get_absolute_time());
