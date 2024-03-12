@@ -200,7 +200,7 @@ int main() {
 
     while (1) {
         // STATUS MENU
-        mainMenu(display, button, Rotary.returnVal(), 100, 100, 100);
+        mainMenu(display, button, Rotary.returnVal(), 100, 100, 100, 100, 100, 100, 100);
         display.show();
 
         if (get_manual()) {
