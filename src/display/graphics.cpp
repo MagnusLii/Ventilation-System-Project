@@ -143,7 +143,7 @@ void mainMenu(ssd1306 &display, Button &button, int pos, int fan_speed, int pres
             else set_mode = 1;
         }
 
-        if (set_mode == 0) {
+        if (set_mode == 1) {
             if (current_mode == 0)
             {
                 display.fill(0);
