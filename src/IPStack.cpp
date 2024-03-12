@@ -98,7 +98,7 @@ err_t IPStack::tcp_client_sent(void *arg, struct tcp_pcb *tpcb, u16_t len) {
 err_t IPStack::tcp_client_connected(void *arg, struct tcp_pcb *tpcb, err_t err) {
     auto state = static_cast<IPStack *>(arg);
     if (err != ERR_OK) {
-        printf("connect failed %d\n", err);
+        DEBUG_printf("connect failed %d\n", err);
     }
     state->connected = true;
 
