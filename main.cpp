@@ -40,10 +40,14 @@
 
 #define SEND_DELAY 5000
 
-bool user_input(char *dst, int size)
-{
-    if (uart_is_readable(uart0))
-    {
+#define DEFAULT_HOSTNAME "192.168.1.10"
+#define DEFAULT_PORT 1883
+#define DEFAULT_SSID "SmartIotMQTT"
+#define DEFAULT_PW "SmartIot"
+
+
+bool user_input(char *dst, int size) {
+    if (uart_is_readable(uart0)) {
         char c = 0;
         int i = 0;
         while (c != '\n' && i < size)
