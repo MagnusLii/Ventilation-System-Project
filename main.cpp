@@ -64,12 +64,17 @@ int main() {
     Button button1(8);
     Button button2(9);
     RotaryEncoder Rotary;
-    ssd1306 display;
 
     // BOILERPLATE
     shared_uart u{std::make_shared<Uart_instance>(1, 9600, UART_TX_PIN, UART_RX_PIN)};
     shared_i2c i2c{std::make_shared<I2C_instance>(i2c1, I2C1_BAUD, I2C1_SDA, I2C1_SCL)};
     shared_modbus mbctrl{std::make_shared<ModbusCtrl>(u)};
+
+    i2c_init(i2c1, 400 * 1000);
+    gpio_set_function(14, GPIO_FUNC_I2C);
+    gpio_set_function(15, GPIO_FUNC_I2C);
+
+    ssd1306 display(i2c1);
 
     eeprom_init_i2c(i2c0, EEPROM_BAUD_RATE, EEPROM_WRITE_CYCLE_MAX_MS);
     LogHandler logHandler;
@@ -102,7 +107,7 @@ int main() {
             textInput(display, button, Rotary.returnVal());
             display.show();
 
-            if (button.returnPin == 7 && button.returnState == true)
+            if (button.returnPin() == 7 && button.returnState() == true)
             {
                 button.setState();
                 input = returnInput();
@@ -111,9 +116,9 @@ int main() {
                     stage = 0;
                 }
                 
-            } else if(button.returnPin == 12 && button.returnState == true) {
+            } else if(button.returnPin() == 12 && button.returnState() == true) {
                 button.setState();
-                if (ssid_stage < 3)
+                if (ssid_stage < 4)
                 {
                     switch (ssid_stage)
                     {
@@ -127,7 +132,7 @@ int main() {
                         hostname = returnInput();
                         break;
                     case 3:
-                        port = returnInput();
+                        port = std::stoi(returnInput());
                         break;
                     default:
                         break;
@@ -140,7 +145,7 @@ int main() {
             
         }
         
-        if (button.returnPin == 9 && button.returnState == true && stage == 0)
+        if (button.returnPin() == 9 && button.returnState() == true && stage == 0)
         {
             button.setState();
             switch (rotvalue)
