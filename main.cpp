@@ -36,7 +36,7 @@
 
 #define I2C1_SDA 14
 #define I2C1_SCL 15
-#define I2C1_BAUD 100000
+#define I2C1_BAUD 400000
 
 #define SEND_DELAY 5000
 
@@ -72,9 +72,6 @@ int main() {
     shared_i2c i2c{std::make_shared<I2C_instance>(i2c1, I2C1_BAUD, I2C1_SDA, I2C1_SCL)};
     shared_modbus mbctrl{std::make_shared<ModbusCtrl>(u)};
 
-    i2c_init(i2c1, 400 * 1000);
-    gpio_set_function(14, GPIO_FUNC_I2C);
-    gpio_set_function(15, GPIO_FUNC_I2C);
 
     ssd1306 display(i2c1);
 
@@ -90,6 +87,7 @@ int main() {
     char *pw = "SmartIot";
     char *hostname = "192.168.1.10";
     int port = 1883;
+
 
     // TODO MENU
     // WIFI MENU
@@ -169,12 +167,8 @@ int main() {
                 break;
             }
         }
-        
-
-        
     }
     
-
     IPStack ipstack(ssid, pw);
     if (ipstack.get_success() == 0) {
         DPRINT("Indeed failed\n");
