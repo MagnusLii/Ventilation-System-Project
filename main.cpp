@@ -38,6 +38,8 @@
 #define I2C1_SCL 15
 #define I2C1_BAUD 100000
 
+#define SEND_DELAY 5000
+
 
 bool user_input(char *dst, int size) {
     if (uart_is_readable(uart0)) {
@@ -101,6 +103,7 @@ int main() {
     PressureRegister pre(i2c, 64);
     FAN fan(&fan_speed, &fan_counter, &pre);
 
+    uint32_t send_time = 0;
 
     while (1) {
         // STATUS MENU
@@ -112,18 +115,18 @@ int main() {
             fan.adjust_speed(get_set_point());
             // TODO LOG ERROR fan.get_error();
         }
-        rh.start_transfer();
-        absh.start_transfer();
-        co.start_transfer();
-        temp.start_transfer();
-        while (mbctrl->isbusy()) tight_loop_contents(); // IMPORTANT if modbus controller is busy it means the transfers are not compeleted yet
-        // this should send mqtt message
 
-        comm_handler.send(fan.get_speed() / 10, get_set_point(), fan.get_pressure(),
-                            get_manual(), fan.get_error(), co.get_float(), absh.get_float(),
-                            rh.get_float(), temp.get_float());
-        
-        sleep_ms(10000);
+        if (send_time - to_ms_since_boot(get_absolute_time()) > SEND_DELAY) {
+            rh.start_transfer();
+            absh.start_transfer();
+            co.start_transfer();
+            temp.start_transfer();
+            while (mbctrl->isbusy()) tight_loop_contents(); // IMPORTANT if modbus controller is busy it means the transfers are not compeleted yet
+            // this should send mqtt message
+            comm_handler.send(fan.get_speed() / 10, get_set_point(), fan.get_pressure(),
+                                get_manual(), fan.get_error(), co.get_float(), absh.get_float(),
+                                rh.get_float(), temp.get_float());    
+        }
 
         client.yield(100);
     }
