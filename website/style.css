@@ -2,6 +2,8 @@
 body {
     font-family: Arial, sans-serif;
     margin: 20px;
+    max-width: 1200px;
+    margin: 5 auto;
 }
 
 label {
@@ -11,10 +13,12 @@ label {
 
 #fanSpeedSlider {
     width: 300px;
+    margin-bottom: 10px;
 }
 
 #pressureTargetInput {
     width: 150px;
+    margin-bottom: 10px;
 }
 
 #applyButton {
@@ -48,6 +52,14 @@ label {
     margin-top: 20px;
     border: 1px solid #ccc;
     padding: 10px;
+}
+
+#statusSection {
+    width: 400px;
+} 
+
+#historyTable,
+#logTable {
     width: 100%;
 }
 
@@ -80,4 +92,10 @@ th, td {
     border: 1px solid #ddd;
     padding: 8px;
     text-align: left;
+}
+
+#refresh-button {
+    top: 0;
+    right: 0;
+    float: right;
 }
