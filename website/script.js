@@ -1,5 +1,7 @@
 const BASE_URL = 'http://127.0.0.1:5000';
+var error_alerted = false;
 
+// Toggle controls available based on which mode is selected
 function toggleControls(isAutoMode) {
     var fanSpeedSlider = document.getElementById("fanSpeedSlider");
     var pressureTargetInput = document.getElementById("pressureTargetInput");
@@ -23,6 +25,7 @@ function openTab(tabName) {
     }
     document.getElementById(tabName).style.display = "block";
     if (tabName === "controlTab") {
+        populateStatusSection();
     } else if (tabName === "historyTab") {
         populateHistoryTable();
     } else if (tabName === "logTab") {
@@ -101,6 +104,14 @@ function populateStatusSection() {
             document.getElementById('co2Status').textContent = data.co2;
             document.getElementById('humidityStatus').textContent = data.rh;
             document.getElementById('temperatureStatus').textContent = data.temp;
+            if (data.error === 1) {
+                if (!error_alerted) {
+                    alert('Error: Unable to reach target set point.');
+                    error_alerted = true;
+                }
+            } else {
+                error_alerted = false;
+            }
         })
         .catch(error => {
             console.error('Error fetching status data: ', error);
