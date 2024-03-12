@@ -13,13 +13,11 @@ void handler(uint gpio, uint32_t event) {
             {
                 //Clockwise rotation increments in 1
                 data.data += 1;
-                if (data.data > 100) data.data -= 100;
             }
             else
             {
                 //Counter-clockwise rotation decrements in 1
                 data.data -= 1;
-                if (data.data < 0) data.data += 100;
             }
         }
         last_state = state; // Update last known state

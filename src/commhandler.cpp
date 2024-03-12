@@ -30,8 +30,6 @@ int CommHandler::connect_to_server(const char *hostname, int port) {
     int return_code = ipstack.connect(hostname, port);
     if (return_code != 0) {
         DPRINT("Failed TCP connect to ", hostname, ". RC: ", return_code);
-        while (true)
-            tight_loop_contents();
     } else {
         DPRINT("Connected to ", hostname, ".");
     }
@@ -216,4 +214,8 @@ void set_manual(bool man) {
 }
 int get_set_point() {
     return setpoint;
+}
+
+void set_set_point(int set_point) {
+    setpoint = set_point;
 }
