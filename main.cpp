@@ -39,6 +39,7 @@
 #define I2C1_BAUD 400000
 
 #define SEND_DELAY 5000
+#define ADJUST_DELAY 5000
 
 #define DEFAULT_HOSTNAME "192.168.1.10"
 #define DEFAULT_PORT 1883
@@ -75,7 +76,7 @@ int main()
     RotaryEncoder Rotary;
 
     // BOILERPLATE
-    shared_uart u{std::make_shared<Uart_instance>(1, 9600, UART_TX_PIN, UART_RX_PIN, 1)}; // 1 for testbox 2 for fullscale
+    shared_uart u{std::make_shared<Uart_instance>(1, 9600, UART_TX_PIN, UART_RX_PIN, 2)}; // 1 for testbox 2 for fullscale
     shared_i2c i2c{std::make_shared<I2C_instance>(i2c1, I2C1_BAUD, I2C1_SDA, I2C1_SCL)};
     shared_modbus mbctrl{std::make_shared<ModbusCtrl>(u)};
 
@@ -89,12 +90,12 @@ int main()
     // CHANGE THESE
     char ssid[64] = "SmartIotMQTT";
     char pw[64] = "SmartIot";
-    char hostname[64] = "192.168.1.10";
+    char hostname[64] = "192.168.1.195";
     int port = 1883;
     bool use_wifi = true;
     int verArray[4] = {0, 0, 0, 0};
 
-    logHandler.fetchCredentials(ssid, pw, hostname, &port,  verArray);
+    //logHandler.fetchCredentials(ssid, pw, hostname, &port,  verArray);
 
 
     std::shared_ptr<IPStack> ipstackptr;
@@ -208,7 +209,6 @@ int main()
 
             if (ipstackptr->get_success())
             {
-                DPRINT("Indeed failed\n");
                 netword_done = true;
             }
             clientptr = std::make_shared<MQTT::Client<IPStack, Countdown>>(*ipstackptr);
@@ -221,6 +221,7 @@ int main()
             {
                 netword_done = false;
             } else {
+                DPRINT("logged stuff");
                 logHandler.storeCredentials(ssid, pw, hostname, port);
             }
         }
@@ -238,6 +239,8 @@ int main()
     FAN fan(&fan_speed, &fan_counter, &pre);
 
     uint32_t send_time = 0;
+    uint32_t adjust_time = 0;
+    uint32_t new_time = 0;
     int old_set_point = get_set_point();
     int speed_val = 0;
     int pres_val = 0;
@@ -284,10 +287,15 @@ int main()
                 pres_val = 0;
             if (pres_val > 120)
                 pres_val = 120;
-            fan.adjust_speed(pres_val);
+            new_time = to_ms_since_boot(get_absolute_time());
+            if ((new_time - adjust_time) > ADJUST_DELAY) {
+                adjust_time = new_time;
+                fan.adjust_speed(pres_val);
+            }
+        
             // TODO LOG ERROR fan.get_error();
         }
-        uint32_t new_time = to_ms_since_boot(get_absolute_time());
+        new_time = to_ms_since_boot(get_absolute_time());
         if ((new_time - send_time) > SEND_DELAY)
         {
             send_time = new_time;
@@ -300,8 +308,8 @@ int main()
             // this should send mqtt message
             if (use_wifi)
             {
-                commHandlerptr->send(fan.get_speed() / 10, get_set_point(), fan.get_pressure(),
-                                     get_manual(), fan.get_error(), co.get_float(), absh.get_float(),
+                commHandlerptr->send(fan.get_speed() / 10, (mode) ? speed_val : pres_val, fan.get_pressure(),
+                                     !get_manual(), fan.get_error(), co.get_float(), absh.get_float(),
                                      rh.get_float(), temp.get_float());
             }
         }

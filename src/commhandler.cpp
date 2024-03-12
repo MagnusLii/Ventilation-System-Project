@@ -166,11 +166,11 @@ void CommHandler::send(int speed, int setpoint, int pressure, bool aut, bool err
     writer.Key("speed");
     writer.Int(speed);
     writer.Key("setpoint");
-    writer.Int(get_set_point());
+    writer.Int(setpoint);
     writer.Key("pressure");
     writer.Int(pressure);
     writer.Key("auto");
-    writer.Bool(!get_manual());
+    writer.Bool(aut);
     writer.Key("error");
     writer.Bool(error);
     writer.Key("co2");

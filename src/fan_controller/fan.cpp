@@ -55,7 +55,7 @@ void FAN::adjust_speed(int target_pressure) {
         error = true;
     }
     float adjust = distance * SPEED_MAX / PRESSURE_MAX;
-    speed += adjust / 10;
+    speed += adjust / 2;
     if (speed > SPEED_MAX) speed = SPEED_MAX;
     if (speed < SPEED_MIN) speed = SPEED_MIN;
     fan_speed_register->start_transfer((uint16_t)speed);
