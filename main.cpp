@@ -84,9 +84,9 @@ int main() {
 
 
     // CHANGE THESE
-    char *ssid = "CGA-2.4";
-    char *pw = "WSgMZtkyLrPcxuWjTJ";
-    char *hostname = "192.168.0.15";
+    char *ssid = "SmartIotMQTT";
+    char *pw = "SmartIot";
+    char *hostname = "192.168.1.10";
     int port = 1883;
 
     // TODO MENU
