@@ -194,20 +194,27 @@ int main() {
     FAN fan(&fan_speed, &fan_counter, &pre);
 
     uint32_t send_time = 0;
-
+    int old_set_point = get_set_point();
     while (1) {
         // STATUS MENU
-        mainMenu(display, button, Rotary.returnVal(), 100, 100, 100, 100, 100, 100, 100);
+        mainMenu(display, button, Rotary.returnVal(), fan.get_speed() / 10, fan.get_pressure(),
+                get_set_point(), temp.get_float(),
+                co.get_float(), rh.get_float(), absh.get_float());
         display.show();
 
         if (get_manual()) {
-            fan.set_speed(get_set_point() * 10); // target = speed in percentage
+            if (old_set_point != get_set_point()) {
+                Rotary.setVal(get_set_point());
+                old_set_point = get_set_point();
+            }
+            fan.set_speed(Rotary.returnVal() * 10); // target = speed in percentage
         } else {
             fan.adjust_speed(get_set_point());
             // TODO LOG ERROR fan.get_error();
         }
-
-        if (send_time - to_ms_since_boot(get_absolute_time()) > SEND_DELAY) {
+        uint32_t new_time = to_ms_since_boot(get_absolute_time());
+        if ((new_time - send_time) > SEND_DELAY) {
+            send_time = new_time;
             rh.start_transfer();
             absh.start_transfer();
             co.start_transfer();

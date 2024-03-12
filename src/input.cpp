@@ -60,3 +60,7 @@ int Button::returnPin() {
 void Button::setState() {
     data.buttonPressed = false;
 }
+
+void RotaryEncoder::setVal(int val) {
+    data.data = val;
+}

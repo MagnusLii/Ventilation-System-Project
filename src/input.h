@@ -7,6 +7,7 @@ class RotaryEncoder {
 public:
     RotaryEncoder();
     int returnVal();
+    void setVal(int val);
 private:
     GpioPin Rot_A;
     GpioPin Rot_B;
