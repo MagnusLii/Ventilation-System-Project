@@ -74,8 +74,8 @@ class LogHandler {
         void enterLogToEeprom(uint8_t *base8Array, int *arrayLen, const int logAddr);
         void createLogArray(uint8_t *array, int messageCode, uint32_t timestamp);
         void setCommHandler(std::shared_ptr<CommHandler> commHandler);
-        void storeCredentials(std::string ssid, std::string password, std::string hostname, std::string port);
-        void fetchCredentials(std::string *ssid, std::string *password, std::string *hostname, std::string *port, int *arr);
+        void storeCredentials(const char* ssid, const char* password, const char* hostname, const int port);
+        void fetchCredentials(char *ssid, char *password, char *hostname, int *port, int *arr);
 
     private:
         std::shared_ptr<CommHandler> commHandler;
