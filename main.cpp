@@ -60,7 +60,7 @@ int main() {
     stdio_init_all();
 
     // BOILERPLATE
-    shared_uart u{std::make_shared<Uart_instance>(1, 9600, UART_TX_PIN, UART_RX_PIN)};
+    shared_uart u{std::make_shared<Uart_instance>(1, 9600, UART_TX_PIN, UART_RX_PIN, 1)}; //1 for testbox 2 for fullscale
     shared_i2c i2c{std::make_shared<I2C_instance>(i2c1, I2C1_BAUD, I2C1_SDA, I2C1_SCL)};
     shared_modbus mbctrl{std::make_shared<ModbusCtrl>(u)};
 
@@ -72,10 +72,10 @@ int main() {
 
 
     // CHANGE THESE
-    char *ssid = "CGA-2.4";
-    char *pw = "WSgMZtkyLrPcxuWjTJ";
-    char *hostname = "192.168.0.15";
-    int port = 1883;
+    const char *ssid = "SmartIotMQTT";
+    const char *pw = "SmartIot";
+    const char *hostname = "192.168.1.10";
+    const int port = 1883;
 
     // TODO MENU
     // WIFI MENU
@@ -101,7 +101,6 @@ int main() {
     PressureRegister pre(i2c, 64);
     FAN fan(&fan_speed, &fan_counter, &pre);
 
-    fan.set_speed(500);
 
     while (1) {
         // STATUS MENU
