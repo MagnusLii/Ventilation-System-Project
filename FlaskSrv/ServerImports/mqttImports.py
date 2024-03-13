@@ -4,7 +4,7 @@ from ServerImports import logHandler
 
 mqttBrokerPort = 1883 # 1883 is default
 mqttKeepAliveSec = 10
-mqttBrokerIP = '192.168.1.195'  # Replace with broker IP if not running locally.
+mqttBrokerIP = 'localhost'  # Replace with broker IP if not running locally.
 mqttQoSLevel = 1 # TODO: verify what level the rest of the system uses and update if needed
 
 mqtt = Mqtt()

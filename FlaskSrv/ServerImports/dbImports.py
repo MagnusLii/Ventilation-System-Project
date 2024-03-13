@@ -6,6 +6,8 @@ from ServerImports import ventrilator
 
 db = SQLAlchemy()
 
+lastStatus = True
+
 class Readings(db.Model):
     __tablename__ = 'readings'
     index = db.Column(db.BIGINT, primary_key=True, autoincrement=True, unique=True, nullable=False)
@@ -150,6 +152,7 @@ def push_reading(app, json_data):
             )
             db.session.add(reading)
             db.session.commit()
+            lastStatus = json_data['error']
             return
     except Exception as errorMsg:
         logHandler.log(f'push_reading(): {str(errorMsg)}')
@@ -311,7 +314,8 @@ def get_latest_reading(app):
                 'ah': readings.ah,
                 'rh': readings.rh,
                 'temp': readings.temp,
-                'timestamp': readings.timestamp
+                'timestamp': readings.timestamp,
+                'error': lastStatus
             })
             return json, 200
     except Exception as errorMsg:
