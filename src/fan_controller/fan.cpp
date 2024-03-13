@@ -10,7 +10,7 @@
 #define SPEED_MIN 0
 #define SPEED_MAX 1000
 
-#define ERROR_DELAY 5000
+#define ERROR_DELAY 30000
 
 
 FAN::FAN(WriteRegister *fan_speed_reg, ReadRegister *fan_counter_reg, PressureRegister *pressure, int speed) :
