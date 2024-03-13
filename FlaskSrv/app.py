@@ -11,7 +11,6 @@ from flask_cors import CORS
 import threading
 import time
 
-# Flask app setup.
 app = Flask(__name__)
 CORS(app)
 

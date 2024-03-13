@@ -88,12 +88,12 @@ int main()
     // logHandler.pushLog(BOOT);
 
     // CHANGE THESE
-    char ssid[64] = "SmartIotMQTT";
-    char pw[64] = "SmartIot";
-    char hostname[64] = "192.168.1.195";
-    int port = 1883;
+    char ssid[64] = DEFAULT_SSID;
+    char pw[64] = DEFAULT_PW;
+    char hostname[64] = DEFAULT_HOSTNAME;
+    int port = DEFAULT_PORT;
     bool use_wifi = true;
-    int verArray[4] = {0, 0, 0, 0};
+    //int verArray[4] = {0, 0, 0, 0};
 
     //logHandler.fetchCredentials(ssid, pw, hostname, &port,  verArray);
 
