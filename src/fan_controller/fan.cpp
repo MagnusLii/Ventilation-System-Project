@@ -38,6 +38,7 @@ bool FAN::is_spinning() {
 }
 
 void FAN::set_speed(uint16_t speed) {
+    error = false;
     this->speed = speed;
     fan_speed_register->start_transfer(speed);
 }
