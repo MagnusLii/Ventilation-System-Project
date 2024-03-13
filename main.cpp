@@ -228,7 +228,7 @@ int main()
         // TODO log successful jotain
     }
 
-    ReadRegister rh(mbctrl, 241, 256);
+    ReadRegister rh(mbctrl, 241, 0, 2);
     ReadRegister absh(mbctrl, 241, 0xe, 2);
     ReadRegister temp(mbctrl, 240, 4, 2);
     ReadRegister co(mbctrl, 240, 0, 2);

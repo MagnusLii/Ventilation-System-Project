@@ -138,13 +138,13 @@ void mainMenu(ssd1306 &display, Button &button, int *mode, int pos, int fan_spee
 
     if (display_mode == 0) {
         display.fill(0);
-        sniprintf(output_string, sizeof(output_string), "temp: %d", (int)temp);
+        snprintf(output_string, sizeof(output_string), "temp: %d", (int)temp);
         display.text(output_string, 2, 10, 1);
-        sniprintf(output_string, sizeof(output_string), "co2: %d", (int)co2);
+        snprintf(output_string, sizeof(output_string), "co2: %d", (int)co2);
         display.text(output_string, 2, 20, 1);
-        sniprintf(output_string, sizeof(output_string), "rh: %d", (int)rh);
+        snprintf(output_string, sizeof(output_string), "rh: %d", (int)rh);
         display.text(output_string, 2, 30, 1);
-        sniprintf(output_string, sizeof(output_string), "ah: %d", (int)ah);
+        snprintf(output_string, sizeof(output_string), "ah: %d", (int)ah);
         display.text(output_string, 2, 40, 1);
         //display_mode = 1;
     } else if(display_mode == 1) {
