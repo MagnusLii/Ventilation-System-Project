@@ -1,5 +1,39 @@
 #include "input.h"
 
+#define N_IRQ_TRIGGERS 4
+#define IRQ_MASK_MAX 8
+
+static uint32_t time = 0;
+static uint32_t delay = 100;
+static gpio_irq_callback_t callbackptr = NULL;
+
+/**
+ * Checks for a time delay since the last recorded time and updates it if the delay condition is met.
+ *
+ * @param time Pointer to the time value to be checked and updated.
+ * @return true if the delay condition is met, otherwise false.
+ */
+bool debounce(uint32_t *time) {
+    uint32_t current_time = to_ms_since_boot(get_absolute_time()); // Get current time in milliseconds
+    if (current_time - *time > delay) { // Check if the delay condition is met
+        *time = current_time; // Update the time value to the current time
+        return true; // Return true indicating the delay condition is met
+    }
+    return false; // Return false indicating the delay condition is not yet met
+}
+
+/**
+ * Callback function with debounce mechanism to prevent rapid triggering.
+ *
+ * @param gpio GPIO identifier.
+ * @param mask Mask value.
+ */
+void callback_with_debounce(uint gpio, uint32_t mask) {
+    if (debounce(&time)) { // Check for debounce delay
+        callbackptr(gpio, mask); // Call the actual callback function
+    }
+}
+
 void handler(uint gpio, uint32_t event) {
     int adjustment = 0;
     if (gpio == 10 || gpio == 11) {
@@ -38,11 +72,13 @@ RotaryEncoder::RotaryEncoder()
 {
     gpio_set_irq_enabled_with_callback(Rot_A.getPinNumber(), GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true, handler);
     gpio_set_irq_enabled_with_callback(Rot_B.getPinNumber(), GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true, handler);
-    gpio_set_irq_enabled_with_callback(Rot_SW.getPinNumber(), GPIO_IRQ_EDGE_RISE, true, handler);
+    callbackptr = handler;
+    gpio_set_irq_enabled_with_callback(Rot_SW.getPinNumber(), GPIO_IRQ_EDGE_FALL, true, callback_with_debounce);
 }
 
 
 Button::Button(int pin0) : pin(pin0) {
+    callbackptr = handler;
     GpioPin(pin, false, true);
-    gpio_set_irq_enabled_with_callback(pin, GPIO_IRQ_EDGE_RISE, true, handler);
+    gpio_set_irq_enabled_with_callback(pin, GPIO_IRQ_EDGE_FALL, true, callback_with_debounce);
 }

@@ -50,7 +50,7 @@
 #define EEPROM_BAUD_RATE 1000000
 #define EEPROM_WRITE_CYCLE_MAX_MS 5
 
-queue_t events;
+ queue_t events;
 
 int main()
 {
@@ -86,18 +86,19 @@ int main()
 
     //logHandler.fetchCredentials(ssid, pw, hostname, &port,  verArray);
 
-
+    int event_result;
+    int rotvalue = 0;
+    int button_pressed = 0;
     std::shared_ptr<IPStack> ipstackptr;
     std::shared_ptr<CommHandler> commHandlerptr;
     std::shared_ptr<MQTT::Client<IPStack, Countdown>> clientptr;
     bool netword_done = false;
+    queue_init(&events, sizeof(int), 50);
     while (!netword_done)
     {
         bool done = false;
-        int stage = 0, rotvalue = 0, button_pressed = 0;
+        int stage = 0;
         char input[64];
-
-        int event_result;
 
         while (!done)
         {
@@ -110,32 +111,32 @@ int main()
             {
                 textInput(display, button_pressed, rotvalue, stage);
                 display.show();
+
                 if (button_pressed == 7)
                 {
-                    button_pressed = 0;
                     returnInput(input);
-                    if (sizeof(input) == 0)
+                    if (strlen(input) == 0)
                     {
-                        stage = 0;
+                        stage--;
+                        if (stage < 0) stage = 0;
                     }
                 }
                 else if (button_pressed == 12)
                 {
-                    button_pressed = 0;
                     if (stage < 6 && stage >= 1)
                     {
                         switch (stage)
                         {
-                        case 2:
+                        case 1:
                             returnInput(ssid);
                             break;
-                        case 3:
+                        case 2:
                             returnInput(pw);
                             break;
-                        case 4:
+                        case 3:
                             returnInput(hostname);
                             break;
-                        case 5:
+                        case 4:
                             char input_port[64];
                             returnInput(input_port);
                             port = std::stoi(input_port);
@@ -152,7 +153,6 @@ int main()
 
             if (button_pressed == 9 && stage == 0)
             {
-                button_pressed = 0;
                 switch (rotvalue)
                 {
                 case 1:
@@ -170,11 +170,10 @@ int main()
                     done = true;
                     break;
                 default:
-                    rotvalue = 1;
                     break;
                 }
             }
-
+            button_pressed = 0;
             if(queue_try_remove(&events, &event_result) == true)
             {
                 if (event_result > 1000) {
@@ -230,8 +229,6 @@ int main()
     int pressure_val = 0;
 
     int button_presssed = 0;
-    int event_result;
-    int rotvalue = 0;
     while (1)
     {
         // STATUS MENU
@@ -296,9 +293,9 @@ int main()
                 button_presssed = event_result - 1000;
             }
 
-            if (get_manual() && event_result < 10) {
+            if (get_manual() && event_result < 1000) {
                 fan_speed_val += event_result;
-            } else if(!get_manual() && event_result < 10){
+            } else if(!get_manual() && event_result < 1000){
                 pressure_val += event_result;
             }
 

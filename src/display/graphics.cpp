@@ -46,16 +46,16 @@ void returnInput(char *str) {
 void textInput(ssd1306 &display, int button, int current_position, int stage) {
     std::string text;
     switch (stage) {
-    case 2:
+    case 1:
         text = "SSID:";
         break;
-    case 3:
+    case 2:
         text = "PASSWORD:";
         break;
-    case 4:
+    case 3:
         text = "HOST:";
         break;
-    case 5:
+    case 4:
         current_Array = 3;
         text = "PORT:";
         break;
@@ -156,6 +156,7 @@ void mainMenu(ssd1306 &display, int button, int *mode, int pos, int fan_speed, i
         if (button == 9) {
             *mode = !*mode;
         }
+
             if (*mode == 1)
             {
                 display.fill(0);
