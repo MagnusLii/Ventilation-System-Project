@@ -16,7 +16,8 @@
 #include "hardware/timer.h"
 #include "pico/time.h"
 #include "commhandler.h"
-#include <stdlib.h>
+#include "pico/util/queue.h"
+#include <queue>
 
 #include "rapidjson.h"
 #include "document.h"
@@ -65,6 +66,8 @@ bool user_input(char *dst, int size) {
 #define EEPROM_BAUD_RATE 1000000
 #define EEPROM_WRITE_CYCLE_MAX_MS 5
 
+queue_t events;
+
 int main()
 {
     stdio_init_all();
@@ -74,6 +77,8 @@ int main()
     Button button1(8);
     Button button2(9);
     RotaryEncoder Rotary;
+
+
 
     // BOILERPLATE
     shared_uart u{std::make_shared<Uart_instance>(1, 9600, UART_TX_PIN, UART_RX_PIN, 2)}; // 1 for testbox 2 for fullscale
@@ -104,80 +109,68 @@ int main()
     bool netword_done = false;
     while (!netword_done)
     {
-
-        // TODO MENU
-        // WIFI MENU
-        // TEXT MENU
         bool done = false;
-        int stage = 0, ssid_stage = 0, rotvalue = 0;
+        int stage = 0, rotvalue = 0, button_pressed = 0;
         char input[64];
         int i = 10000;
         int prevval = 0;
-        while (done == false)
+
+        int event_result;
+
+        while (!done)
         {
             if (stage == 0)
             {
-                rotvalue = Rotary.returnVal() % 6;
                 startMenu(display, rotvalue);
                 display.show();
             }
-            else if (stage == 1)
+            else if (stage >= 1)
             {
-                if (prevval < Rotary.returnVal())
-                {
-                    i++;
-                }
-                else if (prevval > Rotary.returnVal())
-                {
-                    i--;
-                }
-                prevval = Rotary.returnVal();
-                textInput(display, button, i, ssid_stage);
+                textInput(display, button_pressed, rotvalue, stage);
                 display.show();
-
-                if (button.returnPin() == 7 && button.returnState() == true)
+                if (button_pressed == 7)
                 {
-                    button.setState();
+                    button_pressed = 0;
                     returnInput(input);
-                    if (strlen(input) == 0)
+                    if (sizeof(input) == 0)
                     {
                         stage = 0;
                     }
                 }
-                else if (button.returnPin() == 12 && button.returnState() == true)
+                else if (button_pressed == 12)
                 {
-                    button.setState();
-                    if (ssid_stage < 4)
+                    button_pressed = 0;
+                    if (stage < 6 && stage > 1)
                     {
-                        switch (ssid_stage)
+                        switch (stage)
                         {
-                        case 0:
+                        case 2:
                             returnInput(ssid);
                             break;
-                        case 1:
+                        case 3:
                             returnInput(pw);
                             break;
-                        case 2:
+                        case 4:
                             returnInput(hostname);
                             break;
-                        case 3:
-                            char aaa[64];
-                            returnInput(aaa);
-                            port = std::stoi(aaa);
+                        case 5:
+                            char input_port[64];
+                            returnInput(input_port);
+                            port = std::stoi(input_port);
                             break;
                         default:
                             break;
                         }
-                        ssid_stage++;
+                        stage++;
                     }
                     else
                         done = true;
                 }
             }
 
-            if (button.returnPin() == 9 && button.returnState() == true && stage == 0)
+            if (button_pressed == 9 && stage == 0)
             {
-                button.setState();
+                button_pressed = 0;
                 switch (rotvalue)
                 {
                 case 0: // select ssid, pw, hostname and port
@@ -200,6 +193,18 @@ int main()
                 default:
                     rotvalue = 0;
                     break;
+                }
+            }
+
+            if(queue_try_remove(&events, &event_result) == true)
+            {
+                if (event_result > 1000) {
+                    button_pressed = event_result - 1000;
+                } else rotvalue += event_result;
+
+                if (stage == 0) {
+                    if (rotvalue < 1) rotvalue = 3;
+                    else if (rotvalue > 3) rotvalue = 1;
                 }
             }
         }

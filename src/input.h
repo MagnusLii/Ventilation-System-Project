@@ -2,6 +2,9 @@
 
 #include "pico/stdlib.h"
 #include "pin.h"
+#include "pico/util/queue.h"
+
+extern queue_t events;
 
 class RotaryEncoder {
 public:

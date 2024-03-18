@@ -5,22 +5,21 @@
 
 void startMenu(ssd1306 &display, int pos) {
     display.fill(0);
-    if (pos == 0 || pos == 1) {
+    if (pos == 1) {
         display.rect(9, 5, 110, 14, 1, true);
         display.text("SELECT SSID", 12, 8, 0);
     } else {
         display.rect(9, 5, 110, 14, 1);
         display.text("SELECT SSID", 12, 8, 1);
     }
-
-    if (pos == 2 || pos == 3) {
+    if (pos == 2) {
         display.rect(9, 25, 110, 14, 1, true);
         display.text("USE PREVIOUS", 12, 28, 0);
     } else {
         display.rect(9, 25, 110, 14, 1);
         display.text("USE PREVIOUS", 12, 28, 1);
     }
-    if ((pos == 4 || pos == 5)) {
+    if ((pos == 3)) {
         display.rect(9, 45, 110, 14, 1, true);
         display.text("NO WIFI", 12, 48, 0);
     } else {
@@ -45,21 +44,21 @@ void returnInput(char *str) {
     memset(input_string, '\0', sizeof(input_string));
 }
 
-void textInput(ssd1306 &display, Button &button, int current_position, int stage) {
-    std::string toxt;
+void textInput(ssd1306 &display, int button, int current_position, int stage) {
+    std::string text;
     switch (stage) {
-    case 0:
-        toxt = "SSID:";
-        break;
-    case 1:
-        toxt = "PASSWORD:";
-        break;
     case 2:
-        toxt = "HOST:";
+        text = "SSID:";
         break;
     case 3:
+        text = "PASSWORD:";
+        break;
+    case 4:
+        text = "HOST:";
+        break;
+    case 5:
         current_Array = 3;
-        toxt = "PORT:";
+        text = "PORT:";
         break;
     default:
         break;
@@ -84,9 +83,8 @@ void textInput(ssd1306 &display, Button &button, int current_position, int stage
     int pos = current_position % arr_length;
     int input_len = strlen(input_string);
 
-    if (button.returnState()) { //do stuff when a defined button is pressed
-        button.setState();
-        switch (button.returnPin()) {
+    if (button > 0) { //do stuff when a defined button is pressed
+        switch (button) {
             case 9: // switch between the character arrays
                 current_Array++;
                 if (current_Array > 3) current_Array = 0;
@@ -99,10 +97,12 @@ void textInput(ssd1306 &display, Button &button, int current_position, int stage
                 break;
             case 7: // delete characters from input string
                 if (input_len > 0) input_string[input_len - 1] = '\0';
+            default:
+                break;
         }
     }
     display.fill(0);
-    display.text(toxt, 0, 0, 1);
+    display.text(text, 0, 0, 1);
     display.rect(112, 4, 14, 56, 1);
     display.rect(0, 22, 110, 14, 1);
     display.text(input_string, 108 - (input_len * 8), 26);
@@ -123,15 +123,16 @@ void textInput(ssd1306 &display, Button &button, int current_position, int stage
         c[0] = arrays[current_Array][pos + 1];
     }
     display.text(c, 114, 42, 1);
+
+
 }
 
 int display_mode = 1;
-void mainMenu(ssd1306 &display, Button &button, int *mode, int pos, int fan_speed, int pressure, int target_pressure, float temp, float co2, float rh, float ah) {
+void mainMenu(ssd1306 &display, int button, int *mode, int pos, int fan_speed, int pressure, int target_pressure, float temp, float co2, float rh, float ah) {
     char output_string[30];
 
     //temp, c02, rh, ah
-    if (button.returnState() && button.returnPin() == 8) {
-        button.setState();
+    if (button == 8) {
         if (display_mode == 0) display_mode = 1;
         else display_mode = 0;
     }
@@ -150,12 +151,9 @@ void mainMenu(ssd1306 &display, Button &button, int *mode, int pos, int fan_spee
     } else if(display_mode == 1) {
 
         //change between manual and auto mode
-        if (button.returnState() && button.returnPin() == 9) {
-            button.setState();
+        if (button == 9) {
             *mode = !*mode;
         }
-
-
             if (*mode == 1)
             {
                 display.fill(0);
