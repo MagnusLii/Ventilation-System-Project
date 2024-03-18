@@ -1,6 +1,5 @@
 #include "ssd1306.h"
 #include "graphics.h"
-#include "input.h"
 #include "string.h"
 
 void startMenu(ssd1306 &display, int pos) {
@@ -78,6 +77,9 @@ void textInput(ssd1306 &display, int button, int current_position, int stage) {
             break;
         case 3:
             arr_length = sizeof(numbers);
+            break;
+        default:
+            arr_length = sizeof(alphabetsCap);
             break;
     }
     int pos = current_position % arr_length;
@@ -170,7 +172,7 @@ void mainMenu(ssd1306 &display, int button, int *mode, int pos, int fan_speed, i
             }
 
         if (*mode == 1) {
-            sniprintf(output_string, sizeof(output_string), "fanspeed: %d", fan_speed);
+            sniprintf(output_string, sizeof(output_string), "fan speed: %d %", fan_speed);
             display.text(output_string, 4, 30, 1);
         } else {
             sniprintf(output_string, sizeof(output_string), "pressure: %d", pressure);

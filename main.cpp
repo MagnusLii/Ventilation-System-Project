@@ -47,22 +47,6 @@
 #define DEFAULT_SSID "SmartIotMQTT"
 #define DEFAULT_PW "SmartIot"
 
-
-bool user_input(char *dst, int size) {
-    if (uart_is_readable(uart0)) {
-        char c = 0;
-        int i = 0;
-        while (c != '\n' && i < size)
-        {
-            c = fgetc(stdin);
-            dst[i] = c;
-            i++;
-        }
-        dst[--i] = '\0';
-        return true;
-    }
-    return false;
-}
 #define EEPROM_BAUD_RATE 1000000
 #define EEPROM_WRITE_CYCLE_MAX_MS 5
 
@@ -112,8 +96,6 @@ int main()
         bool done = false;
         int stage = 0, rotvalue = 0, button_pressed = 0;
         char input[64];
-        int i = 10000;
-        int prevval = 0;
 
         int event_result;
 
@@ -140,7 +122,7 @@ int main()
                 else if (button_pressed == 12)
                 {
                     button_pressed = 0;
-                    if (stage < 6 && stage > 1)
+                    if (stage < 6 && stage >= 1)
                     {
                         switch (stage)
                         {
@@ -173,17 +155,14 @@ int main()
                 button_pressed = 0;
                 switch (rotvalue)
                 {
-                case 0: // select ssid, pw, hostname and port
                 case 1:
                     stage = 1;
                     break;
-                case 2: // use previous settings
-                case 3:
+                case 2:
                     // use previous settings and proceed
                     done = true;
                     break;
-                case 4: // proceed with no wifi??
-                case 5:
+                case 3: // proceed with no wifi?
                     // possibly just go straight to mainMenu??
                     // disable wifi or something i dont really know
                     use_wifi = false;
@@ -191,7 +170,7 @@ int main()
                     done = true;
                     break;
                 default:
-                    rotvalue = 0;
+                    rotvalue = 1;
                     break;
                 }
             }
@@ -247,55 +226,43 @@ int main()
     uint32_t adjust_time = 0;
     uint32_t new_time = 0;
     int old_set_point = get_set_point();
-    int speed_val = 0;
-    int pres_val = 0;
-    int prevval = 0;
+    int fan_speed_val = 0;
+    int pressure_val = 0;
+
+    int button_presssed = 0;
+    int event_result;
+    int rotvalue = 0;
     while (1)
     {
         // STATUS MENU
         int mode = (int)get_manual();
-        mainMenu(display, button, &mode, Rotary.returnVal(), fan.get_speed() / 10, fan.get_pressure(),
-                 pres_val, temp.get_float(),
+        mainMenu(display, button_presssed, &mode, rotvalue, fan.get_speed() / 10, fan.get_pressure(),
+                 pressure_val, temp.get_float(),
                  co.get_float(), rh.get_float(), absh.get_float());
         display.show();
+        button_presssed = 0;
         set_manual(mode);
 
         if (get_manual())
         {
-            if (prevval < Rotary.returnVal())
-                speed_val++;
-            if (prevval > Rotary.returnVal())
-                speed_val--;
-            prevval = Rotary.returnVal();
             if (get_set_point() != old_set_point)
             {
                 old_set_point = get_set_point();
-                speed_val = get_set_point();
+                fan_speed_val = get_set_point();
             }
-            if (speed_val < 0)
-                speed_val = 0;
-            if (speed_val > 100)
-                speed_val = 100;
-            fan.set_speed(speed_val * 10); // target = speed in percentage
+            fan.set_speed(fan_speed_val * 10); // target = speed in percentage
         }
         else
         {
-            if (prevval < Rotary.returnVal()) pres_val++;
-            if (prevval > Rotary.returnVal()) pres_val--;
-            prevval = Rotary.returnVal();
             if (get_set_point() != old_set_point)
             {
                 old_set_point = get_set_point();
-                pres_val = get_set_point();
+                pressure_val = get_set_point();
             }
-            if (pres_val < 0)
-                pres_val = 0;
-            if (pres_val > 120)
-                pres_val = 120;
             new_time = to_ms_since_boot(get_absolute_time());
             if ((new_time - adjust_time) > ADJUST_DELAY) {
                 adjust_time = new_time;
-                fan.adjust_speed(pres_val);
+                fan.adjust_speed(pressure_val);
             }
         
             // TODO LOG ERROR fan.get_error();
@@ -313,7 +280,7 @@ int main()
             // this should send mqtt message
             if (use_wifi)
             {
-                commHandlerptr->send(fan.get_speed() / 10, (mode) ? speed_val : pres_val, fan.get_pressure(),
+                commHandlerptr->send(fan.get_speed() / 10, (mode) ? fan_speed_val : pressure_val, fan.get_pressure(),
                                      !get_manual(), fan.get_error(), co.get_float(), absh.get_float(),
                                      rh.get_float(), temp.get_float());
             }
@@ -321,6 +288,25 @@ int main()
         if (use_wifi)
         {
             clientptr->yield(100);
+        }
+
+        if(queue_try_remove(&events, &event_result) == true)
+        {
+            if (event_result > 1000) {
+                button_presssed = event_result - 1000;
+            }
+
+            if (get_manual() && event_result < 10) {
+                fan_speed_val += event_result;
+            } else if(!get_manual() && event_result < 10){
+                pressure_val += event_result;
+            }
+
+            if (fan_speed_val < 0) fan_speed_val = 0;
+            if (fan_speed_val > 100) fan_speed_val = 100;
+
+            if (pressure_val < 0) pressure_val = 0;
+            if (pressure_val > 120) pressure_val = 120;
         }
     }
 }

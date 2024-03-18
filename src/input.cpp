@@ -1,7 +1,5 @@
 #include "input.h"
 
-//DataPass data;
-
 void handler(uint gpio, uint32_t event) {
     int adjustment = 0;
     if (gpio == 10 || gpio == 11) {
@@ -32,27 +30,19 @@ void handler(uint gpio, uint32_t event) {
     }
 }
 
-/*int RotaryEncoder::returnVal() {
-    return data.data;
-}*/
+
+RotaryEncoder::RotaryEncoder()
+        : Rot_A(10, false, false)
+        , Rot_B(11, false, false)
+        , Rot_SW(12, false, true)
+{
+    gpio_set_irq_enabled_with_callback(Rot_A.getPinNumber(), GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true, handler);
+    gpio_set_irq_enabled_with_callback(Rot_B.getPinNumber(), GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true, handler);
+    gpio_set_irq_enabled_with_callback(Rot_SW.getPinNumber(), GPIO_IRQ_EDGE_RISE, true, handler);
+}
+
 
 Button::Button(int pin0) : pin(pin0) {
     GpioPin(pin, false, true);
-    gpio_set_irq_enabled_with_callback(pin, GPIO_IRQ_EDGE_FALL, true, handler);
+    gpio_set_irq_enabled_with_callback(pin, GPIO_IRQ_EDGE_RISE, true, handler);
 }
-
-/*bool Button::returnState() {
-    return data.buttonPressed;
-}
-
-/*int Button::returnPin() {
-    return data.ButtonPin;
-}
-
-/*void Button::setState() {
-    data.buttonPressed = false;
-}
-
-void RotaryEncoder::setVal(int val) {
-    data.data = val;
-}*/
