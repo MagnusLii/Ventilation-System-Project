@@ -15,6 +15,7 @@ class Readings(db.Model):
     setpoint = db.Column(db.INT)
     auto = db.Column(db.Boolean)
     pressure = db.Column(db.INT)
+    error = db.Column(db.Boolean)
     co2 = db.Column(db.INT)
     ah = db.Column(db.INT)
     rh = db.Column(db.INT)
@@ -62,6 +63,7 @@ def get_all_readings(app):
                 'pressure': reading.pressure,
                 'co2': reading.co2,
                 'ah': reading.ah,
+                'error': reading.error,
                 'rh': reading.rh,
                 'temp': reading.temp,
                 'timestamp': reading.timestamp
@@ -106,6 +108,7 @@ def get_readings_since_timestamp(app, timestamp):
                 'pressure': reading.pressure,
                 'co2': reading.co2,
                 'ah': reading.ah,
+                'error': reading.error,
                 'rh': reading.rh,
                 'temp': reading.temp,
                 'timestamp': reading.timestamp
@@ -146,6 +149,7 @@ def push_reading(app, json_data):
                 setpoint=json_data['setpoint'],
                 co2=json_data['co2'],
                 ah=json_data['ah'],
+                error=json_data['error'],
                 rh=json_data['rh'],
                 temp=json_data['temp'],
                 timestamp=datetime.now()
@@ -312,6 +316,7 @@ def get_latest_reading(app):
                 'pressure': readings.pressure,
                 'co2': readings.co2,
                 'ah': readings.ah,
+                'error': readings.error,
                 'rh': readings.rh,
                 'temp': readings.temp,
                 'timestamp': readings.timestamp,
