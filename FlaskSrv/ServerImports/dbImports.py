@@ -95,8 +95,8 @@ def get_readings_since_timestamp(app, timestamp):
     Raises:
         - 500: If an error occurs while retrieving readings from the database.
     """
-    try:
-        with app.app_context():
+    with app.app_context():
+        try:
             readings = Readings.query.filter(Readings.timestamp >= timestamp).order_by(Readings.index.desc()).all()
             json = jsonify([{
                 'index': reading.index,
@@ -111,9 +111,9 @@ def get_readings_since_timestamp(app, timestamp):
                 'timestamp': reading.timestamp
             } for reading in readings])
             return json, 200
-    except Exception as errorMsg:
-        logHandler.log(f'get_reading_since_timestamp(): {str(errorMsg)}')
-        return jsonify({'error': 'Failed to retrieve readings from the database.'}), 500
+        except Exception as errorMsg:
+            logHandler.log(f'get_reading_since_timestamp(): {str(errorMsg)}')
+            return jsonify({'error': 'Failed to retrieve readings from the database.'}), 500
 
 
 def push_reading(app, json_data):

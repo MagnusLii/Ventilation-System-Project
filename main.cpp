@@ -42,10 +42,10 @@
 #define SEND_DELAY 5000
 #define ADJUST_DELAY 5000
 
-#define DEFAULT_HOSTNAME "192.168.1.10"
+#define DEFAULT_HOSTNAME "192.168.100.13"
 #define DEFAULT_PORT 1883
-#define DEFAULT_SSID "SmartIotMQTT"
-#define DEFAULT_PW "SmartIot"
+#define DEFAULT_SSID "Elisa_Mobi_6863"
+#define DEFAULT_PW ""
 
 #define EEPROM_BAUD_RATE 1000000
 #define EEPROM_WRITE_CYCLE_MAX_MS 5
@@ -65,7 +65,7 @@ int main()
 
 
     // BOILERPLATE
-    shared_uart u{std::make_shared<Uart_instance>(1, 9600, UART_TX_PIN, UART_RX_PIN, 2)}; // 1 for testbox 2 for fullscale
+    shared_uart u{std::make_shared<Uart_instance>(1, 9600, UART_TX_PIN, UART_RX_PIN, 1)}; // 1 for testbox 2 for fullscale
     shared_i2c i2c{std::make_shared<I2C_instance>(i2c1, I2C1_BAUD, I2C1_SDA, I2C1_SCL)};
     shared_modbus mbctrl{std::make_shared<ModbusCtrl>(u)};
 
@@ -228,16 +228,14 @@ int main()
     int fan_speed_val = 0;
     int pressure_val = 0;
 
-    int button_presssed = 0;
     while (1)
     {
         // STATUS MENU
         int mode = (int)get_manual();
-        mainMenu(display, button_presssed, &mode, rotvalue, fan.get_speed() / 10, fan.get_pressure(),
+        mainMenu(display, button_pressed, &mode, rotvalue, fan.get_speed() / 10, fan.get_pressure(),
                  pressure_val, temp.get_float(),
                  co.get_float(), rh.get_float(), absh.get_float());
         display.show();
-        button_presssed = 0;
         set_manual(mode);
 
         if (get_manual())
@@ -286,11 +284,11 @@ int main()
         {
             clientptr->yield(100);
         }
-
-        if(queue_try_remove(&events, &event_result) == true)
+        button_pressed = 0;
+        if(queue_try_remove(&events, &event_result))
         {
             if (event_result > 1000) {
-                button_presssed = event_result - 1000;
+                button_pressed = event_result - 1000;
             }
 
             if (get_manual() && event_result < 1000) {
