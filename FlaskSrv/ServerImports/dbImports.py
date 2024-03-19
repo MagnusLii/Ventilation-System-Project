@@ -51,25 +51,25 @@ def get_all_readings(app):
     Raises:
         - 500: If an error occurs while retrieving readings from the database.
     """
-    try:
-        with app.app_context():
-            readings = Readings.query.order_by(Readings.index.desc()).all()
-            json = jsonify([{
-                'index': reading.index,
-                'speed': reading.speed,
-                'auto': reading.auto,
-                'setpoint': reading.setpoint,
-                'pressure': reading.pressure,
-                'co2': reading.co2,
-                'ah': reading.ah,
-                'rh': reading.rh,
-                'temp': reading.temp,
-                'timestamp': reading.timestamp
-            } for reading in readings])
-            return json, 200
-    except Exception as errorMsg:
-        logHandler.log(f'get_all_readings(): {str(errorMsg)}')
-        return jsonify({'error': 'Failed to retrieve readings from the database.'}), 500
+    with app.app_context():
+        try:
+                readings = Readings.query.order_by(Readings.index.desc()).all()
+                json = jsonify([{
+                    'index': reading.index,
+                    'speed': reading.speed,
+                    'auto': reading.auto,
+                    'setpoint': reading.setpoint,
+                    'pressure': reading.pressure,
+                    'co2': reading.co2,
+                    'ah': reading.ah,
+                    'rh': reading.rh,
+                    'temp': reading.temp,
+                    'timestamp': reading.timestamp
+                } for reading in readings])
+                return json, 200
+        except Exception as errorMsg:
+            logHandler.log(f'get_all_readings(): {str(errorMsg)}')
+            return jsonify({'error': 'Failed to retrieve readings from the database.'}), 500
 
 
 def get_readings_since_timestamp(app, timestamp):
@@ -137,26 +137,27 @@ def push_reading(app, json_data):
     Raises:
         - 500: If an error occurs while pushing the reading into the database.
     """
-    try:
-        with app.app_context():
-            reading = Readings(
-                speed=json_data['speed'],
-                pressure=json_data['pressure'],
-                auto=json_data['auto'],
-                setpoint=json_data['setpoint'],
-                co2=json_data['co2'],
-                ah=json_data['ah'],
-                rh=json_data['rh'],
-                temp=json_data['temp'],
-                timestamp=datetime.now()
-            )
-            db.session.add(reading)
-            db.session.commit()
-            lastStatus = json_data['error']
-            return
-    except Exception as errorMsg:
-        logHandler.log(f'push_reading(): {str(errorMsg)}')
-        return jsonify({'error': 'Failed to push the reading into the database.'}), 500
+    with app.app_context():
+        try:
+
+                reading = Readings(
+                    speed=json_data['speed'],
+                    pressure=json_data['pressure'],
+                    auto=json_data['auto'],
+                    setpoint=json_data['setpoint'],
+                    co2=json_data['co2'],
+                    ah=json_data['ah'],
+                    rh=json_data['rh'],
+                    temp=json_data['temp'],
+                    timestamp=datetime.now()
+                )
+                db.session.add(reading)
+                db.session.commit()
+                lastStatus = json_data['error']
+                return
+        except Exception as errorMsg:
+            logHandler.log(f'push_reading(): {str(errorMsg)}')
+            return jsonify({'error': 'Failed to push the reading into the database.'}), 500
 
 
 def push_log(app, json_data):
@@ -175,18 +176,20 @@ def push_log(app, json_data):
     Raises:
         - 500: If an error occurs while pushing the log message into the database.
     """
-    try:
-        with app.app_context():
-            log = LogMessage(
-                logcode=json_data['logcode'],
-                timestamp=datetime.now()
-            )
-            db.session.add(log)
-            db.session.commit()
-            return
-    except Exception as errorMsg:
-        logHandler.log(f'push_log(): {str(errorMsg)}')
-        return jsonify({'error': 'Failed to push the log message into the database.'}), 500
+
+    with app.app_context():
+        try:
+
+                log = LogMessage(
+                    logcode=json_data['logcode'],
+                    timestamp=datetime.now()
+                )
+                db.session.add(log)
+                db.session.commit()
+                return
+        except Exception as errorMsg:
+            logHandler.log(f'push_log(): {str(errorMsg)}')
+            return jsonify({'error': 'Failed to push the log message into the database.'}), 500
 
 
 def get_logs_since_timestamp(app, timestamp):
@@ -207,18 +210,20 @@ def get_logs_since_timestamp(app, timestamp):
     Raises:
         - 500: If an error occurs while retrieving logs from the database.
     """
-    try:
-        with app.app_context():
-            logs = LogMessage.query.filter(LogMessage.timestamp >= timestamp).order_by(LogMessage.index.desc()).all()
-            json = jsonify([{
-                'index': log.index,
-                'message': log.message,
-                'timestamp': log.timestamp
-            } for log in logs])
-            return json, 200
-    except Exception as errorMsg:
-        logHandler.log(f'get_logs_since_timestamp(): {str(errorMsg)}')
-        return jsonify({'error': 'Failed to retrieve logs from the database.'}), 500
+
+    with app.app_context():
+        try:
+
+                logs = LogMessage.query.filter(LogMessage.timestamp >= timestamp).order_by(LogMessage.index.desc()).all()
+                json = jsonify([{
+                    'index': log.index,
+                    'message': log.message,
+                    'timestamp': log.timestamp
+                } for log in logs])
+                return json, 200
+        except Exception as errorMsg:
+            logHandler.log(f'get_logs_since_timestamp(): {str(errorMsg)}')
+            return jsonify({'error': 'Failed to retrieve logs from the database.'}), 500
 
 
 def get_all_logs(app):
@@ -238,18 +243,20 @@ def get_all_logs(app):
     Raises:
         - 500: If an error occurs while retrieving logs from the database.
     """
-    try:
-        with app.app_context():
-            logs = LogMessage.query.order_by(LogMessage.index.desc()).all()
-            json = jsonify([{
-                'index': log.index,
-                'message': log.message,
-                'timestamp': log.timestamp
-            } for log in logs])
-            return json, 200
-    except Exception as errorMsg:
-        logHandler.log(f'get_all_logs(): {str(errorMsg)}')
-        return jsonify({'error': 'Failed to retrieve logs from the database.'}), 500
+
+    with app.app_context():
+        try:
+
+                logs = LogMessage.query.order_by(LogMessage.index.desc()).all()
+                json = jsonify([{
+                    'index': log.index,
+                    'message': log.message,
+                    'timestamp': log.timestamp
+                } for log in logs])
+                return json, 200
+        except Exception as errorMsg:
+            logHandler.log(f'get_all_logs(): {str(errorMsg)}')
+            return jsonify({'error': 'Failed to retrieve logs from the database.'}), 500
 
 
 #TODO: finish this shit
@@ -264,18 +271,18 @@ def get_startup_values(app, ventrilator):
     Returns:
         - Nothing
     """
+    with app.app_context():
+        try:
 
-    try:
-        with app.app_context():
-            readings = Readings.query.order_by(Readings.index.desc()).first()
-            logHandler.log(f'get_startup_values(): setting vent obj to auto: {readings.auto}, valueTarget: {readings.setpoint}')
-            ventrilator.setMode(readings.auto, readings.setpoint)
-            logHandler.log(f'get_startup_values(): ventrilator obj auto: {ventrilator.auto}, valueTarget: {ventrilator.valueTarget}')
-            return
-    
-    except Exception as errorMsg:
-        logHandler.log(f'get_startup_values(): {str(errorMsg)}')
-        return jsonify({'error': 'Failed to retrieve startup values from the database.'}), 500
+                readings = Readings.query.order_by(Readings.index.desc()).first()
+                logHandler.log(f'get_startup_values(): setting vent obj to auto: {readings.auto}, valueTarget: {readings.setpoint}')
+                ventrilator.setMode(readings.auto, readings.setpoint)
+                logHandler.log(f'get_startup_values(): ventrilator obj auto: {ventrilator.auto}, valueTarget: {ventrilator.valueTarget}')
+                return
+        
+        except Exception as errorMsg:
+            logHandler.log(f'get_startup_values(): {str(errorMsg)}')
+            return jsonify({'error': 'Failed to retrieve startup values from the database.'}), 500
     
 
 def get_latest_reading(app):
@@ -300,24 +307,24 @@ def get_latest_reading(app):
     Raises:
         - 500: If an error occurs while pushing the reading into the database.
     """
+    with app.app_context():
+        try:
 
-    try:
-        with app.app_context():
-            readings = Readings.query.order_by(Readings.index.desc()).first()
-            json = jsonify({
-                'index': readings.index,
-                'speed': readings.speed,
-                'auto': int(readings.auto),
-                'setpoint': readings.setpoint,
-                'pressure': readings.pressure,
-                'co2': readings.co2,
-                'ah': readings.ah,
-                'rh': readings.rh,
-                'temp': readings.temp,
-                'timestamp': readings.timestamp,
-                'error': lastStatus
-            })
-            return json, 200
-    except Exception as errorMsg:
-        logHandler.log(f'get_all_readings(): {str(errorMsg)}')
-        return jsonify({'error': 'Failed to retrieve readings from the database.'}), 500
+                readings = Readings.query.order_by(Readings.index.desc()).first()
+                json = jsonify({
+                    'index': readings.index,
+                    'speed': readings.speed,
+                    'auto': int(readings.auto),
+                    'setpoint': readings.setpoint,
+                    'pressure': readings.pressure,
+                    'co2': readings.co2,
+                    'ah': readings.ah,
+                    'rh': readings.rh,
+                    'temp': readings.temp,
+                    'timestamp': readings.timestamp,
+                    'error': lastStatus
+                })
+                return json, 200
+        except Exception as errorMsg:
+            logHandler.log(f'get_all_readings(): {str(errorMsg)}')
+            return jsonify({'error': 'Failed to retrieve readings from the database.'}), 500
