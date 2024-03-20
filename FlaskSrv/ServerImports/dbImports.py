@@ -63,7 +63,7 @@ def get_all_readings(app):
                 'pressure': reading.pressure,
                 'co2': reading.co2,
                 'ah': reading.ah,
-                'error': reading.error,
+                'error': int(reading.error),
                 'rh': reading.rh,
                 'temp': reading.temp,
                 'timestamp': reading.timestamp
@@ -108,7 +108,7 @@ def get_readings_since_timestamp(app, timestamp):
                 'pressure': reading.pressure,
                 'co2': reading.co2,
                 'ah': reading.ah,
-                'error': reading.error,
+                'error': int(reading.error),
                 'rh': reading.rh,
                 'temp': reading.temp,
                 'timestamp': reading.timestamp
@@ -171,7 +171,7 @@ def push_log(app, json_data):
         - app: The Flask app object.
         - json_data: A JSON object containing the log message data.
             The JSON object should have the following keys.
-            - logcode: Containing the log message.
+            - log: Containing the log message.
     
     Returns:
         - nothing: If the log message was successfully pushed into the database.
@@ -182,14 +182,15 @@ def push_log(app, json_data):
 
     with app.app_context():
         try:
-
-                log = LogMessage(
-                    logcode=json_data['logcode'],
-                    timestamp=datetime.now()
-                )
-                db.session.add(log)
-                db.session.commit()
-                return
+            logHandler.log(f'push_log(): asd')
+            log = LogMessage(
+                message=json_data['log'],
+                timestamp=datetime.now()
+            )
+            logHandler.log(f'push_log(): {log.message}')
+            db.session.add(log)
+            db.session.commit()
+            return
         except Exception as errorMsg:
             logHandler.log(f'push_log(): {str(errorMsg)}')
             return jsonify({'error': 'Failed to push the log message into the database.'}), 500
@@ -240,7 +241,7 @@ def get_all_logs(app):
         - JSON: A JSON object containing all logs from the database.
             Each log is represented as a dictionary with the following keys.
             - index: The index of the log in the database.
-            - logcode: The log message.
+            - log: The log message.
             - timestamp: The timestamp of the log.
     
     Raises:
@@ -321,11 +322,10 @@ def get_latest_reading(app):
                 'pressure': readings.pressure,
                 'co2': readings.co2,
                 'ah': readings.ah,
-                'error': readings.error,
                 'rh': readings.rh,
                 'temp': readings.temp,
                 'timestamp': readings.timestamp,
-                'error': lastStatus
+                'error': int(readings.error)
             })
             return json, 200
         except Exception as errorMsg:

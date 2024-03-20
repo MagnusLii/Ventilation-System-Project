@@ -67,21 +67,16 @@ void LogHandler::incrementUnusedLogIndex(const LogType logType) {
         }
     }
     else if (logType == LOGTYPE_COMM_CONFIG){
-        this->unusedCommConfigAddr = CREDENTIALS_USE_ADDR;
-        this->currentCommConfigAddr = CREDENTIALS_START_ADDR;
-        
-        /*
         eeprom_write_byte(this->currentCommConfigAddr, 0);
         this->currentCommConfigAddr = unusedCommConfigAddr;
         this->unusedCommConfigAddr += CREDENTIALS_STORAGE_BLOCK;
         if (this->unusedCommConfigAddr >= CREDENTIALS_END_ADDR){
             this->unusedCommConfigAddr = CREDENTIALS_START_ADDR;
         }
-        */
     }
 }
 
-void LogHandler::pushLog(LogMessage messageCode){
+void LogHandler::pushLog(LogMessage messageCode, bool wifistatus){
     uint8_t logArray[LOG_LEN];
     int logLen = LOG_LEN;
     uint32_t timestamp = getTimestampSinceBoot(this->bootTimestamp);
@@ -89,15 +84,15 @@ void LogHandler::pushLog(LogMessage messageCode){
     LogHandler::enterLogToEeprom(logArray, &logLen, this->unusedLogAddr);
     LogHandler::incrementUnusedLogIndex(LOGTYPE_MSG_LOG);
 
-    // string editing.
+    if (this->commHandler == nullptr){
+        return;
+    }
     std::string log = logMessages[messageCode];
-    std::string message = "\"{\"log\":\"" + log + "\"}\"";
-    DPRINT(message);
-    
+    std::string message = "{\"log\":\"" + log + "\"}";
     this->commHandler->publish(TopicType::LOG_SEND, message.c_str());
 }
 
-void LogHandler::pushRebootLog(RebootStatusCodes statusCode){
+void LogHandler::pushRebootLog(RebootStatusCodes statusCode, bool wifistatus){
     uint8_t logArray[LOG_LEN];
     int logLen = LOG_LEN;
     uint32_t timestamp = getTimestampSinceBoot(this->bootTimestamp);
@@ -105,12 +100,14 @@ void LogHandler::pushRebootLog(RebootStatusCodes statusCode){
     LogHandler::enterLogToEeprom(logArray, &logLen, this->unusedRebootStatusAddr);
     LogHandler::incrementUnusedLogIndex(LOGTYPE_REBOOT_STATUS);
     
-    // string editing.
+    if (this->commHandler == nullptr){
+        return;
+    }
     std::string log = rebootStatusMessages[statusCode];
-    std::string message = "\"{\"devStatus\":\"" + log + "\"}\"";
+    std::string message = "{\"devStatus\":\"" + log + "\"}";
     DPRINT(message);
-    
     this->commHandler->publish(TopicType::STATUS_SEND, message.c_str());
+
 }
 
 void LogHandler::clearAllLogs(const LogType logType){
@@ -173,7 +170,6 @@ void LogHandler::findFirstAvailableLog(const LogType logType){
         this->unusedCommConfigAddr = CREDENTIALS_USE_ADDR;
         this->currentCommConfigAddr = CREDENTIALS_START_ADDR;
 
-    /*
         logAddr = CREDENTIALS_START_ADDR;
         for (int i = 0; i < CREDENTIALS_NUM; i++){
             std::cout << "logAddr test: " << logAddr << std::endl;
@@ -195,7 +191,6 @@ void LogHandler::findFirstAvailableLog(const LogType logType){
         std::cout << "Unused Comm Config Addr2: " << this->unusedCommConfigAddr << std::endl;
         std::cout << "Current Comm Config Addr2: " << this->currentCommConfigAddr << std::endl;
         break;
-    */
     }
     return;
 }

@@ -67,8 +67,8 @@ class LogHandler {
         
         void printPrivates();
         void incrementUnusedLogIndex(const LogType logType);
-        void pushLog(LogMessage messageCode);
-        void pushRebootLog(RebootStatusCodes statusCode);
+        void pushLog(LogMessage messageCode, bool wifistatus);
+        void pushRebootLog(RebootStatusCodes statusCode, bool wifistatus);
         void clearAllLogs(const LogType logType);
         void findFirstAvailableLog(const LogType logType);
         void enterLogToEeprom(uint8_t *base8Array, int *arrayLen, const int logAddr);

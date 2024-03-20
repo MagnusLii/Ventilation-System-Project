@@ -182,15 +182,16 @@ def startup_procedures():
 
     return
 
-# Initialize imported app extensions.
-dbImports.db.init_app(app)
-mqttImports.mqtt.init_app(app)
+if __name__ == '__main__':
+    # Initialize imported app extensions.
+    dbImports.db.init_app(app)
+    mqttImports.mqtt.init_app(app)
 
-# Create a thread for startup procedures.
-startup_thread = threading.Thread(target=startup_procedures)
+    # Create a thread for startup procedures.
+    startup_thread = threading.Thread(target=startup_procedures)
 
-# Start the thread.
-startup_thread.start()
+    # Start the thread.
+    startup_thread.start()
 
-# Run the Flask application.
-app.run(host='0.0.0.0', port=5000, use_reloader=False)
+    # Run the Flask application.
+    app.run(host='0.0.0.0', port=5000, use_reloader=False)

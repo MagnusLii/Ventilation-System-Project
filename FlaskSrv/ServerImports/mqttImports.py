@@ -4,16 +4,16 @@ from ServerImports import logHandler
 
 mqttBrokerPort = 1883 # 1883 is default
 mqttKeepAliveSec = 10
-mqttBrokerIP = '192.168.100.13'  # Replace with broker IP if not running locally.
+mqttBrokerIP = 'localhost'  # Replace with broker IP if not running locally.
 mqttQoSLevel = 1 # TODO: verify what level the rest of the system uses and update if needed
 
 mqtt = Mqtt()
 
 # Topics
 statusTopic = "vent/controller/status"
-data = "data"
+logTopic = "loghandler/logMessages"
 
-initialSubscribeTopics = [statusTopic, data] 
+initialSubscribeTopics = [statusTopic, logTopic] 
 
 def decodeStringToJSON(json_string):
     """

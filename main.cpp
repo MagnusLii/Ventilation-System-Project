@@ -42,10 +42,10 @@
 #define SEND_DELAY 5000
 #define ADJUST_DELAY 5000
 
-#define DEFAULT_HOSTNAME "192.168.100.13"
+#define DEFAULT_HOSTNAME "192.168.55.236"
 #define DEFAULT_PORT 1883
-#define DEFAULT_SSID "Elisa_Mobi_6863"
-#define DEFAULT_PW ""
+#define DEFAULT_SSID "Mgzz-57"
+#define DEFAULT_PW "557949122aA"
 
 #define EEPROM_BAUD_RATE 1000000
 #define EEPROM_WRITE_CYCLE_MAX_MS 5
@@ -54,6 +54,7 @@
 
 int main()
 {
+    bool use_wifi = false;
     stdio_init_all();
 
     // init buttons and rotary encoder
@@ -72,19 +73,7 @@ int main()
     ssd1306 display(i2c1);
 
     eeprom_init_i2c(i2c0, EEPROM_BAUD_RATE, EEPROM_WRITE_CYCLE_MAX_MS);
-    LogHandler logHandler;
 
-    // logHandler.pushLog(BOOT);
-
-    // CHANGE THESE
-    char ssid[64] = DEFAULT_SSID;
-    char pw[64] = DEFAULT_PW;
-    char hostname[64] = DEFAULT_HOSTNAME;
-    int port = DEFAULT_PORT;
-    bool use_wifi = true;
-    //int verArray[4] = {0, 0, 0, 0};
-
-    //logHandler.fetchCredentials(ssid, pw, hostname, &port,  verArray);
 
     int event_result;
     int rotvalue = 0;
@@ -92,7 +81,23 @@ int main()
     std::shared_ptr<IPStack> ipstackptr;
     std::shared_ptr<CommHandler> commHandlerptr;
     std::shared_ptr<MQTT::Client<IPStack, Countdown>> clientptr;
+
     bool netword_done = false;
+
+    LogHandler logHandler;
+
+    // logHandler.pushLog(BOOT);
+
+    // CHANGE THESE
+    char ssid[64] = {0};
+    char pw[64] = {0};
+    char hostname[64] = {0};
+    int port = 0;
+    use_wifi = true;
+    int verArray[4] = {0, 0, 0, 0};
+
+    logHandler.fetchCredentials(ssid, pw, hostname, &port,  verArray);
+
     queue_init(&events, sizeof(int), 50);
     while (!netword_done)
     {
@@ -200,6 +205,7 @@ int main()
             comm_handler.connect_to_server(hostname, port);
             comm_handler.connect_to_broker();
             comm_handler.subscribe(CONTROL_TOPIC);
+            logHandler.setCommHandler(commHandlerptr);
             if (!comm_handler.verify_connection())
             {
                 netword_done = false;
@@ -237,6 +243,8 @@ int main()
                  co.get_float(), rh.get_float(), absh.get_float());
         display.show();
         set_manual(mode);
+
+        logHandler.pushLog(TEST, use_wifi);
 
         if (get_manual())
         {
