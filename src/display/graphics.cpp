@@ -102,7 +102,7 @@ int textInput(ssd1306 &display, int button, int current_position, int stage) {
             default:
                 break;
         }
-        return sizeof(current_Array);
+
     }
     display.fill(0);
     display.text(text, 0, 0, 1);
@@ -127,7 +127,7 @@ int textInput(ssd1306 &display, int button, int current_position, int stage) {
     }
     display.text(c, 114, 42, 1);
 
-
+    return arr_length;
 }
 
 int display_mode = 1;
