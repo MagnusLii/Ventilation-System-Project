@@ -15,6 +15,7 @@ CREATE TABLE readings (
   ah INT,
   rh INT,
   temp INT,
+  error BOOLEAN,
   timestamp DATETIME
 );
 
