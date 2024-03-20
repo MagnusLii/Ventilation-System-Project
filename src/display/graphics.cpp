@@ -43,7 +43,7 @@ void returnInput(char *str) {
     memset(input_string, '\0', sizeof(input_string));
 }
 
-void textInput(ssd1306 &display, int button, int current_position, int stage) {
+int textInput(ssd1306 &display, int button, int current_position, int stage) {
     std::string text;
     switch (stage) {
     case 1:
@@ -102,6 +102,7 @@ void textInput(ssd1306 &display, int button, int current_position, int stage) {
             default:
                 break;
         }
+        return sizeof(current_Array);
     }
     display.fill(0);
     display.text(text, 0, 0, 1);

@@ -95,6 +95,7 @@ int main()
     int port = 0;
     use_wifi = true;
     int verArray[4] = {0, 0, 0, 0};
+    int arr_len = 0;
 
     logHandler.fetchCredentials(ssid, pw, hostname, &port,  verArray);
 
@@ -114,7 +115,7 @@ int main()
             }
             else if (stage >= 1)
             {
-                textInput(display, button_pressed, rotvalue, stage);
+                arr_len = textInput(display, button_pressed, rotvalue, stage);
                 display.show();
 
                 if (button_pressed == 7)
@@ -188,6 +189,11 @@ int main()
                 if (stage == 0) {
                     if (rotvalue < 1) rotvalue = 3;
                     else if (rotvalue > 3) rotvalue = 1;
+                }
+
+                if (stage >= 1) {
+                    if (rotvalue < 0) rotvalue = arr_len;
+                    if (rotvalue > arr_len) rotvalue = 0;
                 }
             }
         }
