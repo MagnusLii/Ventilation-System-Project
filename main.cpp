@@ -220,7 +220,7 @@ int main()
                 logHandler.storeCredentials(ssid, pw, hostname, port);
             }
         }
-        // TODO log successful jotain
+        logHandler.pushLog(NETWORK_FAIL, false);
     }
 
     ReadRegister rh(mbctrl, 241, 0, 2);
@@ -240,7 +240,7 @@ int main()
     int fan_speed_val = 0;
     int pressure_val = 0;
 
-    logHandler.pushLog(TEST, use_wifi);
+    logHandler.pushLog(BOOT, use_wifi);
     
     while (1)
     {
