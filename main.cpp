@@ -240,6 +240,8 @@ int main()
     int fan_speed_val = 0;
     int pressure_val = 0;
 
+    logHandler.pushLog(TEST, use_wifi);
+    
     while (1)
     {
         // STATUS MENU
@@ -250,7 +252,7 @@ int main()
         display.show();
         set_manual(mode);
 
-        logHandler.pushLog(TEST, use_wifi);
+
 
         if (get_manual())
         {
